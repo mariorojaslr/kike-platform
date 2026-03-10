@@ -1,0 +1,99 @@
+/**
+ * PROYECTO KIKE - SISTEMA MULTIEMPRESA RESPONSIVE
+ * Reemplazo Total: Variables Dinámicas + Modo Nocturno + Dashboard Adaptable
+ * --------------------------------------------------------------------------
+ */
+
+// 1. VARIABLES DE CONFIGURACIÓN (Root)
+// Usamos variables de CSS nativas para que Laravel pueda cambiarlas desde la DB después.
+:root {
+    --color-primario: #3b82f6;    // Azul (Kike Default)
+    --color-acento: #f59e0b;      // Naranja (Escuelas)
+    --color-fondo: #f1f5f9;       // Gris suave de fondo
+    --color-texto: #1e293b;       // Texto oscuro
+    --color-card-bg: #ffffff;     // Fondo de tarjetas blanco
+    --color-header: #3b82f6;      // Header azul
+}
+
+// 2. MODO NOCTURNO (Configuración de colores invertidos)
+// Cuando agregues la clase 'dark' al <body>, todo el sistema cambiará solo.
+body.dark {
+    --color-fondo: #0f172a;       // Fondo muy oscuro
+    --color-texto: #f8fafc;       // Texto casi blanco
+    --color-card-bg: #1e293b;     // Tarjetas gris oscuro
+    --color-header: #020617;      // Header negro profundo
+}
+
+// 3. IMPORTACIÓN DE BOOTSTRAP 5
+@import "bootstrap/scss/bootstrap";
+
+// 4. ESTILOS BASE Y RESPONSIVE
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    font-family: 'Poppins', sans-serif; // Para esa visual moderna que buscas
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// 5. COMPONENTES DEL DASHBOARD (Optimizado para móviles)
+.header-main {
+    background: var(--color-header);
+    color: white;
+    padding: 15px 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+    @media (max-width: 768px) {
+        padding: 10px 15px; // Menos espacio en celulares
+        text-align: center;
+    }
+}
+
+// Tarjetas del Dashboard (Titulares, Escuelas, Docentes)
+.card-stats {
+    background-color: var(--color-card-bg);
+    border-radius: 20px;
+    border: none;
+    padding: 20px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    height: 100%; // Para que todas midan lo mismo en la fila
+
+    &:hover {
+        transform: translateY(-5px);
+    }
+
+    // Colores específicos para las tarjetas que marcaste
+    &.escuelas { background-color: var(--color-acento); color: white; }
+    &.docentes { background-color: #1d4ed8; color: white; } // Azul más fuerte
+}
+
+// 6. BOTONES PERSONALIZABLES
+.btn-custom-nuevo {
+    background-color: var(--color-acento);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: filter 0.3s ease;
+
+    &:hover {
+        filter: brightness(90%); // Se oscurece un poco sin cambiar el código de color
+        color: white;
+    }
+}
+
+// 7. TABLAS Y BUSCADORES (Visual "Hermosa")
+.main-box {
+    background: var(--color-card-bg);
+    border-radius: 20px;
+    padding: 25px;
+    margin-top: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.nav-link.active {
+    color: var(--color-texto) !important;
+    border-bottom: 3px solid var(--color-acento) !important;
+    font-weight: bold;
+}

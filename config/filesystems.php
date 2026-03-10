@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        // Configuración lista para conectar con Bunny.net (Storage / Stream) usando su S3 API o Driver Específico
+        'bunny' => [
+            'driver' => 's3',
+            'key' => env('BUNNY_ACCESS_KEY'),
+            'secret' => env('BUNNY_SECRET_KEY'),
+            'region' => env('BUNNY_REGION', 'us-east-1'),
+            'bucket' => env('BUNNY_BUCKET'),
+            'endpoint' => env('BUNNY_ENDPOINT', 'https://sg.storage.bunnycdn.com'),
+            'url' => env('BUNNY_URL'), // CDN URL
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
+
     ],
 
     /*
