@@ -30,11 +30,32 @@ class PwaDocenteController extends Controller
             (object)['id' => 3, 'nombre' => 'Lucas Benítez', 'curso' => 'Psicología Infantil', 'estado' => 'sin_informar'],
         ];
 
+        // LECTURA DE REQUISITOS (Simulando Empresa 1 y Docente Demo 1)
+        $empresaIdDemo = 1;
+        $docenteIdDemo = 1;
+        
+        $tiposDocumentos = \App\Models\TipoDocumento::where('empresa_id', $empresaIdDemo)
+            ->where('entidad_tipo', 'docente')
+            ->get();
+            
+        // Le adjuntamos la subida actual
+        foreach ($tiposDocumentos as $tipo) {
+            $subido = \App\Models\DocumentoSubido::where('tipo_documento_id', $tipo->id)
+                ->where('entidad_id', $docenteIdDemo)
+                ->where('entidad_tipo', 'docente')
+                ->latest()
+                ->first();
+                
+            $tipo->estado_subida = $subido ? $subido->estado : 'sin_entregar';
+            $tipo->comentarios = $subido ? $subido->comentarios_auditor : null;
+        }
+
         return view('pwa.docente.dashboard', compact(
             'docenteNombre', 
             'montoCobrado', 
             'montoPretendido', 
-            'alumnosDemo'
+            'alumnosDemo',
+            'tiposDocumentos'
         ));
     }
 
@@ -44,7 +65,7 @@ class PwaDocenteController extends Controller
     public function uploadDocument(Request $request)
     {
         $request->validate([
-            'documento' => 'required|file|max:10240', // Max 10MB
+            'documento' => 'required|file|max:15240', // Max 15MB
             'tipo_documento' => 'required|string',
             'alumno_nombre' => 'nullable|string'
         ]);
@@ -52,19 +73,28 @@ class PwaDocenteController extends Controller
         try {
             $file = $request->file('documento');
             
-            // Si tuviéramos BUNNY NET aquí usaríamos 'bunny', pero 
-            // como la instrucción fue usar bunny.net cuando corresponda, 
-            // el config filesystems.php tiene "bunny". 
-            // No obstante, si no está configurado al 100% en el .env con sus keys reales, 
-            // fallará en producción. Así que lo guardaremos en un disco específico preparado.
-            // Para la maqueta, forzaremos public.
-            
+            // Forzamos "public" o "bunny" de acuerdo a la configuracion.
             $path = $file->store('documentos_docentes', 'public');
 
-            // Retornamos JSON porque quien llama es la PWA vía fetch()
+            // --- Búsqueda del Tipo Documento Real ---
+            // Como esto es demo, buscaremos el primero que coincida por nombre. En prod, pásalo por ID real.
+            $tipoDoc = \App\Models\TipoDocumento::where('nombre', $request->tipo_documento)->first();
+
+            if ($tipoDoc) {
+                \App\Models\DocumentoSubido::create([
+                    'empresa_id' => 1, // Demo ID
+                    'tipo_documento_id' => $tipoDoc->id,
+                    'entidad_tipo' => 'docente',
+                    'entidad_id' => 1, // Docente de prueba ID
+                    'ruta_archivo' => $path,
+                    'estado' => 'pendiente',
+                    'fecha_vencimiento' => $tipoDoc->vencimiento_dias ? \Carbon\Carbon::now()->addDays($tipoDoc->vencimiento_dias) : null
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'El archivo se ha subido correctamente a los servidores de Kike.',
+                'message' => 'El archivo se ha subido correctamente y está pendiente de Auditoría.',
                 'path' => $path
             ]);
 

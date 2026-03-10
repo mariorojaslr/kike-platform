@@ -220,7 +220,10 @@
             <a href="{{ route('tenant.formaciones.index') }}" class="nav-link {{ request()->routeIs('tenant.formaciones.*') ? 'active' : '' }}"><i class="fas fa-graduation-cap"></i> Especialidades (Roles)</a>
             <a href="{{ route('tenant.diagnosticos.index') }}" class="nav-link {{ request()->routeIs('tenant.diagnosticos.*') ? 'active' : '' }}"><i class="fas fa-notes-medical"></i> Catálogo de Patologías</a>
             <a href="{{ route('tenant.escuelas.index') }}" class="nav-link {{ request()->routeIs('tenant.escuelas.*') ? 'active' : '' }}"><i class="fas fa-school"></i> Escuelas Vinculadas</a>
-            <a href="#" class="nav-link"><i class="fas fa-file-invoice"></i> Auditoría (Vértigo)</a>
+            
+            <a href="{{ route('tenant.tipo_documentos.index') }}" class="nav-link mt-3 {{ request()->routeIs('tenant.tipo_documentos.*') ? 'active' : '' }}"><i class="fas fa-file-contract"></i> <b>Reglas Documentales</b></a>
+            <a href="{{ route('auditor.documentos') }}" class="nav-link {{ request()->routeIs('auditor.documentos') ? 'active' : '' }}"><i class="fas fa-balance-scale"></i> Auditoría Documentos</a>
+            <a href="{{ route('auditor.facturas') }}" class="nav-link {{ request()->routeIs('auditor.facturas') ? 'active' : '' }}"><i class="fas fa-file-invoice"></i> Auditoría Facturación</a>
             
             @if(request()->routeIs('tenant.dashboard'))
                 <a href="#" class="nav-link mt-4" style="color: var(--brand-primary);" data-bs-toggle="modal" data-bs-target="#setupModal"><i class="fas fa-paint-roller"></i> Personalizar Marca</a>

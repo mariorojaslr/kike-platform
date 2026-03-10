@@ -110,6 +110,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\Tenant\FormacionController::class, 'destroy'])->name('destroy');
     });
 
+    Route::group(['prefix' => 'tenant/config/tipo-documentos', 'as' => 'tenant.tipo_documentos.'], function () {
+        Route::get('/', [\App\Http\Controllers\Tenant\TipoDocumentoController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Tenant\TipoDocumentoController::class, 'store'])->name('store');
+        Route::put('/{id}', [\App\Http\Controllers\Tenant\TipoDocumentoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Tenant\TipoDocumentoController::class, 'destroy'])->name('destroy');
+    });
+
     // --- MÓDULO: GOD MODE (IMPERSONATION) ---
     Route::get('/impersonate/{user}', [\App\Http\Controllers\ImpersonateController::class, 'enter'])->name('impersonate.enter');
     Route::get('/impersonate-leave', [\App\Http\Controllers\ImpersonateController::class, 'leave'])->name('impersonate.leave');
@@ -118,9 +125,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/mobile/terapias', [\App\Http\Controllers\Mobile\TerapeutaController::class, 'index'])->name('mobile.terapeuta.dashboard');
     Route::post('/mobile/facturas', [\App\Http\Controllers\Mobile\TerapeutaController::class, 'storeFactura'])->name('mobile.facturas.store');
 
-    // --- MÓDULO: AUDITORÍA DE FACTURAS ---
+    // --- MÓDULO: AUDITORÍA DE FACTURAS Y DOCUMENTOS ---
     Route::get('/auditoria/facturas', [\App\Http\Controllers\AuditorController::class, 'index'])->name('auditor.facturas');
     Route::post('/auditoria/facturas/{factura}/status', [\App\Http\Controllers\AuditorController::class, 'updateStatus'])->name('auditor.facturas.status');
+    Route::get('/auditoria/documentos', [\App\Http\Controllers\AuditorController::class, 'documentos'])->name('auditor.documentos');
+    Route::post('/auditoria/documentos/{id}/status', [\App\Http\Controllers\AuditorController::class, 'updateDocumentoStatus'])->name('auditor.documentos.status');
 
     // --- GESTIÓN DE PERFIL ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

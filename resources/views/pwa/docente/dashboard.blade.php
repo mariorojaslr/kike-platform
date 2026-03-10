@@ -474,6 +474,17 @@
             </div>
         </div>
 
+        <!-- SECTOR: MIS REQUISITOS (DOCUMENTACIÓN) -->
+        <div class="accion-rapida" style="background: linear-gradient(135deg, #f59e0b, #d97706); margin-top: 15px;" onclick="abrirModalRequisitos()">
+            <div class="accion-rapida-info">
+                <h3>Mis Requisitos <span class="badge bg-danger rounded-pill ms-2" style="font-size:0.7rem;">{{ count($tiposPendientes) }} Pendientes</span></h3>
+                <p>Sube tu documentación obligatoria (Ej: Seguro Méd., DNI)</p>
+            </div>
+            <div class="accion-rapida-icon">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+        </div>
+
     </div>
 
     <!-- NAVEGACIÓN INFERIOR (TAB NAV) -->
@@ -630,11 +641,67 @@
         </div>
     </div>
 
+    <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (MIS REQUISITOS) -->
+    <div class="bottom-sheet" id="sheetRequisitos" style="height: 85vh; overflow-y: auto;">
+        <div class="sheet-pill"></div>
+        <div class="sheet-header">
+            <h3>Documentación Docente</h3>
+            <button class="sheet-close" onclick="cerrarModalRequisitos()"><i class="fas fa-times-circle"></i></button>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+            Tu perfil requiere adjuntar la siguiente documentación (exigido por Auditoría)
+        </p>
+
+        <!-- Lista Integrada de Requisitos -->
+        <div id="listaMisRequisitosContenedor">
+            @forelse($tiposDocumentos as $req)
+                <div class="alumno-card" style="align-items: center;" @if(in_array($req->estado_subida, ['sin_entregar', 'rechazado', 'observado'])) onclick="abrirCamaraUpload('{{ $req->nombre }}', 'cameraPicker')" @endif>
+                    <div class="alumno-info" style="color: {{ in_array($req->estado_subida, ['sin_entregar', 'rechazado']) ? '#facc15' : '#a1a1aa' }}">
+                        <h4 style="font-size: 1rem; color:inherit;">
+                            {{ $req->nombre }} 
+                            {!! $req->es_obligatorio ? '<span class="text-danger" style="font-size:0.7rem;">(Obligatorio)</span>' : '' !!}
+                        </h4>
+                        <p style="font-size: 0.75rem;"><i class="fas fa-clock me-1 mb-2 text-warning"></i> @if($req->vencimiento_dias) Vence cada {{ $req->vencimiento_dias }} días @else Única Vez @endif</p>
+                        
+                        @if($req->estado_subida == 'observado' || $req->estado_subida == 'rechazado')
+                            <p style="font-size: 0.75rem; color: #ef4444; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> {{ $req->comentarios ?? 'Documento rechazado o requiere cambios.' }}</p>
+                        @elseif($req->estado_subida == 'pendiente')
+                            <p style="font-size: 0.75rem; color: #3b82f6;"><i class="fas fa-search"></i> En Revisión por Auditor</p>
+                        @elseif($req->estado_subida == 'aprobado')
+                            <p style="font-size: 0.75rem; color: #10b981;"><i class="fas fa-check-double"></i> Aprobado Vigente</p>
+                        @else
+                            <p style="font-size: 0.75rem; color: #a1a1aa;">{{ $req->descripcion }}</p>
+                        @endif
+                    </div>
+                    
+                    <div class="text-center">
+                        @if(in_array($req->estado_subida, ['sin_entregar', 'rechazado', 'observado']))
+                            <div class="estado sin_informar text-center" style="width: 40px; height: 40px; font-size: 1rem;">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        @else
+                            <div class="estado {{ $req->estado_subida == 'aprobado' ? 'aprobado' : 'pendiente' }}" style="width: 40px; height: 40px; font-size: 1rem;">
+                                <i class="fas {{ $req->estado_subida == 'aprobado' ? 'fa-check' : 'fa-hourglass-half' }}"></i>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div style="text-align: center; color: var(--gris-texto); margin-top: 30px;">
+                    <i class="fas fa-check-circle mb-2 text-success" style="font-size: 2rem;"></i>
+                    <p>No tienes requisitos pendientes por entregar.</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
     <!-- SCRIPT DE LÓGICA DE VOZ, SÍNTESIS Y MODALES -->
     <script>
         const overlay = document.getElementById('overlayNuevo');
         const sheet = document.getElementById('sheetNuevo');
         const sheetMis = document.getElementById('sheetMisAlumnos');
+        const sheetReq = document.getElementById('sheetRequisitos');
         const btnMic = document.getElementById('btnMicSearch');
         const inputSearch = document.getElementById('alumnoSearchInput');
 
@@ -657,13 +724,16 @@
             pasoActual = 0;
             
             // Reset de UI (quitar brishos)
-            document.getElementById('btnScanDoc').style.border = "1px solid var(--tarjeta-borde)";
-            document.getElementById('btnScanDoc').style.boxShadow = "none";
-            document.getElementById('spanScanDoc').innerText = "Escanear Documento";
+            if(document.getElementById('btnScanCamera')) {
+                document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
+                document.getElementById('btnScanCamera').style.boxShadow = "none";
+                document.getElementById('spanScanCamera').innerText = "Tomar Foto Directa";
+            }
         }
 
         function abrirModalMisAlumnos() {
             sheet.classList.remove('active');
+            if(sheetReq) sheetReq.classList.remove('active');
             overlay.classList.add('active');
             sheetMis.classList.add('active');
             
@@ -676,10 +746,24 @@
             sheetMis.classList.remove('active');
         }
 
+        function abrirModalRequisitos() {
+            sheet.classList.remove('active');
+            sheetMis.classList.remove('active');
+            overlay.classList.add('active');
+            if(sheetReq) sheetReq.classList.add('active');
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        function cerrarModalRequisitos() {
+            overlay.classList.remove('active');
+            if(sheetReq) sheetReq.classList.remove('active');
+        }
+
         // --- CERRAR MODALES CLICKANDO EN EL OVERLAY NEGRO ---
         document.getElementById('overlayNuevo').addEventListener('click', function() {
             cerrarModalNuevo();
             cerrarModalMisAlumnos();
+            cerrarModalRequisitos();
         });
 
         // --- FILTRO LIVE SEARCH (MIS ALUMNOS) ---
