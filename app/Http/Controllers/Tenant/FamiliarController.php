@@ -170,7 +170,7 @@ class FamiliarController extends Controller
                 'DNI Titular',
                 'Nº Afiliado / Obra Social',
                 'Condición / Diagnóstico'
-            ], ',');
+            ], ';');
 
             foreach ($familiares as $row) {
                 fputcsv($file, [
@@ -216,7 +216,7 @@ class FamiliarController extends Controller
                 'PARENTESCO',
                 'TIENE_PATOLOGIA_O_DIAGNOSTICO_1_SI_0_NO',
                 'CODIGO_DIAGNOSTICO_CIE10'
-            ], ',');
+            ], ';');
             fclose($file);
         };
 
@@ -261,15 +261,37 @@ class FamiliarController extends Controller
                     }
                 }
 
-                Familiar::create([
-                    'empresa_id' => $this->getEmpresaId(),
-                    'titular_id' => $titular->id,
-                    'nombre' => $nombreFam,
-                    'dni' => $dniFam,
-                    'parentesco' => $parentesco ?: 'Otro',
-                    'tiene_patologia' => $boolPatologia,
-                    'diagnostico_id' => $diagId
-                ]);
+                // Buscar si el alumno ya existe para evitar duplicados
+                $existente = null;
+                if (!empty($dniFam)) {
+                    $existente = Familiar::where('empresa_id', $this->getEmpresaId())->where('dni', $dniFam)->first();
+                } else {
+                    // Si no pasaron DNI de alumno, validamos por Nombre + ID del Titular
+                    $existente = Familiar::where('empresa_id', $this->getEmpresaId())
+                                         ->where('titular_id', $titular->id)
+                                         ->where('nombre', trim($nombreFam))
+                                         ->first();
+                }
+
+                if ($existente) {
+                    // Si el alumno ya existe, actualizamos sus datos médicos y parentesco (No duplicamos)
+                    $existente->update([
+                        'parentesco' => $parentesco ?: $existente->parentesco,
+                        'tiene_patologia' => $boolPatologia,
+                        'diagnostico_id' => $diagId
+                    ]);
+                } else {
+                    // Si no existe, lo creamos nuevo
+                    Familiar::create([
+                        'empresa_id' => $this->getEmpresaId(),
+                        'titular_id' => $titular->id,
+                        'nombre' => $nombreFam,
+                        'dni' => $dniFam,
+                        'parentesco' => $parentesco ?: 'Otro',
+                        'tiene_patologia' => $boolPatologia,
+                        'diagnostico_id' => $diagId
+                    ]);
+                }
                 $count++;
             }
             fclose($file);

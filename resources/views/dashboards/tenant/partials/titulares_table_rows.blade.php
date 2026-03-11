@@ -1,3 +1,17 @@
+@php
+    if (!function_exists('highlightText')) {
+        function highlightText($text, $search) {
+            if (!$text) return '';
+            $text = (string)$text;
+            if (!$search) return htmlspecialchars($text);
+            
+            // Clean up regex for safe search matching
+            $pattern = '/(' . preg_quote($search, '/') . ')/ui';
+            return preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', htmlspecialchars($text));
+        }
+    }
+@endphp
+
 @forelse($titulares as $titular)
     <tr>
         <td class="align-middle">
@@ -14,20 +28,20 @@
                     <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle" style="width: 12px; height: 12px; transform: translate(-10%, -10%);"></span>
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-bold" style="color: var(--text-main);">{{ $titular->nombre }}</h6>
+                    <h6 class="mb-0 fw-bold" style="color: var(--text-main);">{!! highlightText($titular->nombre, $search ?? '') !!}</h6>
                     <small class="text-muted"><i class="fas fa-user-shield fa-xs me-1"></i>Titular / Responsable</small>
                 </div>
             </div>
         </td>
         <td class="align-middle">
             <div class="d-flex flex-column gap-1">
-                <span class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.8rem; width: fit-content;"><i class="fas fa-id-card me-1 text-muted"></i> DNI: {{ number_format((int)$titular->dni, 0, ',', '.') }}</span>
-                @if($titular->cuil) <span class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.8rem; width: fit-content;"><i class="fas fa-briefcase me-1 text-muted"></i> CUIL: {{ $titular->cuil }}</span> @endif
+                <span class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.8rem; width: fit-content;"><i class="fas fa-id-card me-1 text-muted"></i> DNI: {!! highlightText($titular->dni, $search ?? '') !!}</span>
+                @if($titular->cuil) <span class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.8rem; width: fit-content;"><i class="fas fa-briefcase me-1 text-muted"></i> CUIL: {!! highlightText($titular->cuil, $search ?? '') !!}</span> @endif
             </div>
         </td>
         <td class="align-middle text-muted" style="font-size: 0.85rem;">
-            @if($titular->n_afiliado) <div class="mb-1"><strong class="text-dark"><i class="fas fa-hashtag text-primary"></i> Afil:</strong> <span class="badge bg-primary rounded-pill">{{ $titular->n_afiliado }}</span></div> @endif
-            @if($titular->resolucion) <div><strong class="text-dark"><i class="fas fa-file-signature text-warning"></i> Res:</strong> {{ $titular->resolucion }}</div> @endif
+            @if($titular->n_afiliado) <div class="mb-1"><strong class="text-dark"><i class="fas fa-hashtag text-primary"></i> Afil:</strong> <span class="badge bg-primary rounded-pill">{!! highlightText($titular->n_afiliado, $search ?? '') !!}</span></div> @endif
+            @if($titular->resolucion) <div><strong class="text-dark"><i class="fas fa-file-signature text-warning"></i> Res:</strong> {!! highlightText($titular->resolucion, $search ?? '') !!}</div> @endif
         </td>
         <td class="align-middle text-end">
             <!-- Botón Ver Familiares/Alumnos (Vínculo futuro) -->

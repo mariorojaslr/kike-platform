@@ -46,6 +46,7 @@ class TitularController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
                   ->orWhere('dni', 'like', "%{$search}%")
+                  ->orWhere('n_afiliado', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
 
                 // Lógica de descompresión del Número de Afiliado/Obra Social
@@ -62,7 +63,7 @@ class TitularController extends Controller
         // Respuesta JSON para el LiveSearch
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('dashboards.tenant.partials.titulares_table_rows', compact('titulares'))->render(),
+                'html' => view('dashboards.tenant.partials.titulares_table_rows', compact('titulares', 'search'))->render(),
                 'pagination' => (string) $titulares->links('pagination::bootstrap-5')
             ]);
         }
