@@ -42,6 +42,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/empresas/{empresa}/reset-password', [\App\Http\Controllers\EmpresaController::class, 'resetPassword'])->name('owner.empresas.reset_password');
     Route::post('/empresas/{empresa}/crear-admin', [\App\Http\Controllers\EmpresaController::class, 'crearAdminPorDefecto'])->name('owner.empresas.crear_admin');
 
+    // --- MÓDULO: FACTURACIÓN Y CICLOS (SaaS) ---
+    Route::get('/owner/billing', [\App\Http\Controllers\SystemBillingController::class, 'index'])->name('owner.billing');
+    Route::post('/owner/billing/tarifas', [\App\Http\Controllers\SystemBillingController::class, 'updateTarifas'])->name('owner.billing.update_tarifas');
+
+
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class, 'index'])->name('tenant.dashboard');
     Route::post('/tenant/setup', [\App\Http\Controllers\TenantDashboardController::class, 'updateSetup'])->name('tenant.setup.update');

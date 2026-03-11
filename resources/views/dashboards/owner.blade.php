@@ -305,7 +305,7 @@
         <div class="nav flex-column sidebar-nav">
             <a href="{{ route('dashboard') }}" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Cockpit General</a>
             <a href="#empresas-list" class="nav-link"><i class="fas fa-building"></i> Empresas (Clientes)</a>
-            <a href="#" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> Facturación y Ciclos</a>
+            <a href="{{ route('owner.billing') }}" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> Facturación y Tarifas</a>
             <a href="#" class="nav-link"><i class="fas fa-headset"></i> Mesa de Ayuda (Tickets)</a>
             <a href="{{ route('owner.geografia') }}" class="nav-link"><i class="fas fa-map-marker-alt"></i> Base Geográfica</a>
             <a href="#" class="nav-link"><i class="fas fa-server"></i> Infraestructura (Bunny)</a>
