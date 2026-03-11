@@ -477,7 +477,8 @@
         <!-- SECTOR: MIS REQUISITOS (DOCUMENTACIÓN) -->
         <div class="accion-rapida" style="background: linear-gradient(135deg, #f59e0b, #d97706); margin-top: 15px;" onclick="abrirModalRequisitos()">
             <div class="accion-rapida-info">
-                <h3>Mis Requisitos <span class="badge bg-danger rounded-pill ms-2" style="font-size:0.7rem;">{{ count($tiposPendientes) }} Pendientes</span></h3>
+                @php $pendientesCount = isset($tiposDocumentos) ? $tiposDocumentos->whereIn('estado_subida', ['sin_entregar', 'rechazado', 'observado'])->count() : 0; @endphp
+                <h3>Mis Requisitos <span class="badge bg-danger rounded-pill ms-2" style="font-size:0.7rem;">{{ $pendientesCount }} Pendientes</span></h3>
                 <p>Sube tu documentación obligatoria (Ej: Seguro Méd., DNI)</p>
             </div>
             <div class="accion-rapida-icon">
