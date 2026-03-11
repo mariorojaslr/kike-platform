@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- MÓDULO: EMPRESAS (SaaS) ---
     Route::post('/empresas/store', [\App\Http\Controllers\EmpresaController::class, 'store'])->name('empresas.store');
     Route::post('/empresas/{empresa}/toggle-status', [\App\Http\Controllers\EmpresaController::class, 'toggleStatus'])->name('empresas.toggle_status');
+    Route::post('/empresas/{empresa}/reset-password', [\App\Http\Controllers\EmpresaController::class, 'resetPassword'])->name('owner.empresas.reset_password');
+    Route::post('/empresas/{empresa}/crear-admin', [\App\Http\Controllers\EmpresaController::class, 'crearAdminPorDefecto'])->name('owner.empresas.crear_admin');
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class, 'index'])->name('tenant.dashboard');

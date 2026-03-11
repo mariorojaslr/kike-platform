@@ -670,7 +670,54 @@
                             </div>
                         </div>
                     
-                        <!-- Fila 2: Consumos y Límites -->
+                        <!-- Fila 2: Administrador y Accesos (NUEVO) -->
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body">
+                                    <h6 class="text-muted fw-bold mb-3"><i class="fas fa-user-shield me-2"></i>Cuenta de Acceso (Admin)</h6>
+                                    @php
+                                        // Buscar al primer usuario que sea admin (tenant) de esta empresa
+                                        $adminUser = \App\Models\User::where('empresa_id', $empresa->id)
+                                                                     ->whereIn('role', ['empresa', 'tenant'])
+                                                                     ->first();
+                                    @endphp
+                                    
+                                    @if($adminUser)
+                                        <div class="mb-2">
+                                            <span class="text-muted small">Correo Electrónico:</span><br>
+                                            <span class="fw-bold"><i class="fas fa-envelope text-primary me-1"></i> {{ $adminUser->email }}</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <span class="text-muted small">Nombre de Cuenta:</span><br>
+                                            <span class="fw-bold"><i class="fas fa-user text-secondary me-1"></i> {{ $adminUser->name }}</span>
+                                        </div>
+                                        
+                                        <!-- Formulario para Resetear o Forzar Contraseña a 12345678 -->
+                                        <form action="{{ route('owner.empresas.reset_password', $empresa->id) }}" method="POST" class="mt-3 border-top pt-3">
+                                            @csrf
+                                            <div class="d-flex flex-column gap-2">
+                                                <small class="text-muted">Si el cliente perdió su acceso o la empresa fue heredada, puedes forzar una clave temporal para pasársela.</small>
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text bg-white"><i class="fas fa-key text-warning"></i></span>
+                                                    <input type="text" name="new_password" class="form-control" placeholder="Nueva clave (Ej: 12345678)" required>
+                                                    <button class="btn btn-warning fw-bold text-dark" type="submit">Actualizar Clave</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <div class="alert alert-danger py-2 px-3 small mb-0">
+                                            <i class="fas fa-exclamation-triangle me-1"></i> Esta empresa no tiene ningún usuario administrador asignado.
+                                        </div>
+                                        <form action="{{ route('owner.empresas.crear_admin', $empresa->id) }}" method="POST" class="mt-2">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-plus-circle me-1"></i> Crear Admin por Defecto</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- Fila 3: Consumos y Límites -->
                         <div class="col-md-6">
                             <div class="card bg-light border-0 h-100">
                                 <div class="card-body">

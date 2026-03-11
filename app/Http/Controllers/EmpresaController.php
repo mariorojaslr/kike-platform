@@ -61,4 +61,44 @@ class EmpresaController extends Controller
 
         return back()->with('success', $mensaje);
     }
+
+    public function resetPassword(Request $request, Empresa $empresa)
+    {
+        $request->validate([
+            'new_password' => 'required|string|min:8',
+        ]);
+
+        $adminUser = User::where('empresa_id', $empresa->id)
+                         ->whereIn('role', ['empresa', 'tenant'])
+                         ->first();
+
+        if ($adminUser) {
+            $adminUser->password = Hash::make($request->new_password);
+            $adminUser->save();
+            return back()->with('success', 'Contraseña del administrador actualizada exitosamente.');
+        }
+
+        return back()->with('error', 'No se encontró un usuario administrador para esta empresa.');
+    }
+
+    public function crearAdminPorDefecto(Request $request, Empresa $empresa)
+    {
+        // Genera un correo en base al nombre de la empresa (simplificado)
+        $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $empresa->nombre));
+        $email = "admin@{$cleanName}.com";
+        $password = '12345678';
+
+        // Intenta crear el usuario
+        $user = User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name' => 'Administrador ' . $empresa->nombre,
+                'password' => Hash::make($password),
+                'role' => 'empresa', // o tenant
+                'empresa_id' => $empresa->id
+            ]
+        );
+
+        return back()->with('success', "Administrador creado. Correo: {$email} / Clave: {$password}");
+    }
 }
