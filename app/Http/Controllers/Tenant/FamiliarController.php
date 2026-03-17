@@ -34,22 +34,24 @@ class FamiliarController extends Controller
         $query = Familiar::with(['titular', 'diagnostico'])->where('empresa_id', $empresaId);
 
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 // Nombre o DNI del Paciente
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('dni', 'like', "%{$search}%");
+                    ->orWhere('dni', 'like', "%{$search}%");
 
                 // Búsqueda por Número Obra Social Completo (Ej: 13344455502)
-                 if (preg_match('/^1(\d{7,8})\d{2}$/', $search, $matches)) {
+                if (preg_match('/^1(\d{7,8})\d{2}$/', $search, $matches)) {
                     $dniTitular = $matches[1];
                     // Envolvemos en un query para aplacar alertas Linter en algunos IDs de PHP
-                    $q->orWhere(function($subQ) use ($dniTitular) {
-                        $subQ->whereHas('titular', function($qTit) use ($dniTitular) {
-                            $qTit->where('dni', $dniTitular);
+                    $q->orWhere(function ($subQ) use ($dniTitular) {
+                                $subQ->whereHas('titular', function ($qTit) use ($dniTitular) {
+                                        $qTit->where('dni', $dniTitular);
+                                    }
+                                    );
+                                }
+                                );
+                            }
                         });
-                    });
-                }
-            });
         }
 
         $familiares = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(request()->query());
@@ -62,7 +64,7 @@ class FamiliarController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('dashboards.tenant.partials.familiares_table_rows', compact('familiares'))->render(),
-                'pagination' => (string) $familiares->links('pagination::bootstrap-5')
+                'pagination' => (string)$familiares->links('pagination::bootstrap-5')
             ]);
         }
 
@@ -85,7 +87,7 @@ class FamiliarController extends Controller
         $titular = Titular::where('empresa_id', $this->getEmpresaId())->findOrFail($request->titular_id);
 
         $rutafoto = null;
-        if($request->hasFile('foto_perfil')) {
+        if ($request->hasFile('foto_perfil')) {
             $rutafoto = $request->file('foto_perfil')->store('avatares/familiares', 'public');
         }
 
@@ -119,7 +121,7 @@ class FamiliarController extends Controller
         $titular = Titular::where('empresa_id', $this->getEmpresaId())->findOrFail($request->titular_id);
 
         $rutafoto = $familiar->foto_perfil;
-        if($request->hasFile('foto_perfil')) {
+        if ($request->hasFile('foto_perfil')) {
             $rutafoto = $request->file('foto_perfil')->store('avatares/familiares', 'public');
         }
 
@@ -151,20 +153,20 @@ class FamiliarController extends Controller
         $familiares = Familiar::with(['titular', 'diagnostico'])->where('empresa_id', $this->getEmpresaId())->orderBy('nombre')->get();
 
         $headers = [
-            "Content-type"        => "text/csv",
+            "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=padrón_familiares.csv",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
         ];
 
-        $callback = function() use($familiares) {
+        $callback = function () use ($familiares) {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
-            
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
+
             fputcsv($file, [
-                'ID Paciente', 
-                'Nombre Alumno/Paciente', 
+                'ID Paciente',
+                'Nombre Alumno/Paciente',
                 'DNI Paciente',
                 'Titular (Padre)',
                 'DNI Titular',
@@ -199,16 +201,16 @@ class FamiliarController extends Controller
     public function importTemplate()
     {
         $headers = [
-            "Content-type"        => "text/csv",
+            "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=plantilla_base_familiares.csv",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
         ];
 
-        $callback = function() {
+        $callback = function () {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
             fputcsv($file, [
                 'DNI_DEL_TITULAR',
                 'NOMBRE_COMPLETO_PACIENTE',
@@ -233,10 +235,14 @@ class FamiliarController extends Controller
             $file = fopen($request->file('archivo_excel')->getRealPath(), "r");
             $isFirstRow = true;
             $count = 0;
-            
+
             while (($row = fgetcsv($file, 1000, ";")) !== FALSE) {
-                if ($isFirstRow) { $isFirstRow = false; continue; }
-                if (count($row) < 2 || empty(trim($row[1]))) continue; // Si nombre paciente vacio
+                if ($isFirstRow) {
+                    $isFirstRow = false;
+                    continue;
+                }
+                if (count($row) < 2 || empty(trim($row[1])))
+                    continue; // Si nombre paciente vacio
 
                 $dniTitular = trim($row[0]);
                 $nombreFam = trim($row[1]);
@@ -247,12 +253,13 @@ class FamiliarController extends Controller
 
                 // Buscar Titular
                 $titular = Titular::where('empresa_id', $this->getEmpresaId())->where('dni', $dniTitular)->first();
-                if (!$titular) continue; // Si no hay titular, saltamos
+                if (!$titular)
+                    continue; // Si no hay titular, saltamos
 
                 // Buscar Diagnóstico
                 $diagId = null;
                 $boolPatologia = 0;
-                
+
                 if ($tieneDiag == '1' || strtolower($tieneDiag) == 'si' || $tieneDiag === 1) {
                     $boolPatologia = 1;
                     if (!empty($codDiag)) {
@@ -265,12 +272,13 @@ class FamiliarController extends Controller
                 $existente = null;
                 if (!empty($dniFam)) {
                     $existente = Familiar::where('empresa_id', $this->getEmpresaId())->where('dni', $dniFam)->first();
-                } else {
+                }
+                else {
                     // Si no pasaron DNI de alumno, validamos por Nombre + ID del Titular
                     $existente = Familiar::where('empresa_id', $this->getEmpresaId())
-                                         ->where('titular_id', $titular->id)
-                                         ->where('nombre', trim($nombreFam))
-                                         ->first();
+                        ->where('titular_id', $titular->id)
+                        ->where('nombre', trim($nombreFam))
+                        ->first();
                 }
 
                 if ($existente) {
@@ -280,7 +288,8 @@ class FamiliarController extends Controller
                         'tiene_patologia' => $boolPatologia,
                         'diagnostico_id' => $diagId
                     ]);
-                } else {
+                }
+                else {
                     // Si no existe, lo creamos nuevo
                     Familiar::create([
                         'empresa_id' => $this->getEmpresaId(),
@@ -296,7 +305,8 @@ class FamiliarController extends Controller
             }
             fclose($file);
             return redirect()->back()->with('success', "El lote masivo ($count Pacientes/Familiares) se ha importado asociándose correctamente a sus titulares.");
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return redirect()->back()->withErrors('Error general verificando archivo. Asegúrese de guardar el Excel original como "CSV delimitado por comas": ' . $e->getMessage());
         }
     }

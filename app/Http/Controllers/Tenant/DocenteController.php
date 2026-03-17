@@ -33,11 +33,12 @@ class DocenteController extends Controller
         $query = Docente::with(['formacion', 'documentos'])->where('empresa_id', $empresaId);
 
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere(function($subQ) use ($search) {
-                      $subQ->where('dni', 'like', "%{$search}%");
-                  });
+                    ->orWhere(function ($subQ) use ($search) {
+                    $subQ->where('dni', 'like', "%{$search}%");
+                }
+                );
             });
         }
 
@@ -49,7 +50,7 @@ class DocenteController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('dashboards.tenant.partials.docentes_table_rows', compact('docentes'))->render(),
-                'pagination' => (string) $docentes->links('pagination::bootstrap-5')
+                'pagination' => (string)$docentes->links('pagination::bootstrap-5')
             ]);
         }
 
@@ -67,7 +68,7 @@ class DocenteController extends Controller
         ]);
 
         $rutafoto = null;
-        if($request->hasFile('foto_perfil')) {
+        if ($request->hasFile('foto_perfil')) {
             $rutafoto = $request->file('foto_perfil')->store('avatares/docentes', 'public');
         }
 
@@ -96,7 +97,7 @@ class DocenteController extends Controller
         ]);
 
         $rutafoto = $docente->foto_perfil;
-        if($request->hasFile('foto_perfil')) {
+        if ($request->hasFile('foto_perfil')) {
             $rutafoto = $request->file('foto_perfil')->store('avatares/docentes', 'public');
         }
 
@@ -115,7 +116,7 @@ class DocenteController extends Controller
     public function destroy($id)
     {
         $docente = Docente::where('empresa_id', $this->getEmpresaId())->findOrFail($id);
-        
+
         // cascade borra documentos asociados por DB
         $docente->delete();
 
@@ -127,19 +128,19 @@ class DocenteController extends Controller
     public function exportExcel()
     {
         $docentes = Docente::with('formacion')->where('empresa_id', $this->getEmpresaId())->orderBy('nombre')->get();
-        
+
         $headers = [
-            "Content-type"        => "text/csv",
+            "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=padrón_docentes.csv",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
         ];
 
-        $callback = function() use($docentes) {
+        $callback = function () use ($docentes) {
             $file = fopen('php://output', 'w');
             // Formato UTF-8 BOM para que Excel lea acentos
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
             fputcsv($file, ['ID Docente', 'Nombre Completo', 'DNI', 'Teléfono', 'Email', 'Título / Formación'], ';');
 
             foreach ($docentes as $row) {
@@ -168,16 +169,16 @@ class DocenteController extends Controller
     public function importTemplate()
     {
         $headers = [
-            "Content-type"        => "text/csv",
+            "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=plantilla_base_docentes.csv",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
         ];
 
-        $callback = function() {
+        $callback = function () {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
             fputcsv($file, ['NOMBRE_COMPLETO', 'DNI', 'ESPECIALIDAD_O_ROL', 'TELEFONO', 'EMAIL', 'DIRECCION'], ';');
             fclose($file);
         };
@@ -195,14 +196,18 @@ class DocenteController extends Controller
             $file = fopen($request->file('archivo_excel')->getRealPath(), "r");
             $isFirstRow = true;
             $count = 0;
-            
+
             while (($row = fgetcsv($file, 1000, ";")) !== FALSE) {
-                if ($isFirstRow) { $isFirstRow = false; continue; } // Saltar cabecera
-                if (count($row) < 2 || empty(trim($row[0]))) continue; // Línea vacía
+                if ($isFirstRow) {
+                    $isFirstRow = false;
+                    continue;
+                } // Saltar cabecera
+                if (count($row) < 2 || empty(trim($row[0])))
+                    continue; // Línea vacía
 
                 $nombre = $row[0] ?? null;
                 $dni = $row[1] ?? null;
-                $codForm = $row[2] ?? null;   // AHORA EN LA 3ERA COLUMNA
+                $codForm = $row[2] ?? null; // AHORA EN LA 3ERA COLUMNA
                 $tel = $row[3] ?? null;
                 $email = $row[4] ?? null;
                 $dir = $row[5] ?? null;
@@ -211,9 +216,9 @@ class DocenteController extends Controller
                 if (!empty(trim($codForm))) {
                     // Buscar o crear la especialidad en caliente si no existe, asignada a esta empresa
                     $f = Formacion::where('nombre', 'LIKE', '%' . trim($codForm) . '%')
-                             ->where(function($q) {
-                                 $q->whereNull('empresa_id')->orWhere('empresa_id', $this->getEmpresaId());
-                             })->first();
+                        ->where(function ($q) {
+                        $q->whereNull('empresa_id')->orWhere('empresa_id', $this->getEmpresaId());
+                    })->first();
 
                     if (!$f) {
                         $f = Formacion::create([
@@ -227,25 +232,26 @@ class DocenteController extends Controller
                 $dniLimpio = trim(preg_replace('/[^0-9]/', '', $dni ?? ''));
 
                 Docente::updateOrCreate(
-                    [
-                        'empresa_id' => $this->getEmpresaId(),
-                        'dni'        => $dniLimpio,
-                    ],
-                    [
-                        'nombre'     => trim($nombre),
-                        'telefono'   => trim($tel),
-                        'email'      => trim($email),
-                        'direccion'  => trim($dir),
-                        'formacion_id' => $formacionId,
-                        // validado_auditoria se deja intacto o por defecto 0 si se crea recién
-                    ]
+                [
+                    'empresa_id' => $this->getEmpresaId(),
+                    'dni' => $dniLimpio,
+                ],
+                [
+                    'nombre' => trim($nombre),
+                    'telefono' => trim($tel),
+                    'email' => trim($email),
+                    'direccion' => trim($dir),
+                    'formacion_id' => $formacionId,
+                    // validado_auditoria se deja intacto o por defecto 0 si se crea recién
+                ]
                 );
                 $count++;
             }
             fclose($file);
 
             return redirect()->back()->with('success', "El lote masivo ($count Docentes) se ha cargado con éxito.");
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return redirect()->back()->withErrors('Error general en la importación. Asegúrese de guardar el Excel como CSV (separado por comas/punto y coma): ' . $e->getMessage());
         }
     }

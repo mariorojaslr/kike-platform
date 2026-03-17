@@ -555,16 +555,50 @@
             <button class="sheet-close" onclick="cerrarModalNuevo()"><i class="fas fa-times-circle"></i></button>
         </div>
 
-        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
-            Busque un alumno dictando su nombre, o escanee códigos de documentación requeridos internamente. 
+        <!-- Selector de Métodos -->
+        <div style="display: flex; gap: 10px; margin: -10px auto 20px auto; max-width: 90%;">
+            <div id="tabModoComun" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1);" onclick="cambiarMetodo('comun')">
+                <i class="fas fa-list-ul" style="font-size: 1.2rem; color: #3b82f6;"></i>
+                <span style="font-size: 0.8rem; color: white;">Método Común</span>
+            </div>
+            <div id="tabModoParlante" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid var(--tarjeta-borde); background: var(--bg-oscuro);" onclick="cambiarMetodo('parlante')">
+                <i class="fas fa-microphone" style="font-size: 1.2rem; color: #8b5cf6;"></i>
+                <span style="font-size: 0.8rem; color: var(--gris-texto);">Modo Parlante</span>
+            </div>
+        </div>
+
+        <p id="subtextoInteraccion" style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+            Inicie la búsqueda seleccionando Escuela y Alumno manualmente.
         </p>
 
-        <!-- Ingreso / Dictado de Voz -->
-        <div class="input-group-voice">
-            <input type="text" id="alumnoSearchInput" class="input-dark" placeholder="Ej: Nombre del alumno...">
-            <button class="btn-mic" id="btnMicSearch" onclick="iniciarDictadoVoz()" title="Búsqueda por Voz">
-                <i class="fas fa-microphone"></i>
-            </button>
+        <!-- === VISTA MÁTODO COMÚN (TRADICIONAL) === -->
+        <div id="seccionModoComun">
+            <!-- Buscador de Escuela -->
+            <div class="input-group-voice" style="margin-bottom: 12px;">
+                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar listado de Escuelas..." oninput="filtrarEscuelaComun()">
+            </div>
+            <div id="listaEscuelasComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
+                <!-- Opciones que se cargaran por JS -->
+            </div>
+
+            <!-- Buscador de Alumno (Dependiente) -->
+            <div class="input-group-voice" style="margin-bottom: 12px;">
+                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Seleccionar Alumno..." oninput="filtrarAlumnoComun()" disabled>
+            </div>
+            <div id="listaAlumnosComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
+                <!-- Opciones que se cargaran por JS -->
+            </div>
+        </div>
+
+        <!-- === VISTA MÁTODO PARLANTE (DICTADO) === -->
+        <div id="seccionModoParlante" style="display: none;">
+            <!-- Ingreso / Dictado de Voz -->
+            <div class="input-group-voice" style="margin-bottom: 20px;">
+                <input type="text" id="alumnoSearchInput" class="input-dark" placeholder="Ej: Nombre del alumno...">
+                <button class="btn-mic" id="btnMicSearch" onclick="iniciarDictadoVoz()" title="Búsqueda por Voz">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Escáneres Especiales con Subida de Archivos -->
@@ -709,13 +743,151 @@
         let pasoActual = 0;
         let datosAsistidos = {};
 
+
+
+
+            
+        
+        function cerrarModalNuevo() {
+            overlay.classList.remove('active');
+            sheet.classList.remove('active');
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+            pasoActual = 0;
+            if(document.getElementById('btnScanCamera')) {
+                document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
+                document.getElementById('btnScanCamera').style.boxShadow = "none";
+                document.getElementById('spanScanCamera').innerText = "Tomar Foto Directa";
+            }
+        }
+
+        function abrirModalMisAlumnos() {
+            sheet.classList.remove('active');
+            if(document.getElementById('sheetRequisitos')) document.getElementById('sheetRequisitos').classList.remove('active');
+            overlay.classList.add('active');
+            sheetMis.classList.add('active');
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        function cerrarModalMisAlumnos() {
+            overlay.classList.remove('active');
+            sheetMis.classList.remove('active');
+        }
+
+        function abrirModalRequisitos() {
+            sheet.classList.remove('active');
+            sheetMis.classList.remove('active');
+            overlay.classList.add('active');
+            const sheetReq = document.getElementById('sheetRequisitos');
+            if(sheetReq) sheetReq.classList.add('active');
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        function cerrarModalRequisitos() {
+            overlay.classList.remove('active');
+            const sheetReq = document.getElementById('sheetRequisitos');
+            if(sheetReq) sheetReq.classList.remove('active');
+        }
+
+        let metodoActual = 'comun'; // Por defecto
+
+        // Datos Simulación Tradicional (Modo Común)
+        const escuelasDemo = ["Escuela 101 - Belgrano", "Instituto San José", "Colegio Santa Ana", "Escuela Especial Nro 5"];
+        const alumnosPorEscuela = {
+            "Escuela 101 - Belgrano": ["Mateo Giménez", "Sofía Cortez"],
+            "Instituto San José": ["Lucas Benítez", "Juan Pérez"],
+            "Colegio Santa Ana": ["Mía Rodríguez", "Facundo Gómez"],
+            "Escuela Especial Nro 5": ["Thiago Morales", "Bautista Díaz"]
+        };
+
+        function cambiarMetodo(modo) {
+            metodoActual = modo;
+            const tabComun = document.getElementById('tabModoComun');
+            const tabParlante = document.getElementById('tabModoParlante');
+            const secComun = document.getElementById('seccionModoComun');
+            const secParlante = document.getElementById('seccionModoParlante');
+            const subtexto = document.getElementById('subtextoInteraccion');
+
+            if (modo === 'parlante') {
+                tabParlante.style.background = "rgba(139, 92, 246, 0.1)";
+                tabParlante.style.borderColor = "#8b5cf6";
+                tabComun.style.background = "var(--bg-oscuro)";
+                tabComun.style.borderColor = "var(--tarjeta-borde)";
+                secParlante.style.display = 'block';
+                secComun.style.display = 'none';
+                subtexto.innerText = "Siga las instrucciones habladas por el asistente y dictée sus respuestas.";
+                iniciarAsistenteSecuencial();
+            } else {
+                tabComun.style.background = "rgba(59, 130, 246, 0.1)";
+                tabComun.style.borderColor = "#3b82f6";
+                tabParlante.style.background = "var(--bg-oscuro)";
+                tabParlante.style.borderColor = "var(--tarjeta-borde)";
+                secComun.style.display = 'block';
+                secParlante.style.display = 'none';
+                subtexto.innerText = "Inicie la búsqueda seleccionando Escuela y Alumno manualmente.";
+                if(window.speechSynthesis) window.speechSynthesis.cancel();
+            }
+        }
+
+        function filtrarEscuelaComun() {
+            const term = document.getElementById('comunEscuelaInput').value.toLowerCase();
+            const list = document.getElementById('listaEscuelasComun');
+            list.innerHTML = "";
+            if(!term) { list.style.display = 'none'; return; }
+            const filtradas = escuelasDemo.filter(e => e.toLowerCase().includes(term));
+            if(filtradas.length > 0) {
+                list.style.display = 'block';
+                filtradas.forEach(e => {
+                    const row = document.createElement('div');
+                    row.className = "alumno-card";
+                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                    row.innerText = e;
+                    row.onclick = () => {
+                        document.getElementById('comunEscuelaInput').value = e;
+                        datosAsistidos.escuela = e;
+                        list.style.display = 'none';
+                        document.getElementById('comunAlumnoInput').disabled = false;
+                        document.getElementById('comunAlumnoInput').focus();
+                    };
+                    list.appendChild(row);
+                });
+            } else { list.style.display = 'none'; }
+        }
+
+        function filtrarAlumnoComun() {
+            const escuelaSel = datosAsistidos.escuela;
+            if(!escuelaSel) return;
+            const term = document.getElementById('comunAlumnoInput').value.toLowerCase();
+            const list = document.getElementById('listaAlumnosComun');
+            list.innerHTML = "";
+            if(!term) { list.style.display = 'none'; return; }
+            const alumnos = alumnosPorEscuela[escuelaSel] || [];
+            const filtrados = alumnos.filter(a => a.toLowerCase().includes(term));
+            if(filtrados.length > 0) {
+                list.style.display = 'block';
+                filtrados.forEach(a => {
+                    const row = document.createElement('div');
+                    row.className = "alumno-card";
+                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                    row.innerText = a;
+                    row.onclick = () => {
+                        document.getElementById('comunAlumnoInput').value = a;
+                        datosAsistidos.alumno = a;
+                        list.style.display = 'none';
+                        pasoActual = 3; 
+                        kikeHabla(`Has seleccionado a ${a}. Por favor adjunta la documentación requerida.`);
+                    };
+                    list.appendChild(row);
+                });
+            } else { list.style.display = 'none'; }
+        }
+
         function abrirModalNuevo() {
             sheetMis.classList.remove('active');
             overlay.classList.add('active');
             sheet.classList.add('active');
-            
-            // Iniciar flujo asistido secuencial
-            iniciarAsistenteSecuencial();
+            cambiarMetodo('comun');
+            datosAsistidos = {};
+            pasoActual = 1;
         }
 
         function cerrarModalNuevo() {
