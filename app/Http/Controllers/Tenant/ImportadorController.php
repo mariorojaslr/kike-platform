@@ -148,4 +148,59 @@ class ImportadorController extends Controller
             return redirect()->back()->withErrors('Ocurrió un error leyendo el CSV. Asegúrate de configurar Excel para guardar CSV delimitado por Puntos y Comas (;). Error del sistema: ' . $e->getMessage());
         }
     }
+
+    public function templateResumen()
+    {
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=plantilla_vacia_resumen.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM para que Excel respete acentos
+            fputcsv($file, [
+                'TITULAR_APELLIDO_NOMBRE',
+                'TITULAR_NRO_AFILIADO',
+                'ALUMNO_APELLIDO_NOMBRE',
+                'ALUMNO_NRO_AFILIADO',
+                'DOCENTE_APELLIDO_NOMBRE',
+                'DOCENTE_DNI',
+                'DOCENTE_RESOLUCION'
+            ], ';');
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function templateAlumnos()
+    {
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=plantilla_vacia_alumnos.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, [
+                'ALUMNO_APELLIDO_NOMBRE',
+                'ALUMNO_DNI',
+                'ALUMNO_NRO_AFILIADO',
+                'DIAGNOSTICO_CUD',
+                'ESCUELA_NOMBRE',
+                'GRADO_Y_DIVISION',
+                'TURNO',
+                'HORARIO_ATENCION'
+            ], ';');
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
 }

@@ -106,6 +106,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::group(['prefix' => 'tenant/importador', 'as' => 'tenant.importador.'], function () {
             Route::get('/', [\App\Http\Controllers\Tenant\ImportadorController::class, 'index'])->name('index');
             Route::post('/procesar', [\App\Http\Controllers\Tenant\ImportadorController::class, 'procesar'])->name('procesar');
+            Route::get('/template/resumen', [\App\Http\Controllers\Tenant\ImportadorController::class, 'templateResumen'])->name('template.resumen');
+            Route::get('/template/alumnos', [\App\Http\Controllers\Tenant\ImportadorController::class, 'templateAlumnos'])->name('template.alumnos');
         });
 
 

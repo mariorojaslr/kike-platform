@@ -32,7 +32,10 @@
                 <input type="hidden" name="tipo_importacion" value="resumen">
                 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Archivo CSV (Delimitado por punto y coma)</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label class="form-label fw-bold">Archivo CSV (Delimitado por punto y coma)</label>
+                        <a href="{{ route('tenant.importador.template.resumen') }}" class="btn btn-sm btn-outline-primary shadow-sm mb-2" title="Descargar Plantilla Vacía"><i class="fas fa-download"></i> Plantilla</a>
+                    </div>
                     <input type="file" name="archivo_csv" class="form-control" accept=".csv" required>
                 </div>
                 
@@ -61,7 +64,10 @@
                 <input type="hidden" name="tipo_importacion" value="alumnos">
                 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Archivo CSV (Delimitado por punto y coma)</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label class="form-label fw-bold">Archivo CSV (Delimitado por punto y coma)</label>
+                        <a href="{{ route('tenant.importador.template.alumnos') }}" class="btn btn-sm btn-outline-warning text-dark fw-bold shadow-sm mb-2" title="Descargar Plantilla Vacía"><i class="fas fa-download"></i> Plantilla</a>
+                    </div>
                     <input type="file" name="archivo_csv" class="form-control" accept=".csv" required>
                 </div>
                 
