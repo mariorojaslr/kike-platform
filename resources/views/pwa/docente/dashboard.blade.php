@@ -573,20 +573,45 @@
 
         <!-- === VISTA MÁTODO COMÚN (TRADICIONAL) === -->
         <div id="seccionModoComun">
+            <!-- Buscador de Titular -->
+            <div class="input-group-voice" style="margin-bottom: 12px;">
+                <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Titular / Padre..." oninput="filtrarTitularComun()">
+            </div>
+            <div id="listaTitularesComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
+            </div>
+
+            <!-- Buscador de Alumno (Dependiente) -->
+            <div class="input-group-voice" style="margin-bottom: 12px;">
+                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()" disabled>
+            </div>
+            <div id="listaAlumnosComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
+            </div>
+
             <!-- Buscador de Escuela -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar listado de Escuelas..." oninput="filtrarEscuelaComun()">
+                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Institución / Escuela..." oninput="filtrarEscuelaComun()" disabled>
             </div>
             <div id="listaEscuelasComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
                 <!-- Opciones que se cargaran por JS -->
             </div>
 
-            <!-- Buscador de Alumno (Dependiente) -->
-            <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Seleccionar Alumno..." oninput="filtrarAlumnoComun()" disabled>
-            </div>
-            <div id="listaAlumnosComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
-                <!-- Opciones que se cargaran por JS -->
+            <!-- Formulario Datos del Alumno -->
+            <div id="formDatosAlumno" style="display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #3b82f6;"><i class="fas fa-pen"></i> Completar Datos del Estudiante</h4>
+                
+                <input type="text" id="alumnoDni" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DNI del Alumno">
+                <input type="number" id="alumnoEdad" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Edad">
+                <input type="text" id="alumnoPatologia" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Diagnóstico / Patología">
+                <input type="text" id="alumnoCUD" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Nro de CUD (Opcional)">
+
+                <div class="mt-2" style="font-size: 0.8rem; background: #0f172a; padding: 12px; border-radius: 8px; border-left: 3px solid var(--dinero-espera);">
+                    <div class="text-warning mb-1" style="font-weight: 600;"><i class="fas fa-clipboard-check"></i> Requerimientos Pendientes:</div>
+                    <ul style="margin: 5px 0 0 0; padding-left: 20px; color: var(--gris-texto);">
+                        <li>Autorización de ingreso firmada por directivos de <strong id="lblEscuelaReq" class="text-white">la Escuela</strong></li>
+                        <li>Consentimiento informado de <strong id="lblTitularReq" class="text-white">el Titular</strong></li>
+                        <li>DNI Frontal y Dorso del Alumno.</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -791,13 +816,9 @@
         let metodoActual = 'comun'; // Por defecto
 
         // Datos Simulación Tradicional (Modo Común)
+        const titularesDemo = ["Osvaldo García (OSDE)", "Mariana López (IOMA)", "Carlos Ruiz (PAMI)"];
+        const alumnosGlobalesDemo = ["Mateo Giménez", "Sofía Cortez", "Lucas Benítez", "Juan Pérez", "Mía Rodríguez", "Facundo Gómez"];
         const escuelasDemo = ["Escuela 101 - Belgrano", "Instituto San José", "Colegio Santa Ana", "Escuela Especial Nro 5"];
-        const alumnosPorEscuela = {
-            "Escuela 101 - Belgrano": ["Mateo Giménez", "Sofía Cortez"],
-            "Instituto San José": ["Lucas Benítez", "Juan Pérez"],
-            "Colegio Santa Ana": ["Mía Rodríguez", "Facundo Gómez"],
-            "Escuela Especial Nro 5": ["Thiago Morales", "Bautista Díaz"]
-        };
 
         function cambiarMetodo(modo) {
             metodoActual = modo;
@@ -828,6 +849,66 @@
             }
         }
 
+        function habilitarFormularioDatos() {
+            if (datosAsistidos.alumno) {
+                document.getElementById('formDatosAlumno').style.display = 'block';
+                document.getElementById('lblEscuelaReq').innerText = datosAsistidos.escuela || "la Institución";
+                document.getElementById('lblTitularReq').innerText = datosAsistidos.titular || "el Responsable";
+                pasoActual = 3; 
+                kikeHabla(`Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentación requerida escaneando con la cámara.`);
+            }
+        }
+
+        function filtrarTitularComun() {
+            const term = document.getElementById('comunTitularInput').value.toLowerCase();
+            const list = document.getElementById('listaTitularesComun');
+            list.innerHTML = "";
+            if(!term) { list.style.display = 'none'; return; }
+            const filtradas = titularesDemo.filter(e => e.toLowerCase().includes(term));
+            if(filtradas.length > 0) {
+                list.style.display = 'block';
+                filtradas.forEach(e => {
+                    const row = document.createElement('div');
+                    row.className = "alumno-card";
+                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                    row.innerHTML = `<i class="fas fa-user-shield text-info me-2"></i> ${e}`;
+                    row.onclick = () => {
+                        document.getElementById('comunTitularInput').value = e;
+                        datosAsistidos.titular = e;
+                        list.style.display = 'none';
+                        document.getElementById('comunAlumnoInput').disabled = false;
+                        document.getElementById('comunAlumnoInput').focus();
+                    };
+                    list.appendChild(row);
+                });
+            } else { list.style.display = 'none'; }
+        }
+
+        function filtrarAlumnoComun() {
+            const term = document.getElementById('comunAlumnoInput').value.toLowerCase();
+            const list = document.getElementById('listaAlumnosComun');
+            list.innerHTML = "";
+            if(!term) { list.style.display = 'none'; return; }
+            const filtrados = alumnosGlobalesDemo.filter(a => a.toLowerCase().includes(term));
+            if(filtrados.length > 0) {
+                list.style.display = 'block';
+                filtrados.forEach(a => {
+                    const row = document.createElement('div');
+                    row.className = "alumno-card";
+                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                    row.innerHTML = `<i class="fas fa-child text-warning me-2"></i> ${a}`;
+                    row.onclick = () => {
+                        document.getElementById('comunAlumnoInput').value = a;
+                        datosAsistidos.alumno = a;
+                        list.style.display = 'none';
+                        document.getElementById('comunEscuelaInput').disabled = false;
+                        document.getElementById('comunEscuelaInput').focus();
+                    };
+                    list.appendChild(row);
+                });
+            } else { list.style.display = 'none'; }
+        }
+
         function filtrarEscuelaComun() {
             const term = document.getElementById('comunEscuelaInput').value.toLowerCase();
             const list = document.getElementById('listaEscuelasComun');
@@ -840,41 +921,12 @@
                     const row = document.createElement('div');
                     row.className = "alumno-card";
                     row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                    row.innerText = e;
+                    row.innerHTML = `<i class="fas fa-school text-primary me-2"></i> ${e}`;
                     row.onclick = () => {
                         document.getElementById('comunEscuelaInput').value = e;
                         datosAsistidos.escuela = e;
                         list.style.display = 'none';
-                        document.getElementById('comunAlumnoInput').disabled = false;
-                        document.getElementById('comunAlumnoInput').focus();
-                    };
-                    list.appendChild(row);
-                });
-            } else { list.style.display = 'none'; }
-        }
-
-        function filtrarAlumnoComun() {
-            const escuelaSel = datosAsistidos.escuela;
-            if(!escuelaSel) return;
-            const term = document.getElementById('comunAlumnoInput').value.toLowerCase();
-            const list = document.getElementById('listaAlumnosComun');
-            list.innerHTML = "";
-            if(!term) { list.style.display = 'none'; return; }
-            const alumnos = alumnosPorEscuela[escuelaSel] || [];
-            const filtrados = alumnos.filter(a => a.toLowerCase().includes(term));
-            if(filtrados.length > 0) {
-                list.style.display = 'block';
-                filtrados.forEach(a => {
-                    const row = document.createElement('div');
-                    row.className = "alumno-card";
-                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                    row.innerText = a;
-                    row.onclick = () => {
-                        document.getElementById('comunAlumnoInput').value = a;
-                        datosAsistidos.alumno = a;
-                        list.style.display = 'none';
-                        pasoActual = 3; 
-                        kikeHabla(`Has seleccionado a ${a}. Por favor adjunta la documentación requerida.`);
+                        habilitarFormularioDatos();
                     };
                     list.appendChild(row);
                 });
@@ -1036,8 +1088,9 @@
         function iniciarDictadoVoz() {
             kikeEscucha("Te escucho...", (comando) => {
                 inputSearch.value = comando;
-                if(pasoActual === 1) { datosAsistidos.escuela = comando; pasoActual=2; flujoAsistente(); return; }
+                if(pasoActual === 1) { datosAsistidos.titular = comando; pasoActual=2; flujoAsistente(); return; }
                 if(pasoActual === 2) { datosAsistidos.alumno = comando; pasoActual=3; flujoAsistente(); return; }
+                if(pasoActual === 3) { datosAsistidos.escuela = comando; pasoActual=4; flujoAsistente(); return; }
             });
         }
 
@@ -1093,11 +1146,11 @@
                     setTimeout(() => { document.getElementById(spanId).innerText = originalText; }, 1500);
 
                     // Magia: Avanzar en el flujo asistente si estamos en él
-                    if (pasoActual === 3) {
-                        pasoActual = 4;
-                        setTimeout(flujoAsistente, 500);
-                    } else if (pasoActual === 4) {
+                    if (pasoActual === 4) {
                         pasoActual = 5;
+                        setTimeout(flujoAsistente, 500);
+                    } else if (pasoActual === 5) {
+                        pasoActual = 6;
                         setTimeout(flujoAsistente, 500);
                     } else {
                         alert(`✅ ¡Tu documento (${tipoDoc}) se cargó perfectamente en la plataforma!`);
@@ -1131,16 +1184,16 @@
 
         function flujoAsistente() {
             if (pasoActual === 1) {
-                kikeHabla("Hola. Para comenzar rápido tu carga, indícame. ¿En qué escuela estás trabajando hoy?", () => {
-                    kikeEscucha("Habla el nombre de la escuela...", (respuesta) => {
-                        datosAsistidos.escuela = respuesta;
+                kikeHabla("Hola. Para comenzar tu carga, indícame el nombre del titular o responsable a cargo.", () => {
+                    kikeEscucha("Habla el nombre del titular...", (respuesta) => {
+                        datosAsistidos.titular = respuesta;
                         pasoActual = 2;
                         flujoAsistente();
                     });
                 });
             } 
             else if (pasoActual === 2) {
-                kikeHabla(`Excelente, identificamos ${datosAsistidos.escuela}. Ahora, ¿Cuál es el nombre de tu alumno paciente?`, () => {
+                kikeHabla(`Perfecto, registramos a ${datosAsistidos.titular}. Ahora dime, ¿Cuál es el nombre de tu alumno paciente?`, () => {
                     kikeEscucha("Dicta el nombre del alumno...", (respuesta) => {
                         datosAsistidos.alumno = respuesta;
                         pasoActual = 3;
@@ -1149,7 +1202,16 @@
                 });
             } 
             else if (pasoActual === 3) {
-                kikeHabla(`Encontré a ${datosAsistidos.alumno}. Para confirmar tu asistencia y facturarlo a caja, toca la cámara y sácale una foto al documento de identidad.`, () => {
+                kikeHabla(`Dime por último el nombre de la institución o escuela a la que asiste ${datosAsistidos.alumno}.`, () => {
+                    kikeEscucha("Dicta el nombre de la escuela...", (respuesta) => {
+                        datosAsistidos.escuela = respuesta;
+                        pasoActual = 4;
+                        flujoAsistente();
+                    });
+                });
+            }
+            else if (pasoActual === 4) {
+                kikeHabla(`Todo listo. Para confirmar tu asistencia, toca la cámara y sácale una foto al documento de identidad del alumno.`, () => {
                     inputSearch.value = `Esperando foto DNI de ${datosAsistidos.alumno}...`;
                     
                     // Resalta el botón de cámara para indicarle donde tocar
@@ -1157,25 +1219,25 @@
                     document.getElementById('btnScanCamera').style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.4)";
                 });
             }
-            else if (pasoActual === 4) {
+            else if (pasoActual === 5) {
                 // El usuario ya tomó la foto del DNI
                 // Restablecemos diseño del botón original
                 document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
                 document.getElementById('btnScanCamera').style.boxShadow = "none";
                 
-                kikeHabla(`Fotocopia del documento recibida en el servidor. Un aviso administrativo: Tu certificado de buena conducta expiró. Por favor escanea uno nuevo para habilitar la liquidación.`, () => {
+                kikeHabla(`Fotocopia del documento recibida en el servidor. Un aviso administrativo: Tu certificado de buena conducta expiró. Por favor escanea uno nuevo para completar los requerimientos.`, () => {
                     inputSearch.value = "Esperando Certificado de Conducta...";
                     document.getElementById('btnScanGallery').style.border = "2px solid #f59e0b";
                     document.getElementById('btnScanGallery').style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
                 });
             }
-            else if (pasoActual === 5) {
+            else if (pasoActual === 6) {
                 // Terminó todos los requerimientos
-                kikeHabla("Todos los documentos están herméticos y al día. He guardado todo en el servidor con éxito.", () => {
+                kikeHabla("Todos los requerimientos están completos y avalados. He guardado todo en el servidor con éxito.", () => {
                     document.getElementById('btnScanGallery').style.border = "1px solid var(--tarjeta-borde)";
                     document.getElementById('btnScanGallery').style.boxShadow = "none";
                     cerrarModalNuevo();
-                    alert("✅ ¡Éxito! Demo Secuencial Finalizada y Documentos Subidos Realmente a la Nube.");
+                    alert("✅ ¡Éxito! Expediente completado con todos los requerimientos correspondientes.");
                 });
             }
         }
