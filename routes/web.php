@@ -102,6 +102,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
         );
 
+        // Importador Masivo Integral
+        Route::group(['prefix' => 'tenant/importador', 'as' => 'tenant.importador.'], function () {
+            Route::get('/', [\App\Http\Controllers\Tenant\ImportadorController::class, 'index'])->name('index');
+            Route::post('/procesar', [\App\Http\Controllers\Tenant\ImportadorController::class, 'procesar'])->name('procesar');
+        });
+
 
         // Catálogos Maestros de solo Consulta (Read-Only en Tenant)
         Route::group(['prefix' => 'tenant/diagnosticos', 'as' => 'tenant.diagnosticos.'], function () {

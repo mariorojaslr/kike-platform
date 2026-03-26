@@ -221,6 +221,8 @@
             <a href="{{ route('tenant.diagnosticos.index') }}" class="nav-link {{ request()->routeIs('tenant.diagnosticos.*') ? 'active' : '' }}"><i class="fas fa-notes-medical"></i> Catálogo de Patologías</a>
             <a href="{{ route('tenant.escuelas.index') }}" class="nav-link {{ request()->routeIs('tenant.escuelas.*') ? 'active' : '' }}"><i class="fas fa-school"></i> Escuelas Vinculadas</a>
             
+            <a href="{{ route('tenant.importador.index') }}" class="nav-link mt-3 text-warning {{ request()->routeIs('tenant.importador.*') ? 'active' : '' }}" style="border: 1px dashed rgba(255,255,255,0.3);"><i class="fas fa-satellite-dish"></i> <b>Importador Masivo</b></a>
+
             <a href="{{ route('tenant.tipo_documentos.index') }}" class="nav-link mt-3 {{ request()->routeIs('tenant.tipo_documentos.*') ? 'active' : '' }}"><i class="fas fa-file-contract"></i> <b>Reglas Documentales</b></a>
             <a href="{{ route('auditor.documentos') }}" class="nav-link {{ request()->routeIs('auditor.documentos') ? 'active' : '' }}"><i class="fas fa-balance-scale"></i> Auditoría Documentos</a>
             <a href="{{ route('auditor.facturas') }}" class="nav-link {{ request()->routeIs('auditor.facturas') ? 'active' : '' }}"><i class="fas fa-file-invoice"></i> Auditoría Facturación</a>
