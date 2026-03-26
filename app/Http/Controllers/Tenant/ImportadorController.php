@@ -32,26 +32,27 @@ class ImportadorController extends Controller
 
         try {
             $file = fopen($request->file('archivo_csv')->getRealPath(), "r");
-            $isFirstRow = true;
             $count = 0;
             $empresaId = $this->getEmpresaId();
 
             if ($request->tipo_importacion == 'resumen') {
                 // Lógica para planilla de RESUMEN GENERAL (Titulares, Beneficiarios, Docentes)
                 while (($row = fgetcsv($file, 2000, ";")) !== FALSE) {
-                    if ($isFirstRow) { $isFirstRow = false; continue; }
                     if (count($row) < 5 || empty(trim($row[0]))) continue;
 
-                    // Columnas estimadas según la primera imagen
-                    $titularNombre = trim($row[0] ?? ''); // Apellido y Nombre Titular
-                    $titularAfiliado = trim($row[1] ?? ''); // N° Afiliado Titular
+                    $titularNombre = trim($row[0] ?? '');
                     
-                    $benefNombre = trim($row[2] ?? ''); // Apellido y Nombre Beneficiario
-                    $benefAfiliado = trim($row[3] ?? ''); // N° Afiliado Beneficiario
-                    
-                    $docenteNombre = trim($row[4] ?? ''); // Apellido y Nombre Docente
-                    $docenteDni = trim($row[5] ?? ''); // DNI
-                    $docenteRes = trim($row[6] ?? ''); // Resolucion
+                    // Saltamos filas de encabezado engañosas ("sep=;", "TITULAR_APELLIDO", etc)
+                    if (str_contains(strtolower($titularNombre), 'sep=') || str_contains(strtolower($titularNombre), 'titular_apellido')) {
+                        continue;
+                    }
+
+                    $titularAfiliado = trim($row[1] ?? '');
+                    $benefNombre = trim($row[2] ?? '');
+                    $benefAfiliado = trim($row[3] ?? '');
+                    $docenteNombre = trim($row[4] ?? '');
+                    $docenteDni = trim($row[5] ?? '');
+                    $docenteRes = trim($row[6] ?? '');
 
                     // 1. Crear o Buscar Titular
                     $titular = null;
@@ -69,7 +70,7 @@ class ImportadorController extends Controller
                             [
                                 'titular_id' => $titular->id,
                                 'nombre' => $benefNombre,
-                                'dni' => 'S/D-' . rand(1000, 9999), // DNI Temp si no viene en esta planilla
+                                'dni' => 'S/D-' . rand(1000, 9999), 
                                 'parentesco' => 'Hijo'
                             ]
                         );
@@ -82,7 +83,7 @@ class ImportadorController extends Controller
                             [
                                 'nombre' => $docenteNombre,
                                 'resolucion' => $docenteRes,
-                                'formacion_id' => 1 // ID por defecto o dinámico
+                                'formacion_id' => 1 
                             ]
                         );
                     }
@@ -92,11 +93,14 @@ class ImportadorController extends Controller
             } else {
                 // Lógica para planilla ALUMNOS (Diagnósticos, Escuelas)
                 while (($row = fgetcsv($file, 2000, ";")) !== FALSE) {
-                    if ($isFirstRow) { $isFirstRow = false; continue; }
                     if (count($row) < 4 || empty(trim($row[0]))) continue;
 
-                    // Columnas estimadas según la segunda imagen
                     $alumnoNombre = trim($row[0] ?? '');
+                    
+                    if (str_contains(strtolower($alumnoNombre), 'sep=') || str_contains(strtolower($alumnoNombre), 'alumno_apellido')) {
+                        continue;
+                    }
+
                     $alumnoDni = trim($row[1] ?? '');
                     $nAfiliado = trim($row[2] ?? '');
                     $diagnosticoStr = trim($row[3] ?? '');
@@ -132,8 +136,6 @@ class ImportadorController extends Controller
                                 'grado_division' => $gradoStr,
                                 'turno' => $turnoStr,
                                 'horario' => $horarioStr,
-                                // En caso de que se cree nuevo sin Titular aún, ponemos null o un ID dummy. 
-                                // Idealmente subir primero el Resumen para que el Titular exista.
                             ]
                         );
                         $count++;
@@ -161,7 +163,8 @@ class ImportadorController extends Controller
 
         $callback = function() {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM para que Excel respete acentos
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); 
+            fwrite($file, "sep=;\n"); // Magia para Excel Windows
             fputcsv($file, [
                 'TITULAR_APELLIDO_NOMBRE',
                 'TITULAR_NRO_AFILIADO',
@@ -189,6 +192,7 @@ class ImportadorController extends Controller
         $callback = function() {
             $file = fopen('php://output', 'w');
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fwrite($file, "sep=;\n"); // Magia para Excel Windows
             fputcsv($file, [
                 'ALUMNO_APELLIDO_NOMBRE',
                 'ALUMNO_DNI',
