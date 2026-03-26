@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('familiars', function (Blueprint $table) {
+        Schema::table('familiares', function (Blueprint $table) {
             $table->string('n_afiliado')->nullable()->after('dni');
             $table->string('grado_division')->nullable();
             $table->string('turno')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->dropColumn('resolucion');
         });
 
-        Schema::table('familiars', function (Blueprint $table) {
+        Schema::table('familiares', function (Blueprint $table) {
             $table->dropColumn(['n_afiliado', 'grado_division', 'turno', 'horario']);
         });
     }
