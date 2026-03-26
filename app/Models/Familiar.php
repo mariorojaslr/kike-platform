@@ -19,7 +19,11 @@ class Familiar extends Model
         'parentesco',
         'diagnostico_id',
         'escuela_id',
-        'tiene_patologia'
+        'tiene_patologia',
+        'n_afiliado',
+        'grado_division',
+        'turno',
+        'horario'
     ];
 
     /**

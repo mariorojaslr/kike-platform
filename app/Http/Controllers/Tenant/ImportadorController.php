@@ -57,23 +57,34 @@ class ImportadorController extends Controller
                     // 1. Crear o Buscar Titular
                     $titular = null;
                     if ($titularAfiliado) {
-                        $titular = Titular::updateOrCreate(
-                            ['n_afiliado' => $titularAfiliado],
-                            ['nombre' => $titularNombre]
-                        );
+                        $titular = Titular::where('n_afiliado', $titularAfiliado)->first();
+                        if (!$titular) {
+                            $titular = Titular::create([
+                                'n_afiliado' => $titularAfiliado,
+                                'nombre' => $titularNombre,
+                                'dni' => 'S/D-T-' . rand(10000, 99999), 
+                                'empresa_id' => $empresaId
+                            ]);
+                        } else {
+                            $titular->update(['nombre' => $titularNombre]);
+                        }
                     }
 
                     // 2. Crear o Buscar Beneficiario (Hijo)
                     if ($benefAfiliado && $titular) {
-                        Familiar::updateOrCreate(
-                            ['n_afiliado' => $benefAfiliado],
-                            [
+                        $familiar = Familiar::where('n_afiliado', $benefAfiliado)->first();
+                        if (!$familiar) {
+                            Familiar::create([
+                                'n_afiliado' => $benefAfiliado,
+                                'empresa_id' => $empresaId,
                                 'titular_id' => $titular->id,
                                 'nombre' => $benefNombre,
                                 'dni' => 'S/D-' . rand(1000, 9999), 
                                 'parentesco' => 'Hijo'
-                            ]
-                        );
+                            ]);
+                        } else {
+                            $familiar->update(['nombre' => $benefNombre, 'titular_id' => $titular->id]);
+                        }
                     }
 
                     // 3. Crear o Buscar Docente
@@ -110,8 +121,10 @@ class ImportadorController extends Controller
                     $horarioStr = trim($row[7] ?? '');
 
                     // Tratar Diagnóstico
+                    $diagnosticoId = null;
                     if ($diagnosticoStr) {
-                        Diagnostico::firstOrCreate(['nombre' => $diagnosticoStr]);
+                        $diagObj = Diagnostico::firstOrCreate(['nombre' => $diagnosticoStr]);
+                        $diagnosticoId = $diagObj->id;
                     }
 
                     // Tratar Escuela de este Tenant
@@ -125,19 +138,29 @@ class ImportadorController extends Controller
 
                     // Actualizar o Crear Beneficiario con sus datos correctos
                     if ($nAfiliado) {
-                        Familiar::updateOrCreate(
-                            ['n_afiliado' => $nAfiliado],
-                            [
-                                'nombre' => $alumnoNombre,
-                                'dni' => $alumnoDni,
-                                'tiene_patologia' => !empty($diagnosticoStr),
-                                'diagnostico' => $diagnosticoStr,
-                                'escuela_id' => $escuelaId,
-                                'grado_division' => $gradoStr,
-                                'turno' => $turnoStr,
-                                'horario' => $horarioStr,
-                            ]
-                        );
+                        $updData = [
+                            'nombre' => $alumnoNombre,
+                            'tiene_patologia' => !empty($diagnosticoStr),
+                            'diagnostico_id' => $diagnosticoId,
+                            'escuela_id' => $escuelaId,
+                            'grado_division' => $gradoStr,
+                            'turno' => $turnoStr,
+                            'horario' => $horarioStr,
+                        ];
+                        if ($alumnoDni) {
+                            $updData['dni'] = $alumnoDni;
+                        }
+                        
+                        $familiar = Familiar::where('n_afiliado', $nAfiliado)->first();
+                        if ($familiar) {
+                            $familiar->update($updData);
+                        } else {
+                            $updData['n_afiliado'] = $nAfiliado;
+                            $updData['empresa_id'] = $empresaId;
+                            if (!isset($updData['dni'])) $updData['dni'] = 'S/D-' . rand(1000, 9999);
+                            $updData['parentesco'] = 'Hijo';
+                            Familiar::create($updData);
+                        }
                         $count++;
                     }
                 }
