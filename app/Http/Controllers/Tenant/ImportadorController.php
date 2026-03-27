@@ -160,14 +160,14 @@ class ImportadorController extends Controller
                     }
                     $emptyLines = 0;
 
-                    $alumnoNombre = trim($row[0] ?? '');
+                    $alumnoNombre = mb_substr(trim($row[0] ?? ''), 0, 250);
                     
                     if (str_contains(strtolower($alumnoNombre), 'sep=') || str_contains(strtolower($alumnoNombre), 'alumno_apellido')) {
                         continue;
                     }
 
-                    $alumnoDni = trim($row[1] ?? '');
-                    $nAfiliado = trim($row[2] ?? '');
+                    $alumnoDni = mb_substr(trim($row[1] ?? ''), 0, 100);
+                    $nAfiliado = mb_substr(trim($row[2] ?? ''), 0, 100);
                     $diagnosticoStr = trim($row[3] ?? '');
                     if (mb_strlen($diagnosticoStr) > 250) {
                         $diagnosticoStr = mb_substr($diagnosticoStr, 0, 250);
