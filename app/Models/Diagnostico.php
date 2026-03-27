@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Diagnostico extends Model {
     protected $table = 'diagnosticos';
-    protected $fillable = ['codigo', 'descripcion'];
+    protected $fillable = ['nombre'];
 }

@@ -21,7 +21,8 @@ class Docente extends Model
         'direccion',
         'formacion_id', // Se cruza con formaciones globales (Psicopedagoga, Maestra integradora)
         'validado_auditoria',
-        'activo'
+        'activo',
+        'resolucion'
     ];
 
     /**
