@@ -95,12 +95,12 @@ class ImportadorController extends Controller
                         continue;
                     }
 
-                    $titularAfiliado = trim($row[1] ?? '');
-                    $benefNombre = trim($row[2] ?? '');
-                    $benefAfiliado = trim($row[3] ?? '');
-                    $docenteNombre = trim($row[4] ?? '');
-                    $docenteDni = trim($row[5] ?? '');
-                    $docenteRes = trim($row[6] ?? '');
+                    $titularAfiliado = mb_substr(trim($row[1] ?? ''), 0, 100);
+                    $benefNombre = mb_substr(trim($row[2] ?? ''), 0, 250);
+                    $benefAfiliado = mb_substr(trim($row[3] ?? ''), 0, 100);
+                    $docenteNombre = mb_substr(trim($row[4] ?? ''), 0, 250);
+                    $docenteDni = mb_substr(trim($row[5] ?? ''), 0, 100);
+                    $docenteRes = mb_substr(trim($row[6] ?? ''), 0, 250);
 
                     // 1. Crear o Buscar Titular
                     $titular = null;
@@ -169,7 +169,14 @@ class ImportadorController extends Controller
                     $alumnoDni = trim($row[1] ?? '');
                     $nAfiliado = trim($row[2] ?? '');
                     $diagnosticoStr = trim($row[3] ?? '');
+                    if (mb_strlen($diagnosticoStr) > 250) {
+                        $diagnosticoStr = mb_substr($diagnosticoStr, 0, 250);
+                    }
+                    
                     $escuelaStr = trim($row[4] ?? '');
+                    if (mb_strlen($escuelaStr) > 250) {
+                        $escuelaStr = mb_substr($escuelaStr, 0, 250);
+                    }
                     $gradoStr = trim($row[5] ?? '');
                     $turnoStr = trim($row[6] ?? '');
                     $horarioStr = trim($row[7] ?? '');
