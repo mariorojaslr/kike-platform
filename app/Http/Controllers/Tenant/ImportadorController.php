@@ -25,8 +25,9 @@ class ImportadorController extends Controller
 
     public function procesar(Request $request)
     {
+        // Eliminamos el mimes:csv,txt porque en algunos servidores puede colgar o fallar
         $request->validate([
-            'archivo_csv' => 'required|mimes:csv,txt|max:10240',
+            'archivo_csv' => 'required|file|max:51200',
             'tipo_importacion' => 'required|in:resumen,alumnos'
         ]);
 
@@ -37,8 +38,14 @@ class ImportadorController extends Controller
 
             if ($request->tipo_importacion == 'resumen') {
                 // Lógica para planilla de RESUMEN GENERAL (Titulares, Beneficiarios, Docentes)
+                $emptyLines = 0;
                 while (($row = fgetcsv($file, 2000, ";")) !== FALSE) {
-                    if (count($row) < 5 || empty(trim($row[0]))) continue;
+                    if (count($row) < 5 || empty(trim($row[0]))) {
+                        $emptyLines++;
+                        if ($emptyLines > 50) break; // Excel 1M empty rows protection
+                        continue;
+                    }
+                    $emptyLines = 0;
 
                     $titularNombre = trim($row[0] ?? '');
                     
@@ -103,8 +110,14 @@ class ImportadorController extends Controller
                 }
             } else {
                 // Lógica para planilla ALUMNOS (Diagnósticos, Escuelas)
+                $emptyLines = 0;
                 while (($row = fgetcsv($file, 2000, ";")) !== FALSE) {
-                    if (count($row) < 4 || empty(trim($row[0]))) continue;
+                    if (count($row) < 4 || empty(trim($row[0]))) {
+                        $emptyLines++;
+                        if ($emptyLines > 50) break; // Excel 1M empty rows protection
+                        continue;
+                    }
+                    $emptyLines = 0;
 
                     $alumnoNombre = trim($row[0] ?? '');
                     
