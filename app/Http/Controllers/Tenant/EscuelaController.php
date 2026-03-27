@@ -41,7 +41,7 @@ class EscuelaController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('dashboards.tenant.partials.escuelas_table_rows', compact('escuelas'))->render(),
+                'html' => view('dashboards.tenant.partials.escuelas_table_rows', compact('escuelas', 'search'))->render(),
                 'pagination' => (string) $escuelas->links('pagination::bootstrap-5')
             ]);
         }

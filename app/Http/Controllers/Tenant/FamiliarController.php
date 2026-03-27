@@ -63,7 +63,7 @@ class FamiliarController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('dashboards.tenant.partials.familiares_table_rows', compact('familiares'))->render(),
+                'html' => view('dashboards.tenant.partials.familiares_table_rows', compact('familiares', 'search'))->render(),
                 'pagination' => (string)$familiares->links('pagination::bootstrap-5')
             ]);
         }

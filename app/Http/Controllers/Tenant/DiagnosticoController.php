@@ -28,7 +28,7 @@ class DiagnosticoController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('dashboards.tenant.partials.diagnosticos_table_rows', compact('diagnosticos'))->render(),
+                'html' => view('dashboards.tenant.partials.diagnosticos_table_rows', compact('diagnosticos', 'search'))->render(),
                 'pagination' => (string) $diagnosticos->links('pagination::bootstrap-5')
             ]);
         }

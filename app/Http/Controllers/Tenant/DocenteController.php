@@ -49,7 +49,7 @@ class DocenteController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('dashboards.tenant.partials.docentes_table_rows', compact('docentes'))->render(),
+                'html' => view('dashboards.tenant.partials.docentes_table_rows', compact('docentes', 'search'))->render(),
                 'pagination' => (string)$docentes->links('pagination::bootstrap-5')
             ]);
         }

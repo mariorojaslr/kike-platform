@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.tenant')
 
 @push('styles')
 <style>

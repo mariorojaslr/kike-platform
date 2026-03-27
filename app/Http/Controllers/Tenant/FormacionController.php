@@ -35,7 +35,7 @@ class FormacionController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('dashboards.tenant.partials.formaciones_table_rows', compact('formaciones'))->render(),
+                'html' => view('dashboards.tenant.partials.formaciones_table_rows', compact('formaciones', 'search'))->render(),
                 'pagination' => (string) $formaciones->links('pagination::bootstrap-5')
             ]);
         }
