@@ -20,6 +20,21 @@ class ImportadorController extends Controller
 
     public function index()
     {
+        // Auto-fix DB si el usuario tuvo problemas con php artisan migrate en su Cpanel/Server
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('familiares', 'n_afiliado')) {
+            \Illuminate\Support\Facades\Schema::table('familiares', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->string('n_afiliado')->nullable()->after('dni');
+                $table->string('grado_division')->nullable();
+                $table->string('turno')->nullable();
+                $table->string('horario')->nullable();
+            });
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('docentes', 'resolucion')) {
+            \Illuminate\Support\Facades\Schema::table('docentes', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->string('resolucion')->nullable()->after('dni');
+            });
+        }
+
         return view('dashboards.tenant.importador.index');
     }
 
