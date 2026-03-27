@@ -1,3 +1,15 @@
+@php
+    if (!function_exists('highlightText')) {
+        function highlightText($text, $search) {
+            if (!$text) return '';
+            $text = (string)$text;
+            if (!$search) return htmlspecialchars($text);
+            $pattern = '/(' . preg_quote($search, '/') . ')/ui';
+            return preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', htmlspecialchars($text));
+        }
+    }
+@endphp
+
 @forelse($familiares as $familiar)
     <tr>
         <td class="align-middle">
@@ -12,15 +24,15 @@
                     @endif
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-bold" style="color: var(--text-main);">{{ $familiar->nombre }}</h6>
-                    <span class="badge rounded-pill bg-light text-dark shadow-sm border mt-1" style="font-size: 0.75rem;"><i class="fas fa-id-card me-1 text-muted"></i> DNI: {{ $familiar->dni ?? 'No especificado' }}</span>
+                    <h6 class="mb-0 fw-bold" style="color: var(--text-main);">{!! highlightText($familiar->nombre, $search ?? '') !!}</h6>
+                    <span class="badge rounded-pill bg-light text-dark shadow-sm border mt-1" style="font-size: 0.75rem;"><i class="fas fa-id-card me-1 text-muted"></i> DNI: {!! highlightText($familiar->dni ?? 'No especificado', $search ?? '') !!}</span>
                 </div>
             </div>
         </td>
         <td class="align-middle text-center">
             <!-- Nro de Afiliado Generado Dinámicamente Obra Social -->
             <span class="badge px-3 py-2 fs-6 shadow-sm" style="background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.3);">
-                <i class="fas fa-barcode me-2 text-primary"></i>{{ $familiar->numero_afiliado }}
+                <i class="fas fa-barcode me-2 text-primary"></i>{!! highlightText($familiar->numero_afiliado, $search ?? '') !!}
             </span>
         </td>
         <td class="align-middle">

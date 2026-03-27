@@ -1,3 +1,15 @@
+@php
+    if (!function_exists('highlightText')) {
+        function highlightText($text, $search) {
+            if (!$text) return '';
+            $text = (string)$text;
+            if (!$search) return htmlspecialchars($text);
+            $pattern = '/(' . preg_quote($search, '/') . ')/ui';
+            return preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', htmlspecialchars($text));
+        }
+    }
+@endphp
+
 @forelse($escuelas as $escuela)
 <tr>
     <!-- Institución & Info Base -->
@@ -8,12 +20,12 @@
                 {{ mb_substr($escuela->nombre, 0, 1) }}
             </div>
             <div class="ms-3">
-                <h6 class="mb-1 fw-bold text-dark">{{ $escuela->nombre }}</h6>
+                <h6 class="mb-1 fw-bold text-dark">{!! highlightText($escuela->nombre, $search ?? '') !!}</h6>
                 <div class="small text-muted d-flex align-items-center gap-2">
-                    <span><i class="fas fa-barcode"></i> CUE: {{ $escuela->cue ?? 'Sin Registro' }}</span>
+                    <span><i class="fas fa-barcode"></i> CUE: {!! highlightText($escuela->cue ?? 'Sin Registro', $search ?? '') !!}</span>
                 </div>
                 @if($escuela->direccion)
-                <div class="small text-muted mt-1"><i class="fas fa-map-marker-alt"></i> {{ $escuela->direccion }}</div>
+                <div class="small text-muted mt-1"><i class="fas fa-map-marker-alt"></i> {!! highlightText($escuela->direccion, $search ?? '') !!}</div>
                 @endif
             </div>
         </div>

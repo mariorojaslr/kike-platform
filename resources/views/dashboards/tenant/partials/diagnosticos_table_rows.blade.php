@@ -1,10 +1,22 @@
+@php
+    if (!function_exists('highlightText')) {
+        function highlightText($text, $search) {
+            if (!$text) return '';
+            $text = (string)$text;
+            if (!$search) return htmlspecialchars($text);
+            $pattern = '/(' . preg_quote($search, '/') . ')/ui';
+            return preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', htmlspecialchars($text));
+        }
+    }
+@endphp
+
 @forelse($diagnosticos as $diagnostico)
     <tr>
         <td class="align-middle fw-bold">
-            <span class="badge bg-secondary px-3 py-2 text-white shadow-sm"><i class="fas fa-hashtag me-1"></i>{{ $diagnostico->codigo }}</span>
+            <span class="badge bg-secondary px-3 py-2 text-white shadow-sm"><i class="fas fa-hashtag me-1"></i>{!! highlightText($diagnostico->codigo, $search ?? '') !!}</span>
         </td>
         <td class="align-middle fs-6">
-            {{ $diagnostico->nombre }}
+            {!! highlightText($diagnostico->nombre, $search ?? '') !!}
         </td>
         <td class="align-middle">
             <span class="badge bg-success-subtle text-success border border-success px-2 py-1"><i class="fas fa-check-circle me-1"></i>Activo / Aprobado</span>

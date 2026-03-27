@@ -1,3 +1,15 @@
+@php
+    if (!function_exists('highlightText')) {
+        function highlightText($text, $search) {
+            if (!$text) return '';
+            $text = (string)$text;
+            if (!$search) return htmlspecialchars($text);
+            $pattern = '/(' . preg_quote($search, '/') . ')/ui';
+            return preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', htmlspecialchars($text));
+        }
+    }
+@endphp
+
 @forelse($docentes as $docente)
     <tr>
         <td class="align-middle">
@@ -12,10 +24,10 @@
                     @endif
                 </div>
                 <div>
-                    <span class="fw-bold d-block" style="color: var(--text-main);">{{ $docente->nombre }}</span>
+                    <span class="fw-bold d-block" style="color: var(--text-main);">{!! highlightText($docente->nombre, $search ?? '') !!}</span>
                     <div class="d-flex gap-2 mt-1">
-                        <small class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.70rem;"><i class="fas fa-id-card me-1 text-muted"></i>{{ $docente->dni }}</small>
-                        <small class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.70rem;"><i class="fas fa-envelope me-1 text-muted"></i>{{ $docente->email }}</small>
+                        <small class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.70rem;"><i class="fas fa-id-card me-1 text-muted"></i>{!! highlightText($docente->dni, $search ?? '') !!}</small>
+                        <small class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.70rem;"><i class="fas fa-envelope me-1 text-muted"></i>{!! highlightText($docente->email, $search ?? '') !!}</small>
                     </div>
                 </div>
             </div>
