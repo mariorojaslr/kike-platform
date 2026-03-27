@@ -29,6 +29,32 @@ class ImportadorController extends Controller
                 $table->string('horario')->nullable();
             });
         }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('familiares', 'parentesco')) {
+            \Illuminate\Support\Facades\Schema::table('familiares', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->string('parentesco')->nullable()->default('Hijo');
+            });
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('familiares', 'diagnostico_id')) {
+            \Illuminate\Support\Facades\Schema::table('familiares', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('diagnostico_id')->nullable();
+            });
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('familiares', 'empresa_id')) {
+            \Illuminate\Support\Facades\Schema::table('familiares', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('empresa_id')->nullable();
+            });
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('familiares', 'tiene_patologia')) {
+            \Illuminate\Support\Facades\Schema::table('familiares', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->boolean('tiene_patologia')->default(false);
+            });
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('familiares', 'escuela_id')) {
+            \Illuminate\Support\Facades\Schema::table('familiares', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->unsignedBigInteger('escuela_id')->nullable();
+            });
+        }
+
         if (!\Illuminate\Support\Facades\Schema::hasColumn('docentes', 'resolucion')) {
             \Illuminate\Support\Facades\Schema::table('docentes', function (\Illuminate\Database\Schema\Blueprint $table) {
                 $table->string('resolucion')->nullable()->after('dni');
