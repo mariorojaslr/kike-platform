@@ -44,10 +44,76 @@
             @if($titular->resolucion) <div><strong class="text-dark"><i class="fas fa-file-signature text-warning"></i> Res:</strong> {!! highlightText($titular->resolucion, $search ?? '') !!}</div> @endif
         </td>
         <td class="align-middle text-end">
-            <!-- Botón Ver Familiares/Alumnos (Vínculo futuro) -->
-            <button class="btn btn-sm btn-outline-info rounded-circle me-1" title="Ver Grupo Familiar/Afiliados" onclick="alert('Módulo de grupo familiar en construcción')">
+            <!-- Botón Ver Familiares/Alumnos -->
+            <button class="btn btn-sm btn-outline-info rounded-circle me-1" title="Ver Grupo Familiar/Alumnos" data-bs-toggle="modal" data-bs-target="#hijosModal{{ $titular->id }}">
                 <i class="fas fa-users"></i>
+                @if($titular->familiares->count() > 0)
+                    <span class="position-absolute translate-middle p-1 bg-success border border-light rounded-circle" style="margin-top: 5px;"></span>
+                @endif
             </button>
+
+            <!-- Modal Ver Familiares -->
+            <div class="modal fade text-start" id="hijosModal{{ $titular->id }}" tabindex="-1" aria-hidden="true" style="color: #0f172a;">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                        <div class="modal-header bg-info bg-opacity-10 border-0" style="border-radius: 15px 15px 0 0;">
+                            <h5 class="modal-title fw-bold text-info-emphasis"><i class="fas fa-child me-2"></i> Grupo Familiar / Alumnos a Cargo</h5>
+                            <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4 bg-light">
+                            <h6 class="fw-bold mb-3">Titular: <span class="text-primary">{{ $titular->nombre }}</span></h6>
+                            @if($titular->familiares && $titular->familiares->count() > 0)
+                                <div class="table-responsive rounded shadow-sm border bg-white">
+                                    <table class="table table-hover mb-0 align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nombre Alumno</th>
+                                                <th>N° Afiliado</th>
+                                                <th>Diagnóstico</th>
+                                                <th>Escuela</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($titular->familiares as $hijo)
+                                                <tr>
+                                                    <td class="fw-bold">{{ $hijo->nombre }}</td>
+                                                    <td><span class="badge bg-secondary">{{ $hijo->n_afiliado ?? 'S/D' }}</span></td>
+                                                    <td>
+                                                        @if($hijo->tiene_patologia && $hijo->diagnostico)
+                                                            <span class="badge bg-warning text-dark text-wrap text-start" style="max-width: 150px;">{{ $hijo->diagnostico->nombre ?? 'N/A' }}</span>
+                                                        @else
+                                                            <span class="text-muted small">S/D</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="small">
+                                                        @if($hijo->escuela)
+                                                            <i class="fas fa-school text-primary"></i> {{ $hijo->escuela->nombre }}<br>
+                                                            <span class="text-muted" style="font-size: 0.70rem;">{{ $hijo->grado_division ?? 'Sin Grado' }} | {{ $hijo->turno ?? 'Sin Turno' }}</span>
+                                                        @else
+                                                            <span class="text-muted small">Sin Escuela</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Sin Pacientes / Alumnos</h6>
+                                        <p class="mb-0 small text-muted">Este titular aún no tiene ningún familiar vinculado a su cargo.</p>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="modal-footer border-0 pb-4 pe-4">
+                            <button type="button" class="btn btn-secondary rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">Cerrar Detalle</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Botón Editar -->
             <button class="btn btn-sm btn-outline-primary rounded-circle me-1" title="Editar Referente" data-bs-toggle="modal" data-bs-target="#editModal{{ $titular->id }}">

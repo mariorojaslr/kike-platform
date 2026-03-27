@@ -40,7 +40,7 @@ class TitularController extends Controller
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        $query = Titular::where('empresa_id', $empresaId);
+        $query = Titular::with(['familiares.diagnostico', 'familiares.escuela'])->where('empresa_id', $empresaId);
 
         if ($search) {
             $query->where(function($q) use ($search) {
