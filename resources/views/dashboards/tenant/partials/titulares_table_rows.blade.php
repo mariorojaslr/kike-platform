@@ -3,11 +3,17 @@
         function highlightText($text, $search) {
             if (!$text) return '';
             $text = (string)$text;
-            if (!$search) return htmlspecialchars($text);
+            $search = trim((string)$search);
             
-            // Clean up regex for safe search matching
+            // Fix encoding issues from CSV imports ensuring it does not return blank string
+            $safeText = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            
+            if (!$search) return $safeText;
+            
             $pattern = '/(' . preg_quote($search, '/') . ')/ui';
-            return preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', htmlspecialchars($text));
+            $replaced = preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold"></mark>', $safeText);
+            
+            return $replaced !== null ? $replaced : $safeText;
         }
     }
 @endphp
