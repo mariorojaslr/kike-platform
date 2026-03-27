@@ -859,78 +859,126 @@
             }
         }
 
+        let timeoutComun = null;
+
         function filtrarTitularComun() {
-            const term = document.getElementById('comunTitularInput').value.toLowerCase();
+            clearTimeout(timeoutComun);
+            const term = document.getElementById('comunTitularInput').value;
             const list = document.getElementById('listaTitularesComun');
             list.innerHTML = "";
-            if(!term) { list.style.display = 'none'; return; }
-            const filtradas = titularesDemo.filter(e => e.toLowerCase().includes(term));
-            if(filtradas.length > 0) {
-                list.style.display = 'block';
-                filtradas.forEach(e => {
-                    const row = document.createElement('div');
-                    row.className = "alumno-card";
-                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                    row.innerHTML = `<i class="fas fa-user-shield text-info me-2"></i> ${e}`;
-                    row.onclick = () => {
-                        document.getElementById('comunTitularInput').value = e;
-                        datosAsistidos.titular = e;
-                        list.style.display = 'none';
-                        document.getElementById('comunAlumnoInput').disabled = false;
-                        document.getElementById('comunAlumnoInput').focus();
-                    };
-                    list.appendChild(row);
-                });
-            } else { list.style.display = 'none'; }
+            if(!term || term.length < 2) { list.style.display = 'none'; return; }
+            
+            timeoutComun = setTimeout(() => {
+                fetch(`{{ route('pwa.docente.search') }}?type=titulares&q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.length > 0) {
+                            list.style.display = 'block';
+                            data.forEach(e => {
+                                const row = document.createElement('div');
+                                row.className = "alumno-card";
+                                row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                                row.innerHTML = `<i class="fas fa-user-shield text-info me-2"></i> ${e.nombre} <small class="text-muted ms-1">(${e.dni})</small>`;
+                                row.onclick = () => {
+                                    document.getElementById('comunTitularInput').value = e.nombre;
+                                    datosAsistidos.titular = e.nombre;
+                                    datosAsistidos.titular_id = e.id;
+                                    list.style.display = 'none';
+                                    
+                                    // Cargar alumnos dependientes
+                                    const alumSelect = document.getElementById('comunAlumnoInput');
+                                    alumSelect.disabled = false;
+                                    alumSelect.focus();
+                                    alumSelect.placeholder = "🔍 Cargando hijos...";
+                                    
+                                    fetch(`{{ route('pwa.docente.search') }}?type=alumnos_by_titular&titular_id=${e.id}`)
+                                        .then(r => r.json())
+                                        .then(alumData => {
+                                            alumSelect.placeholder = alumData.length > 0 ? "🔍 Seleccionar Alumno..." : "⚠️ No tiene registros de alumnos";
+                                            if(alumData.length > 0) {
+                                                const listAlum = document.getElementById('listaAlumnosComun');
+                                                listAlum.style.display = 'block';
+                                                listAlum.innerHTML = "";
+                                                alumData.forEach(a => {
+                                                    const rowAlum = document.createElement('div');
+                                                    rowAlum.className = "alumno-card";
+                                                    rowAlum.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                                                    rowAlum.innerHTML = `<i class="fas fa-child text-warning me-2"></i> ${a.nombre}`;
+                                                    rowAlum.onclick = () => {
+                                                        alumSelect.value = a.nombre;
+                                                        datosAsistidos.alumno = a.nombre;
+                                                        datosAsistidos.alumno_data = a;
+                                                        listAlum.style.display = 'none';
+                                                        
+                                                        // Validamos y auto-cargamos campos
+                                                        document.getElementById('alumnoDni').value = a.dni || '';
+                                                        document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
+                                                        
+                                                        // Si tiene escuela asignada, la auto-precargarnos
+                                                        if (a.escuela) {
+                                                            document.getElementById('comunEscuelaInput').value = a.escuela.nombre;
+                                                            datosAsistidos.escuela = a.escuela.nombre;
+                                                            habilitarFormularioDatos();
+                                                        } else {
+                                                            document.getElementById('comunEscuelaInput').disabled = false;
+                                                            document.getElementById('comunEscuelaInput').focus();
+                                                        }
+                                                    };
+                                                    listAlum.appendChild(rowAlum);
+                                                });
+                                            }
+                                        });
+                                };
+                                list.appendChild(row);
+                            });
+                        } else { list.style.display = 'none'; }
+                    });
+            }, 300);
         }
 
         function filtrarAlumnoComun() {
+            // Ya cargado por fetch al seleccionar el titular
             const term = document.getElementById('comunAlumnoInput').value.toLowerCase();
             const list = document.getElementById('listaAlumnosComun');
-            list.innerHTML = "";
-            if(!term) { list.style.display = 'none'; return; }
-            const filtrados = alumnosGlobalesDemo.filter(a => a.toLowerCase().includes(term));
-            if(filtrados.length > 0) {
-                list.style.display = 'block';
-                filtrados.forEach(a => {
-                    const row = document.createElement('div');
-                    row.className = "alumno-card";
-                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                    row.innerHTML = `<i class="fas fa-child text-warning me-2"></i> ${a}`;
-                    row.onclick = () => {
-                        document.getElementById('comunAlumnoInput').value = a;
-                        datosAsistidos.alumno = a;
-                        list.style.display = 'none';
-                        document.getElementById('comunEscuelaInput').disabled = false;
-                        document.getElementById('comunEscuelaInput').focus();
-                    };
-                    list.appendChild(row);
-                });
-            } else { list.style.display = 'none'; }
+            if (list.children.length === 0) return;
+            let showCount = 0;
+            [...list.children].forEach(child => {
+                const isMatch = child.innerText.toLowerCase().includes(term);
+                child.style.display = isMatch ? 'block' : 'none';
+                if(isMatch) showCount++;
+            });
+            list.style.display = showCount > 0 ? 'block' : 'none';
         }
 
         function filtrarEscuelaComun() {
-            const term = document.getElementById('comunEscuelaInput').value.toLowerCase();
+            clearTimeout(timeoutComun);
+            const term = document.getElementById('comunEscuelaInput').value;
             const list = document.getElementById('listaEscuelasComun');
             list.innerHTML = "";
-            if(!term) { list.style.display = 'none'; return; }
-            const filtradas = escuelasDemo.filter(e => e.toLowerCase().includes(term));
-            if(filtradas.length > 0) {
-                list.style.display = 'block';
-                filtradas.forEach(e => {
-                    const row = document.createElement('div');
-                    row.className = "alumno-card";
-                    row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                    row.innerHTML = `<i class="fas fa-school text-primary me-2"></i> ${e}`;
-                    row.onclick = () => {
-                        document.getElementById('comunEscuelaInput').value = e;
-                        datosAsistidos.escuela = e;
-                        list.style.display = 'none';
-                        habilitarFormularioDatos();
-                    };
-                    list.appendChild(row);
-                });
-            } else { list.style.display = 'none'; }
+            if(!term || term.length < 2) { list.style.display = 'none'; return; }
+            
+            timeoutComun = setTimeout(() => {
+                fetch(`{{ route('pwa.docente.search') }}?type=escuelas&q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.length > 0) {
+                            list.style.display = 'block';
+                            data.forEach(e => {
+                                const row = document.createElement('div');
+                                row.className = "alumno-card";
+                                row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                                row.innerHTML = `<i class="fas fa-school text-primary me-2"></i> ${e.nombre}`;
+                                row.onclick = () => {
+                                    document.getElementById('comunEscuelaInput').value = e.nombre;
+                                    datosAsistidos.escuela = e.nombre;
+                                    list.style.display = 'none';
+                                    habilitarFormularioDatos();
+                                };
+                                list.appendChild(row);
+                            });
+                        } else { list.style.display = 'none'; }
+                    });
+            }, 300);
         }
 
         function abrirModalNuevo() {

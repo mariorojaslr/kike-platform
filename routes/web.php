@@ -189,6 +189,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ==========================================
 Route::get('/app-docente/demo', [\App\Http\Controllers\PwaDocenteController::class , 'demo'])->name('pwa.docente.demo');
 Route::post('/app-docente/upload', [\App\Http\Controllers\PwaDocenteController::class , 'uploadDocument'])->name('pwa.docente.upload');
+Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::class, 'search'])->name('pwa.docente.search');
 
 /**
  * 3. SISTEMA DE AUTENTICACIÓN (Breeze/Jetstream)

@@ -28,7 +28,10 @@ class ImpersonateController extends Controller
         // 4. Hacemos login mágico forzoso sin contraseña
         Auth::login($userToImpersonate);
 
-        // 5. Redirigimos al Tenant Dashboard (o donde corresponda) con éxito
+        // 5. Redirigimos al Tenant Dashboard o a la Auditoria según corresponda
+        if (request()->query('redirect') === 'auditor') {
+            return redirect()->route('auditor.facturas')->with('success', "Modo Auditor: Revisando facturas pendientes de la empresa.");
+        }
         return redirect()->route('tenant.dashboard')->with('success', "Modo Omnisciente: Estás viendo todo como {$userToImpersonate->name}.");
     }
 

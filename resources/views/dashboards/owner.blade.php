@@ -819,8 +819,8 @@
                             </div>
                         </a>
                         
-                        <!-- Opción Auditor (En desarrollo) -->
-                        <button class="btn btn-outline-warning btn-lg text-start fw-bold shadow-sm p-3 border-2" style="border-radius: 12px;" onclick="alert('La interfaz de Auditor está en fase de diseño. Entra como Administrador mientras tanto.');">
+                        <!-- Opción Auditor -->
+                        <a href="{{ route('impersonate.enter', $adminUsr->id) }}?redirect=auditor" class="btn btn-outline-warning btn-lg text-start fw-bold shadow-sm p-3 border-2" style="border-radius: 12px;">
                             <div class="d-flex align-items-center">
                                 <div class="bg-warning text-dark rounded-circle p-2 me-3" style="width: 40px; height: 40px; text-align: center;"><i class="fas fa-user-check"></i></div>
                                 <div>
@@ -828,7 +828,7 @@
                                     <small class="text-muted fw-normal" style="font-size: 0.75rem;">Herramientas para revisar Vencimientos de Documentos y Reportes</small>
                                 </div>
                             </div>
-                        </button>
+                        </a>
 
                         <!-- Opción App Docente (Enlace que desarrollaremos a continuación) -->
                         <a href="{{ url('/app-docente/demo') }}" target="_blank" class="btn btn-outline-success btn-lg text-start fw-bold shadow-sm p-3 border-2" style="border-radius: 12px;">

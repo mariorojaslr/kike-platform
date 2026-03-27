@@ -98,11 +98,69 @@ class PwaDocenteController extends Controller
                 'path' => $path
             ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al subir el archivo: ' . $e->getMessage()
-            ], 500);
         }
+    }
+
+    /**
+     * Búsqueda en Vivo (AJAX) para PWA
+     */
+    public function search(Request $request)
+    {
+        $term = $request->query('q');
+        $type = $request->query('type');
+        $empresa_id = 1; // Demo
+
+        if (!$term && $type !== 'alumnos_by_titular') {
+            return response()->json([]);
+        }
+
+        if ($type === 'titulares') {
+            $titulares = \App\Models\Titular::where('empresa_id', $empresa_id)
+                ->where(function($q) use ($term) {
+                    $q->where('nombre', 'LIKE', "%{$term}%")
+                      ->orWhere('dni', 'LIKE', "%{$term}%");
+                })
+                ->take(10)
+                ->get(['id', 'nombre', 'dni']);
+            return response()->json($titulares);
+        }
+
+        if ($type === 'alumnos') {
+            $query = \App\Models\Familiar::with(['diagnostico', 'escuela', 'titular'])
+                ->where('empresa_id', $empresa_id);
+                
+            if ($term) {
+                $query->where('nombre', 'LIKE', "%{$term}%");
+            }
+
+            if ($request->has('titular_id')) {
+                $query->where('titular_id', $request->query('titular_id'));
+            }
+
+            $alumnos = $query->take(15)->get();
+            return response()->json($alumnos);
+        }
+        
+        if ($type === 'alumnos_by_titular') {
+            $query = \App\Models\Familiar::with(['diagnostico', 'escuela', 'titular'])
+                ->where('empresa_id', $empresa_id)
+                ->where('titular_id', $request->query('titular_id'));
+
+            $alumnos = $query->take(20)->get();
+            return response()->json($alumnos);
+        }
+
+        if ($type === 'escuelas') {
+            $escuelas = \App\Models\Escuela::where('empresa_id', $empresa_id)
+                ->where(function($q) use ($term) {
+                    $q->where('nombre', 'LIKE', "%{$term}%")
+                      ->orWhere('cue', 'LIKE', "%{$term}%");
+                })
+                ->take(10)
+                ->get(['id', 'nombre', 'cue']);
+            return response()->json($escuelas);
+        }
+
+        return response()->json([]);
     }
 }
