@@ -116,7 +116,7 @@
 
     <div class="footer">
         Este documento es información confidencial y uso exclusivo corporativo.<br>
-        KIKE SaaS Platform - Módulo de Reportes Institucionales.
+        INTEGRA SaaS Platform - Módulo de Reportes Institucionales.
     </div>
 
 </body>

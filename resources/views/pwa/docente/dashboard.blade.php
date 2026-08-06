@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Tema Nocturno Obligatorio App Móvil -->
     <meta name="theme-color" content="#0f172a">
-    <title>KIKE | Portal de Terapeutas</title>
+    <title>INTEGRA | Portal de Terapeutas</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -855,7 +855,7 @@
                 document.getElementById('lblEscuelaReq').innerText = datosAsistidos.escuela || "la Institución";
                 document.getElementById('lblTitularReq').innerText = datosAsistidos.titular || "el Responsable";
                 pasoActual = 3; 
-                kikeHabla(`Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentación requerida escaneando con la cámara.`);
+                asistenteHabla(`Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentación requerida escaneando con la cámara.`);
             }
         }
 
@@ -1067,7 +1067,7 @@
 
         // --- SISTEMA INTELIGENTE DE HABLA Y ESCUCHA ---
 
-        function kikeHabla(texto, callback) {
+        function asistenteHabla(texto, callback) {
             if ('speechSynthesis' in window) {
                 // Cancelamos audios anteriores por si acaso
                 window.speechSynthesis.cancel();
@@ -1082,13 +1082,13 @@
                 };
                 window.speechSynthesis.speak(msg);
             } else {
-                console.log("Asistente KIKE (Texto):", texto);
+                console.log("Asistente Virtual (Texto):", texto);
                 alert(texto);
                 if(callback) callback();
             }
         }
 
-        function kikeEscucha(placeholder, callback) {
+        function asistenteEscucha(placeholder, callback) {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                 alert("Navegador sin soporte de micrófono. Escribe la info abajo.");
                 return;
@@ -1134,7 +1134,7 @@
 
         // Reemplazo del Dictado manual por si el usuario lo oprime manual
         function iniciarDictadoVoz() {
-            kikeEscucha("Te escucho...", (comando) => {
+            asistenteEscucha("Te escucho...", (comando) => {
                 inputSearch.value = comando;
                 if(pasoActual === 1) { datosAsistidos.titular = comando; pasoActual=2; flujoAsistente(); return; }
                 if(pasoActual === 2) { datosAsistidos.alumno = comando; pasoActual=3; flujoAsistente(); return; }
@@ -1218,53 +1218,45 @@
             input.value = "";
         }
 
-        // MÁQUINA DE ESTADOS DEL ASISTENTE KIKE (FLUJO SECUENCIAL Y AUDIBLE)
+        // MÁQUINA DE ESTADOS DEL ASISTENTE VIRTUAL (FLUJO SECUENCIAL Y AUDIBLE)
         function iniciarAsistenteSecuencial() {
             pasoActual = 1;
-            datosAsistidos = {};
-            inputSearch.value = "";
-            
-            // Espera medio segundo a que el modal suba
-            setTimeout(() => {
-                flujoAsistente();
-            }, 600);
+            datosAsistidos = { titular: null, alumno: null, escuela: null };
+            flujoAsistente();
         }
 
         function flujoAsistente() {
             if (pasoActual === 1) {
-                kikeHabla("Hola. Para comenzar tu carga, indícame el nombre del titular o responsable a cargo.", () => {
-                    kikeEscucha("Habla el nombre del titular...", (respuesta) => {
+                asistenteHabla("Hola. Para comenzar tu carga, indícame el nombre del titular o responsable a cargo.", () => {
+                    asistenteEscucha("Habla el nombre del titular...", (respuesta) => {
                         datosAsistidos.titular = respuesta;
-                        pasoActual = 2;
-                        flujoAsistente();
+                        document.getElementById('pwaSearchInput').value = respuesta;
+                        ejecutarBusquedaPWA('titular');
                     });
                 });
             } 
             else if (pasoActual === 2) {
-                kikeHabla(`Perfecto, registramos a ${datosAsistidos.titular}. Ahora dime, ¿Cuál es el nombre de tu alumno paciente?`, () => {
-                    kikeEscucha("Dicta el nombre del alumno...", (respuesta) => {
+                asistenteHabla(`Perfecto, registramos a ${datosAsistidos.titular}. Ahora dime, ¿Cuál es el nombre de tu alumno paciente?`, () => {
+                    asistenteEscucha("Dicta el nombre del alumno...", (respuesta) => {
                         datosAsistidos.alumno = respuesta;
-                        pasoActual = 3;
-                        flujoAsistente();
+                        document.getElementById('pwaSearchInput').value = respuesta;
+                        ejecutarBusquedaPWA('alumno');
                     });
                 });
             } 
             else if (pasoActual === 3) {
-                kikeHabla(`Dime por último el nombre de la institución o escuela a la que asiste ${datosAsistidos.alumno}.`, () => {
-                    kikeEscucha("Dicta el nombre de la escuela...", (respuesta) => {
+                asistenteHabla(`Dime por último el nombre de la institución o escuela a la que asiste ${datosAsistidos.alumno}.`, () => {
+                    asistenteEscucha("Dicta el nombre de la escuela...", (respuesta) => {
                         datosAsistidos.escuela = respuesta;
-                        pasoActual = 4;
-                        flujoAsistente();
+                        document.getElementById('pwaSearchInput').value = respuesta;
+                        ejecutarBusquedaPWA('escuela');
                     });
                 });
             }
             else if (pasoActual === 4) {
-                kikeHabla(`Todo listo. Para confirmar tu asistencia, toca la cámara y sácale una foto al documento de identidad del alumno.`, () => {
-                    inputSearch.value = `Esperando foto DNI de ${datosAsistidos.alumno}...`;
-                    
-                    // Resalta el botón de cámara para indicarle donde tocar
-                    document.getElementById('btnScanCamera').style.border = "2px solid #10b981";
-                    document.getElementById('btnScanCamera').style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.4)";
+                asistenteHabla(`Todo listo. Para confirmar tu asistencia, toca la cámara y sácale una foto al documento de identidad del alumno.`, () => {
+                    document.getElementById('btnScanCamera').style.border = "2px solid #22c55e";
+                    document.getElementById('btnScanCamera').style.boxShadow = "0 0 15px rgba(34, 197, 94, 0.4)";
                 });
             }
             else if (pasoActual === 5) {
@@ -1273,7 +1265,7 @@
                 document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
                 document.getElementById('btnScanCamera').style.boxShadow = "none";
                 
-                kikeHabla(`Fotocopia del documento recibida en el servidor. Un aviso administrativo: Tu certificado de buena conducta expiró. Por favor escanea uno nuevo para completar los requerimientos.`, () => {
+                asistenteHabla(`Fotocopia del documento recibida en el servidor. Un aviso administrativo: Tu certificado de buena conducta expiró. Por favor escanea uno nuevo para completar los requerimientos.`, () => {
                     inputSearch.value = "Esperando Certificado de Conducta...";
                     document.getElementById('btnScanGallery').style.border = "2px solid #f59e0b";
                     document.getElementById('btnScanGallery').style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
@@ -1281,7 +1273,7 @@
             }
             else if (pasoActual === 6) {
                 // Terminó todos los requerimientos
-                kikeHabla("Todos los requerimientos están completos y avalados. He guardado todo en el servidor con éxito.", () => {
+                asistenteHabla("Todos los requerimientos están completos y avalados. He guardado todo en el servidor con éxito.", () => {
                     document.getElementById('btnScanGallery').style.border = "1px solid var(--tarjeta-borde)";
                     document.getElementById('btnScanGallery').style.boxShadow = "none";
                     cerrarModalNuevo();

@@ -10,7 +10,7 @@
         $colorSecundario = $empresaLayout?->color_secundario ?? '#1e293b';
         $nombreEmpresa = $empresaLayout?->nombre ?? 'Mi Institución';
     @endphp
-    <title>@yield('title', $nombreEmpresa) | KIKE</title>
+    <title>@yield('title', $nombreEmpresa) | INTEGRA</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
@@ -358,7 +358,7 @@
             const themeToggleBtn = document.getElementById('btnThemeToggle'); 
             const htmlTag = document.documentElement;
             
-            const currentTheme = localStorage.getItem('kike-tenant-theme'); 
+            const currentTheme = localStorage.getItem('integra-tenant-theme'); 
             if (currentTheme) {
                 htmlTag.setAttribute('data-bs-theme', currentTheme);
                 actualizarIconoLunaSol(currentTheme);
@@ -369,7 +369,7 @@
                 let newTheme = current === 'dark' ? 'light' : 'dark';
                 
                 htmlTag.setAttribute('data-bs-theme', newTheme);
-                localStorage.setItem('kike-tenant-theme', newTheme); 
+                localStorage.setItem('integra-tenant-theme', newTheme); 
                 
                 actualizarIconoLunaSol(newTheme);
             });

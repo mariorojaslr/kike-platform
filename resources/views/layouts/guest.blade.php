@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'KIKE Ecosistema') }}</title>
+    <title>{{ config('app.name', 'INTEGRA Ecosistema') }}</title>
 
     <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -157,14 +157,14 @@
     <div class="auth-wrapper">
         <!-- Panel Izquierdo (Imagen/Branding) -->
         <div class="auth-cover">
-            <h1>KIKE</h1>
-            <p>Ecosistema Digital de Gestión en Salud y Educación Integradora. Eficiencia y Control Total en Tiempo Real.</p>
+            <h1>INTEGRA</h1>
+            <p>Plataforma de Gestión</p>
         </div>
 
         <!-- Panel Derecho (Formulario) -->
         <div class="auth-form-container">
             <div class="logo-mobile">
-                <h2>KIKE</h2>
+                <h2>INTEGRA</h2>
                 <p class="text-muted small">Ecosistema de Gestión</p>
             </div>
             

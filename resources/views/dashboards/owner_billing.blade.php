@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SaaS Facturación - KIKE</title>
+    <title>SaaS Facturación - INTEGRA</title>
     
     <!-- Fonts y CSS Bases -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -175,7 +175,7 @@
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="logo-container d-flex justify-content-between align-items-center">
-        <h3 class="mb-0 fw-bold text-white"><i class="fas fa-layer-group me-2"></i> KIKE</h3>
+        <h3 class="mb-0 fw-bold text-white"><i class="fas fa-layer-group me-2"></i> INTEGRA</h3>
         <button class="btn btn-sm text-white d-lg-none" id="closeSidebar"><i class="fas fa-times fa-lg"></i></button>
     </div>
     <div class="px-3 mb-4 text-center">

@@ -46,7 +46,7 @@
     </table>
 
     <div class="footer">
-        Software KIKE - {{ \Carbon\Carbon::now()->year }} | Documento Confidencial
+        Software INTEGRA - {{ \Carbon\Carbon::now()->year }} | Documento Confidencial
     </div>
 </body>
 </html>

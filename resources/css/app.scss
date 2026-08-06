@@ -1,13 +1,12 @@
 /**
- * PROYECTO KIKE - SISTEMA MULTIEMPRESA RESPONSIVE
- * Reemplazo Total: Variables Dinámicas + Modo Nocturno + Dashboard Adaptable
- * --------------------------------------------------------------------------
- */
+ * PROYECTO INTEGRA - SISTEMA MULTIEMPRESA RESPONSIVE
+ * ========================================================================== */
 
 // 1. VARIABLES DE CONFIGURACIÓN (Root)
 // Usamos variables de CSS nativas para que Laravel pueda cambiarlas desde la DB después.
 :root {
-    --color-primario: #3b82f6;    // Azul (Kike Default)
+    /* Paleta de Colores por Defecto */
+    --color-primario: #3b82f6;    // Azul (Default)
     --color-acento: #f59e0b;      // Naranja (Escuelas)
     --color-fondo: #f1f5f9;       // Gris suave de fondo
     --color-texto: #1e293b;       // Texto oscuro

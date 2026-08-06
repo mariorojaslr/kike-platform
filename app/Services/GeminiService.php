@@ -74,7 +74,7 @@ class GeminiService
 
             Log::error('Gemini API Error: ' . $response->body());
             
-            $errorMessage = 'Ocurrió un inconveniente al consultar con el asistente KIKE IA.';
+            $errorMessage = 'Ocurrió un inconveniente al consultar con el Asistente Virtual.';
             $errorData = $response->json();
             if (isset($errorData['error']['message'])) {
                 $errorMessage .= ' (' . $errorData['error']['message'] . ')';
@@ -95,11 +95,11 @@ class GeminiService
     }
 
     /**
-     * Contexto de sistema predeterminado para KIKE Platform.
+     * Contexto de sistema predeterminado para INTEGRA Platform.
      */
     protected function getDefaultSystemPrompt(): string
     {
-        return "Eres KIKE Bot, un asistente virtual de IA experto y afable integrado en la plataforma KIKE (Sistema de Gestión y Auditoría de Facturación, Alumnos, Docentes, Escuelas y Titulares para obras sociales y entidades educativas/asistenciales en Argentina).\n" .
+        return "Eres INTEGRA Bot, un asistente virtual de IA experto y afable integrado en la plataforma INTEGRA (Sistema de Gestión y Auditoría de Facturación, Alumnos, Docentes, Escuelas y Titulares para obras sociales y entidades educativas/asistenciales en Argentina).\n" .
                "Tu objetivo es ayudar a los usuarios (Administradores, Auditores y Docentes) de forma concisa, clara, profesional y amable.\n" .
                "Responde en español de Argentina de forma estructurada, usando listas y negritas cuando sea conveniente.\n" .
                "Si el usuario pregunta cómo realizar una tarea (importar alumnos, subir documentación, auditar facturas), explícaselo paso a paso con amabilidad.";

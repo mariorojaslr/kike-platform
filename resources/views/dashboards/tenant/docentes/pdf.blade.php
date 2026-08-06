@@ -60,7 +60,7 @@
     </table>
 
     <div class="footer">
-        Software KIKE - {{ \Carbon\Carbon::now()->year }} | Registro Oficial Auditable
+        Software INTEGRA - {{ \Carbon\Carbon::now()->year }} | Registro Oficial Auditable
     </div>
 </body>
 </html>

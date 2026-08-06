@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIKE | Base Geográfica</title>
+    <title>INTEGRA | Base Geográfica</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
@@ -130,7 +130,7 @@
     <div class="sidebar" id="sidebar">
         <div class="d-flex justify-content-between align-items-center px-4 mb-4">
             <a href="#" class="sidebar-brand mb-0 w-100">
-                <i class="fas fa-layer-group me-2"></i> KIKE
+                <i class="fas fa-layer-group me-2"></i> INTEGRA
             </a>
             <button class="btn btn-sm text-white d-lg-none" id="closeSidebar"><i class="fas fa-times fa-lg"></i></button>
         </div>

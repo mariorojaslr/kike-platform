@@ -13,7 +13,7 @@ class ImpersonateController extends Controller
      */
     public function enter($userId)
     {
-        // 1. Solo un verdadero 'owner' (dueño de KIKE) puede usar el God Mode.
+        // 1. Solo un verdadero 'owner' (dueño de la plataforma) puede usar el God Mode.
         $originalUser = Auth::user();
         if ($originalUser->role !== 'owner') {
             return redirect()->back()->with('error', 'Acceso denegado: God Mode es exclusivo para Owners.');
