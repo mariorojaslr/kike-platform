@@ -98,6 +98,11 @@ class PwaDocenteController extends Controller
                 'path' => $path
             ]);
 
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al subir el archivo: ' . $e->getMessage()
+            ], 500);
         }
     }
 
