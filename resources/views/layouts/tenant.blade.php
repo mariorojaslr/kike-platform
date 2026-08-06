@@ -387,5 +387,6 @@
         });
     </script>
     @stack('scripts')
+    @include('partials.ai_assistant_widget')
 </body>
 </html>

@@ -185,11 +185,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
 // ==========================================
-// MÓDULO PWA DOcentes / Terapeutas (Demo)
+// MÓDULO PWA Docentes / Terapeutas (Demo)
 // ==========================================
 Route::get('/app-docente/demo', [\App\Http\Controllers\PwaDocenteController::class , 'demo'])->name('pwa.docente.demo');
 Route::post('/app-docente/upload', [\App\Http\Controllers\PwaDocenteController::class , 'uploadDocument'])->name('pwa.docente.upload');
 Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::class, 'search'])->name('pwa.docente.search');
+
+// ==========================================
+// MÓDULO ASISTENTE IA (GEMINI 1.5 FLASH)
+// ==========================================
+Route::post('/asistente/consultar', [\App\Http\Controllers\AiAssistantController::class, 'query'])->name('ai.assistant.query');
+
 
 /**
  * 3. SISTEMA DE AUTENTICACIÓN (Breeze/Jetstream)

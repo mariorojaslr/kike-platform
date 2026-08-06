@@ -13,11 +13,11 @@ class AuditorController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        $empresaId = Auth::user()?->empresa_id ?? session('impersonated_tenant_id') ?? 1;
         
         // El auditor solo ve facturas de SU empresa (Tenant)
         // Por ahora cargamos todas, priorizando las pendientes
-        $facturas = Factura::where('empresa_id', $user->empresa_id)
+        $facturas = Factura::where('empresa_id', $empresaId)
                     ->with('user') // Cargar al terapeuta
                     ->orderByRaw("FIELD(estado, 'pendiente', 'observada', 'aprobada', 'rechazada')")
                     ->orderBy('created_at', 'asc')
@@ -50,10 +50,10 @@ class AuditorController extends Controller
      */
     public function documentos()
     {
-        $user = Auth::user();
+        $empresaId = Auth::user()?->empresa_id ?? session('impersonated_tenant_id') ?? 1;
         
         $documentos = \App\Models\DocumentoSubido::with('tipoDocumento')
-                    ->where('empresa_id', $user->empresa_id)
+                    ->where('empresa_id', $empresaId)
                     ->orderByRaw("FIELD(estado, 'pendiente', 'observado', 'aprobado', 'rechazado')")
                     ->orderBy('created_at', 'desc')
                     ->paginate(15);

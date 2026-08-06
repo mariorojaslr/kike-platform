@@ -15,7 +15,7 @@ class ImportadorController extends Controller
 {
     private function getEmpresaId()
     {
-        return Auth::user()->empresa_id ?? session('impersonated_tenant_id');
+        return Auth::user()?->empresa_id ?? session('impersonated_tenant_id') ?? 1;
     }
 
     public function index()

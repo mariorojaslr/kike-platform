@@ -1290,5 +1290,6 @@
             }
         }
     </script>
+    @include('partials.ai_assistant_widget')
 </body>
 </html>
