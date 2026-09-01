@@ -1100,6 +1100,201 @@
             if(sheetReq) sheetReq.classList.remove('active');
             overlay.classList.add('active');
             sheetMis.classList.add('active');
+                        if(data.length > 0) {
+                            list.style.display = 'block';
+                            data.forEach(e => {
+                                const row = document.createElement('div');
+                                row.className = "alumno-card";
+                                row.style = "margin-bottom: 8px; padding: 12px; cursor: pointer; background: #1e293b; border-left: 3px solid #3b82f6;";
+                                const nomH = resaltarCoincidencia(e.nombre, term);
+                                const dniH = resaltarCoincidencia(e.dni || '', term);
+                                const afilH = e.nro_afiliado ? ' | Af: ' + resaltarCoincidencia(e.nro_afiliado, term) : '';
+
+                                let hijosHtml = '';
+                                if (e.familiares && e.familiares.length > 0) {
+                                    const nombresHijos = e.familiares.map(h => `<span class="badge bg-secondary bg-opacity-20 text-warning me-1"><i class="fas fa-child me-1"></i>${h.nombre}</span>`).join('');
+                                    hijosHtml = `<div class="mt-1 small text-muted">${nombresHijos}</div>`;
+                                } else {
+                                    hijosHtml = `<div class="mt-1 small text-muted font-italic">Sin alumnos dependientes vinculados</div>`;
+                                }
+
+                                row.innerHTML = `<div>
+                                    <div class="fw-bold text-white"><i class="fas fa-user-shield text-info me-2"></i> ${nomH} <small class="text-muted ms-1">(${dniH}${afilH})</small></div>
+                                    ${hijosHtml}
+                                </div>`;
+
+                                row.onclick = () => {
+                                    document.getElementById('comunTitularInput').value = e.nombre;
+                                    datosAsistidos.titular = e.nombre;
+                                    datosAsistidos.titular_id = e.id;
+                                    list.style.display = 'none';
+                                    
+                                    // Cargar alumnos dependientes de este titular
+                                    const alumSelect = document.getElementById('comunAlumnoInput');
+                                    const listAlum = document.getElementById('listaAlumnosComun');
+                                    listAlum.style.display = 'block';
+                                    listAlum.innerHTML = "";
+                                    
+                                    if (e.familiares && e.familiares.length > 0) {
+                                        alumSelect.placeholder = `🔍 Seleccionar hijo de ${e.nombre}...`;
+                                        e.familiares.forEach(a => {
+                                            const rowAlum = document.createElement('div');
+                                            rowAlum.className = "alumno-card";
+                                            rowAlum.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b; border-left: 3px solid #f59e0b;";
+                                            rowAlum.innerHTML = `<i class="fas fa-child text-warning me-2"></i> <strong>${a.nombre}</strong> <small class="text-muted ms-1">(DNI: ${a.dni || 'S/D'})</small>`;
+                                            rowAlum.onclick = () => {
+                                                alumSelect.value = a.nombre;
+                                                datosAsistidos.alumno = a.nombre;
+                                                datosAsistidos.alumno_data = a;
+                                                listAlum.style.display = 'none';
+                                                
+                                                document.getElementById('alumnoDni').value = a.dni || '';
+                                                document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
+                                                
+                                                const escNombre = a.escuela ? a.escuela.nombre : '';
+                                                if (a.escuela) {
+                                                    document.getElementById('comunEscuelaInput').value = escNombre;
+                                                    datosAsistidos.escuela = escNombre;
+                                                }
+
+                                                mostrarRegistroVerificado(e.nombre, a.nombre, escNombre);
+                                                habilitarFormularioDatos();
+                                            };
+                                            listAlum.appendChild(rowAlum);
+                                        });
+                                    } else {
+                                        alumSelect.placeholder = "⚠️ Este titular no tiene hijos registrados.";
+                                    }
+                                };
+                                list.appendChild(row);
+                            });
+                        } else { list.style.display = 'none'; }
+                    });
+            }, 150);
+        }
+
+        function filtrarAlumnoComun() {
+            clearTimeout(timeoutComun);
+            const term = document.getElementById('comunAlumnoInput').value.trim();
+            const list = document.getElementById('listaAlumnosComun');
+            if(!term || term.length < 1) { return; }
+
+            timeoutComun = setTimeout(() => {
+                fetch(`{{ route('pwa.docente.search') }}?type=alumnos&q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.length > 0) {
+                            list.style.display = 'block';
+                            list.innerHTML = "";
+                            data.forEach(a => {
+                                const row = document.createElement('div');
+                                row.className = "alumno-card";
+                                row.style = "margin-bottom: 8px; padding: 12px; cursor: pointer; background: #1e293b; border-left: 3px solid #f59e0b;";
+                                const nomH = resaltarCoincidencia(a.nombre, term);
+                                const dniH = resaltarCoincidencia(a.dni || '', term);
+
+                                const padreNombre = a.titular ? a.titular.nombre : 'Sin Titular Asignado';
+                                const padreDni = a.titular && a.titular.dni ? ` (DNI: ${a.titular.dni})` : '';
+
+                                row.innerHTML = `<div>
+                                    <div class="fw-bold text-white"><i class="fas fa-child text-warning me-2"></i> ${nomH} <small class="text-muted ms-1">(DNI: ${dniH})</small></div>
+                                    <div class="small text-info mt-1"><i class="fas fa-user-shield me-1"></i> Padre/Titular: ${padreNombre}${padreDni}</div>
+                                </div>`;
+
+                                row.onclick = () => {
+                                    document.getElementById('comunAlumnoInput').value = a.nombre;
+                                    datosAsistidos.alumno = a.nombre;
+                                    datosAsistidos.alumno_data = a;
+                                    list.style.display = 'none';
+
+                                    // AUTO-COMPLETAR EL PADRE / TITULAR
+                                    if (a.titular) {
+                                        document.getElementById('comunTitularInput').value = a.titular.nombre;
+                                        datosAsistidos.titular = a.titular.nombre;
+                                        datosAsistidos.titular_id = a.titular.id;
+                                    }
+
+                                    document.getElementById('alumnoDni').value = a.dni || '';
+                                    document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
+
+                                    const escNombre = a.escuela ? a.escuela.nombre : '';
+                                    if (a.escuela) {
+                                        document.getElementById('comunEscuelaInput').value = escNombre;
+                                        datosAsistidos.escuela = escNombre;
+                                    }
+
+                                    mostrarRegistroVerificado(padreNombre, a.nombre, escNombre);
+                                    habilitarFormularioDatos();
+                                };
+                                list.appendChild(row);
+                            });
+                        }
+                    });
+            }, 150);
+        }
+
+        function filtrarEscuelaComun() {
+            clearTimeout(timeoutComun);
+            const term = document.getElementById('comunEscuelaInput').value.trim();
+            const list = document.getElementById('listaEscuelasComun');
+            list.innerHTML = "";
+            if(!term || term.length < 1) { list.style.display = 'none'; return; }
+            
+            timeoutComun = setTimeout(() => {
+                fetch(`{{ route('pwa.docente.search') }}?type=escuelas&q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.length > 0) {
+                            list.style.display = 'block';
+                            data.forEach(e => {
+                                const row = document.createElement('div');
+                                row.className = "alumno-card";
+                                row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                                const nomH = resaltarCoincidencia(e.nombre, term);
+                                const cueH = e.cue ? ' (CUE: ' + resaltarCoincidencia(e.cue, term) + ')' : '';
+
+                                row.innerHTML = `<i class="fas fa-school text-primary me-2"></i> ${nomH} <small class="text-muted ms-1">${cueH}</small>`;
+                                row.onclick = () => {
+                                    document.getElementById('comunEscuelaInput').value = e.nombre;
+                                    datosAsistidos.escuela = e.nombre;
+                                    list.style.display = 'none';
+                                    habilitarFormularioDatos();
+                                };
+                                list.appendChild(row);
+                            });
+                        } else { list.style.display = 'none'; }
+                    });
+            }, 150);
+        }
+
+        function abrirModalNuevo() {
+            sheetMis.classList.remove('active');
+            overlay.classList.add('active');
+            sheet.classList.add('active');
+            cambiarMetodo('comun');
+            datosAsistidos = {};
+            pasoActual = 1;
+        }
+
+        function cerrarModalNuevo() {
+            overlay.classList.remove('active');
+            sheet.classList.remove('active');
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+            pasoActual = 0;
+            
+            // Reset de UI (quitar brishos)
+            if(document.getElementById('btnScanCamera')) {
+                document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
+                document.getElementById('btnScanCamera').style.boxShadow = "none";
+                document.getElementById('spanScanCamera').innerText = "Tomar Foto Directa";
+            }
+        }
+
+        function abrirModalMisAlumnos() {
+            sheet.classList.remove('active');
+            if(sheetReq) sheetReq.classList.remove('active');
+            overlay.classList.add('active');
+            sheetMis.classList.add('active');
             
             // Detener cualquier asistente activo si se salta de ventana
             if(window.speechSynthesis) window.speechSynthesis.cancel();
@@ -1110,243 +1305,110 @@
             sheetMis.classList.remove('active');
         }
 
-        function abrirModalRequisitos() {
-            sheet.classList.remove('active');
-            sheetMis.classList.remove('active');
-            overlay.classList.add('active');
-            if(sheetReq) sheetReq.classList.add('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
-        }
-
-        function cerrarModalRequisitos() {
-            overlay.classList.remove('active');
-            if(sheetReq) sheetReq.classList.remove('active');
-        }
-
-        // --- CERRAR MODALES CLICKANDO EN EL OVERLAY NEGRO ---
-        document.getElementById('overlayNuevo').addEventListener('click', function() {
-            cerrarModalNuevo();
-            cerrarModalMisAlumnos();
-            cerrarModalRequisitos();
-        });
-
-        // --- FILTRO LIVE SEARCH (MIS ALUMNOS) ---
-        function filtrarAlumnosActivos() {
-            const term = document.getElementById('misAlumnosSearchInput').value.toLowerCase();
-            const cards = document.querySelectorAll('.item-alumno-filtrable');
-            let encontrados = 0;
-
-            cards.forEach(card => {
-                const nombre = card.getAttribute('data-nombre');
-                const curso = card.getAttribute('data-curso');
-                
-                if (nombre.includes(term) || curso.includes(term)) {
-                    card.style.display = 'flex';
-                    encontrados++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            document.getElementById('noResultsMsg').style.display = encontrados === 0 ? 'block' : 'none';
-        }
-
-        function cerrarYCrear() {
-            alert("Simulación de Plataforma:\nProcesando carga rápida de informacion para: " + (inputSearch.value || "Documento Escaneado") + "...");
-            cerrarModalNuevo();
-        }
-
         // --- SISTEMA INTELIGENTE DE HABLA Y ESCUCHA ---
 
         function asistenteHabla(texto, callback) {
             if ('speechSynthesis' in window) {
-                // Cancelamos audios anteriores por si acaso
                 window.speechSynthesis.cancel();
                 let msg = new SpeechSynthesisUtterance();
                 msg.text = texto;
-                msg.lang = 'es-AR'; // Español latino/argentino
-                msg.rate = 1.05; // Un pelito más rápido
-                msg.pitch = 1.1; // Tono amigable
+                msg.lang = 'es-AR';
+                msg.rate = 1.05;
+                msg.pitch = 1.1;
                 
                 msg.onend = function() {
-                    if (callback) setTimeout(callback, 300); // 300ms de gracia al terminar de hablar
+                    if (callback) setTimeout(callback, 300);
                 };
                 window.speechSynthesis.speak(msg);
             } else {
                 console.log("Asistente Virtual (Texto):", texto);
-                alert(texto);
                 if(callback) callback();
             }
         }
 
         function asistenteEscucha(placeholder, callback) {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert("Navegador sin soporte de micrófono. Escribe la info abajo.");
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                alert("Tu navegador no soporta micrófono por voz. Puedes escribir en el cuadro.");
                 return;
             }
 
-            const reconClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const reconocimiento = new reconClass();
-
+            const reconocimiento = new SpeechRec();
             reconocimiento.lang = 'es-AR';
             reconocimiento.interimResults = false;
             reconocimiento.maxAlternatives = 1;
 
+            const btnMic = document.getElementById('btnMicSearch');
+            const inputSearch = document.getElementById('alumnoSearchInput');
+
             reconocimiento.onstart = function() {
-                // UI Animación Pulse
-                btnMic.classList.add('listening');
-                inputSearch.placeholder = placeholder;
-                inputSearch.value = "";
+                if (btnMic) btnMic.classList.add('listening');
+                if (inputSearch) {
+                    inputSearch.placeholder = placeholder || "Escuchando...";
+                    inputSearch.value = "";
+                }
             };
 
             reconocimiento.onresult = function(event) {
                 const comando = event.results[0][0].transcript;
-                inputSearch.value = comando;
-                btnMic.classList.remove('listening');
-                if(callback) callback(comando);
+                if (inputSearch) inputSearch.value = comando;
+                if (btnMic) btnMic.classList.remove('listening');
+                if (callback) callback(comando);
             };
 
             reconocimiento.onerror = function(event) {
                 console.error("Error Speech API:", event.error);
-                inputSearch.placeholder = "No escuché. Presiona el micro para reintentar.";
-                btnMic.classList.remove('listening');
+                if (inputSearch) inputSearch.placeholder = "No escuché. Toca el micrófono para hablar.";
+                if (btnMic) btnMic.classList.remove('listening');
             };
 
-            // Ejecutamos el click en el input type=file oculto dinámico
-            document.getElementById(inputId).click();
-        }
-
-        async function manejarSubidaArchivo(inputId) {
-            const input = document.getElementById(inputId);
-            const file = input.files[0];
-            
-            if (!file) return;
-
-            const tipoDoc = input.getAttribute('data-tipo-doc');
-            const alumnoActual = datosAsistidos.alumno || inputSearch.value || 'Paciente Desconocido';
-            
-            // UI Update: Mostrar cargando...
-            let spanId = inputId === 'cameraPicker' ? 'spanScanCamera' : 'spanScanGallery';
-            let btnEle = inputId === 'cameraPicker' ? document.getElementById('btnScanCamera') : document.getElementById('btnScanGallery');
-            
-            let originalText = document.getElementById(spanId).innerText;
-            document.getElementById(spanId).innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
-            btnEle.style.opacity = "0.7";
-
-            const formData = new FormData();
-            formData.append('documento', file);
-            formData.append('tipo_documento', tipoDoc);
-            formData.append('alumno_nombre', alumnoActual);
-            
-            // Añadir CSRF token si es necesario
-            const csrfToken = document.querySelector('form#formSubidaDoc input[name="_token"]').value;
-            formData.append('_token', csrfToken);
+            reconocimiento.onend = function() {
+                if (btnMic) btnMic.classList.remove('listening');
+            };
 
             try {
-                const response = await fetch("{{ route('pwa.docente.upload') }}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    console.log("Archivo subido. Ruta: ", result.path);
-                    
-                    document.getElementById(spanId).innerHTML = '<i class="fas fa-check-circle"></i> ¡Subido!';
-                    btnEle.style.opacity = "1";
-                    setTimeout(() => { document.getElementById(spanId).innerText = originalText; }, 1500);
-
-                    // Magia: Avanzar en el flujo asistente si estamos en él
-                    if (pasoActual === 4) {
-                        pasoActual = 5;
-                        setTimeout(flujoAsistente, 500);
-                    } else if (pasoActual === 5) {
-                        pasoActual = 6;
-                        setTimeout(flujoAsistente, 500);
-                    } else {
-                        alert(`✅ ¡Tu documento (${tipoDoc}) se cargó perfectamente en la plataforma!`);
-                    }
-
-                } else {
-                    document.getElementById(spanId).innerText = originalText; btnEle.style.opacity = "1";
-                    alert("⚠️ Ocurrió un error: " + (result.message || "Fallo en servidor"));
-                }
-            } catch (error) {
-                console.error("Error subiendo el archivo:", error);
-                document.getElementById(spanId).innerText = originalText; btnEle.style.opacity = "1";
-                alert("⚠️ Error de conexión al intentar subir el archivo.");
+                reconocimiento.start();
+            } catch(e) {
+                console.warn("Speech recognition exception:", e);
             }
-            
-            // Limpiamos el input
-            input.value = "";
         }
 
-        // MÁQUINA DE ESTADOS DEL ASISTENTE VIRTUAL (FLUJO SECUENCIAL Y AUDIBLE)
+        function iniciarDictadoVoz() {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+            asistenteEscucha("Dicta el nombre del alumno, DNI o afiliado...", (comando) => {
+                const inputSearch = document.getElementById('alumnoSearchInput');
+                if (inputSearch) inputSearch.value = comando;
+                
+                fetch(`{{ route('pwa.docente.search') }}?type=alumnos&q=${encodeURIComponent(comando)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            const a = data[0];
+                            const padreNombre = a.titular ? a.titular.nombre : 'Titular Verificado en BD';
+                            const escNombre = a.escuela ? a.escuela.nombre : 'Escuela Asignada';
+                            
+                            document.getElementById('comunAlumnoInput').value = a.nombre;
+                            if (a.titular) document.getElementById('comunTitularInput').value = a.titular.nombre;
+                            if (a.escuela) document.getElementById('comunEscuelaInput').value = a.escuela.nombre;
+
+                            datosAsistidos.alumno = a.nombre;
+                            datosAsistidos.titular = padreNombre;
+                            datosAsistidos.escuela = escNombre;
+
+                            mostrarRegistroVerificado(padreNombre, a.nombre, escNombre);
+                            habilitarFormularioDatos();
+                        } else {
+                            asistenteHabla(`No encontré coincidencia exacta para "${comando}" en la base de datos. Intenta dictar el DNI.`);
+                        }
+                    });
+            });
+        }
+
         function iniciarAsistenteSecuencial() {
-            pasoActual = 1;
-            datosAsistidos = { titular: null, alumno: null, escuela: null };
-            flujoAsistente();
-        }
-
-        function flujoAsistente() {
-            if (pasoActual === 1) {
-                asistenteHabla("Hola. Para comenzar tu carga, indícame el nombre del titular o responsable a cargo.", () => {
-                    asistenteEscucha("Habla el nombre del titular...", (respuesta) => {
-                        datosAsistidos.titular = respuesta;
-                        document.getElementById('pwaSearchInput').value = respuesta;
-                        ejecutarBusquedaPWA('titular');
-                    });
-                });
-            } 
-            else if (pasoActual === 2) {
-                asistenteHabla(`Perfecto, registramos a ${datosAsistidos.titular}. Ahora dime, ¿Cuál es el nombre de tu alumno paciente?`, () => {
-                    asistenteEscucha("Dicta el nombre del alumno...", (respuesta) => {
-                        datosAsistidos.alumno = respuesta;
-                        document.getElementById('pwaSearchInput').value = respuesta;
-                        ejecutarBusquedaPWA('alumno');
-                    });
-                });
-            } 
-            else if (pasoActual === 3) {
-                asistenteHabla(`Dime por último el nombre de la institución o escuela a la que asiste ${datosAsistidos.alumno}.`, () => {
-                    asistenteEscucha("Dicta el nombre de la escuela...", (respuesta) => {
-                        datosAsistidos.escuela = respuesta;
-                        document.getElementById('pwaSearchInput').value = respuesta;
-                        ejecutarBusquedaPWA('escuela');
-                    });
-                });
-            }
-            else if (pasoActual === 4) {
-                asistenteHabla(`Todo listo. Para confirmar tu asistencia, toca la cámara y sácale una foto al documento de identidad del alumno.`, () => {
-                    document.getElementById('btnScanCamera').style.border = "2px solid #22c55e";
-                    document.getElementById('btnScanCamera').style.boxShadow = "0 0 15px rgba(34, 197, 94, 0.4)";
-                });
-            }
-            else if (pasoActual === 5) {
-                // El usuario ya tomó la foto del DNI
-                // Restablecemos diseño del botón original
-                document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
-                document.getElementById('btnScanCamera').style.boxShadow = "none";
-                
-                asistenteHabla(`Fotocopia del documento recibida en el servidor. Un aviso administrativo: Tu certificado de buena conducta expiró. Por favor escanea uno nuevo para completar los requerimientos.`, () => {
-                    inputSearch.value = "Esperando Certificado de Conducta...";
-                    document.getElementById('btnScanGallery').style.border = "2px solid #f59e0b";
-                    document.getElementById('btnScanGallery').style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.4)";
-                });
-            }
-            else if (pasoActual === 6) {
-                // Terminó todos los requerimientos
-                asistenteHabla("Todos los requerimientos están completos y avalados. He guardado todo en el servidor con éxito.", () => {
-                    document.getElementById('btnScanGallery').style.border = "1px solid var(--tarjeta-borde)";
-                    document.getElementById('btnScanGallery').style.boxShadow = "none";
-                    cerrarModalNuevo();
-                    alert("✅ ¡Éxito! Expediente completado con todos los requerimientos correspondientes.");
-                });
-            }
+            asistenteHabla("Hola. Por favor presiona el botón del micrófono o dicta el nombre del alumno o su DNI.", () => {
+                iniciarDictadoVoz();
+            });
         }
     </script>
     @include('partials.ai_assistant_widget')
