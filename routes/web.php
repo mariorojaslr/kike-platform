@@ -30,6 +30,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/owner/geografia/localidad', [\App\Http\Controllers\AbmGeograficoController::class , 'storeLocalidad'])->name('geografia.localidad.store');
     Route::delete('/owner/geografia/localidad/{id}', [\App\Http\Controllers\AbmGeograficoController::class , 'destroyLocalidad'])->name('geografia.localidad.destroy');
 
+    // --- MÓDULO: GESTIÓN CENTRALIZADA DE USUARIOS Y ACCESOS (OWNER) ---
+    Route::get('/owner/usuarios', [\App\Http\Controllers\OwnerUserController::class, 'index'])->name('owner.usuarios.index');
+    Route::post('/owner/usuarios', [\App\Http\Controllers\OwnerUserController::class, 'store'])->name('owner.usuarios.store');
+    Route::post('/owner/usuarios/{user}/reset-password', [\App\Http\Controllers\OwnerUserController::class, 'resetPassword'])->name('owner.usuarios.reset_password');
+    Route::delete('/owner/usuarios/{user}', [\App\Http\Controllers\OwnerUserController::class, 'destroy'])->name('owner.usuarios.destroy');
+
     // --- MÓDULO: EMPRESAS (SaaS) ---
     Route::post('/empresas/store', [\App\Http\Controllers\EmpresaController::class , 'store'])->name('empresas.store');
     Route::post('/empresas/{empresa}/toggle-status', [\App\Http\Controllers\EmpresaController::class , 'toggleStatus'])->name('empresas.toggle_status');

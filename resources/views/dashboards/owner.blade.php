@@ -305,6 +305,7 @@
         <div class="nav flex-column sidebar-nav">
             <a href="{{ route('dashboard') }}" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Cockpit General</a>
             <a href="#empresas-list" class="nav-link"><i class="fas fa-building"></i> Empresas (Clientes)</a>
+            <a href="{{ route('owner.usuarios.index') }}" class="nav-link"><i class="fas fa-users-cog"></i> Gestión de Usuarios</a>
             <a href="{{ route('owner.billing') }}" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> Facturación y Tarifas</a>
             <a href="#" class="nav-link"><i class="fas fa-headset"></i> Mesa de Ayuda (Tickets)</a>
             <a href="{{ route('owner.geografia') }}" class="nav-link"><i class="fas fa-map-marker-alt"></i> Base Geográfica</a>
@@ -704,6 +705,12 @@
                                                 </div>
                                             </div>
                                         </form>
+
+                                        <div class="mt-3 text-center border-top pt-2">
+                                            <a href="{{ route('owner.usuarios.index', ['empresa_id' => $empresa->id]) }}" class="btn btn-sm btn-outline-primary w-100 fw-bold">
+                                                <i class="fas fa-users-cog me-1"></i> Ver Todos los Usuarios y Auditores de esta Empresa
+                                            </a>
+                                        </div>
                                     @else
                                         <div class="alert alert-danger py-2 px-3 small mb-0">
                                             <i class="fas fa-exclamation-triangle me-1"></i> Esta empresa no tiene ningún usuario administrador asignado.
