@@ -111,16 +111,31 @@ class EmpresaController extends Controller
             'plan_tipo' => 'required|in:estandar,demo,personalizado,bonificado',
             'monto_cuota_mensual' => 'required|numeric|min:0',
             'periodo_gracia_hasta' => 'nullable|date',
+            'proximo_vencimiento' => 'nullable|date',
+            'limite_usuarios' => 'nullable|integer|min:1',
+            'limite_mb' => 'nullable|numeric|min:1',
             'notas_facturacion' => 'nullable|string|max:1000'
         ]);
 
-        $empresa->update([
+        $data = [
             'plan_tipo' => $request->plan_tipo,
             'monto_cuota_mensual' => $request->monto_cuota_mensual,
             'periodo_gracia_hasta' => $request->periodo_gracia_hasta,
             'notas_facturacion' => $request->notas_facturacion,
-        ]);
+        ];
 
-        return back()->with('success', "Configuración económica de '{$empresa->nombre}' actualizada exitosamente.");
+        if ($request->filled('proximo_vencimiento')) {
+            $data['proximo_vencimiento'] = $request->proximo_vencimiento;
+        }
+        if ($request->filled('limite_usuarios')) {
+            $data['limite_usuarios'] = $request->limite_usuarios;
+        }
+        if ($request->filled('limite_mb')) {
+            $data['limite_mb'] = $request->limite_mb;
+        }
+
+        $empresa->update($data);
+
+        return back()->with('success', "Configuración comercial y de cobro de '{$empresa->nombre}' actualizada exitosamente.");
     }
 }

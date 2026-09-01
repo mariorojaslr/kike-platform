@@ -23,7 +23,7 @@
         font-family: 'Inter', sans-serif;
     }
 
-    /* Sidebar Styles (Reused from owner) */
+    /* Sidebar Styles */
     .sidebar {
         background-color: var(--primario);
         color: white;
@@ -100,77 +100,53 @@
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 1.2rem;
-    }
-    
-    /* Config Tariffs Card */
-    .tariff-card {
-        background: linear-gradient(135deg, var(--primario), var(--acento));
-        border-radius: 15px;
-        color: white;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(28, 37, 65, 0.15);
-        margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
     }
 
-    .tariff-card::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-        border-radius: 50%;
-    }
-
-    .input-transparent {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
-        font-weight: bold;
-    }
-    .input-transparent:focus {
-        background: rgba(255,255,255,0.2);
-        border-color: rgba(255,255,255,0.5);
-        color: white;
-        box-shadow: none;
-    }
-
-    /* Stat Cards */
     .stat-card {
         background: white;
         border-radius: 15px;
         padding: 1.5rem;
         box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        height: 100%;
-        border-top: 4px solid var(--secundario);
+        transition: transform 0.2s;
     }
-    
+
     .table-custom {
+        background: white;
+        border-radius: 15px;
+    }
+
+    .table-custom th {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #8898aa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem;
+    }
+
+    .table-custom td {
+        padding: 1rem;
         vertical-align: middle;
+    }
+
+    /* Overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1030;
     }
 
     @media (max-width: 991.98px) {
         .sidebar { transform: translateX(-100%); }
         .sidebar.active { transform: translateX(0); }
-        .main-content { margin-left: 0; }
-        .mobile-toggle { display: block !important; }
-    }
-    
-    .mobile-toggle {
-        display: none;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--primario);
+        .main-content { margin-left: 0; padding: 1rem; }
     }
 </style>
+</head>
+<body>
 
-<!-- Overlay para el menú en mobile -->
-<div class="sidebar-overlay" id="sidebarOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1030;"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
@@ -179,21 +155,37 @@
         <button class="btn btn-sm text-white d-lg-none" id="closeSidebar"><i class="fas fa-times fa-lg"></i></button>
     </div>
     <div class="px-3 mb-4 text-center">
-        <span class="badge bg-secondary text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">SaaS Operative</span>
+        <span class="badge bg-danger bg-opacity-20 text-danger px-3 py-2 rounded-pill fw-bold border border-danger border-opacity-20" style="font-size: 0.7rem; letter-spacing: 1px;">
+            <i class="fas fa-crown me-1"></i> OWNER COCKPIT
+        </span>
     </div>
-    <div class="nav flex-column sidebar-nav">
-        <a href="{{ route('dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i> Cockpit General</a>
-        <a href="{{ route('dashboard') }}#empresas-list" class="nav-link"><i class="fas fa-building"></i> Empresas (Clientes)</a>
-        <a href="{{ route('owner.billing') }}" class="nav-link active"><i class="fas fa-file-invoice-dollar"></i> Facturación y Tarifas</a>
-        <a href="#" class="nav-link"><i class="fas fa-headset"></i> Mesa de Ayuda (Tickets)</a>
-        <a href="{{ route('owner.geografia') }}" class="nav-link"><i class="fas fa-map-marker-alt"></i> Base Geográfica</a>
-        <a href="#" class="nav-link"><i class="fas fa-server"></i> Infraestructura (Bunny)</a>
+    
+    <nav class="sidebar-nav">
+        <a href="{{ route('dashboard') }}" class="nav-link">
+            <i class="fas fa-chart-pie"></i> Visión General
+        </a>
+        <a href="{{ route('owner.geografia') }}" class="nav-link">
+            <i class="fas fa-globe-americas"></i> Base Geográfica
+        </a>
+        <a href="{{ route('owner.billing') }}" class="nav-link active">
+            <i class="fas fa-file-invoice-dollar"></i> Facturación y Reglas
+        </a>
+        <a href="{{ route('auditor.facturas') }}" class="nav-link">
+            <i class="fas fa-receipt"></i> Auditoría Facturas
+        </a>
+        <a href="{{ route('auditor.documentos') }}" class="nav-link">
+            <i class="fas fa-file-signature"></i> Auditoría Docs
+        </a>
         
-        <form method="POST" action="{{ route('logout') }}" id="logoutFormOwner">
+        <div class="px-4 my-4"><hr class="text-white-50 opacity-10"></div>
+        
+        <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <a href="#" onclick="document.getElementById('logoutFormOwner').submit();" class="nav-link mt-5 text-danger"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            <a href="{{ route('logout') }}" class="nav-link text-danger" onclick="event.preventDefault(); this.closest('form').submit();">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
         </form>
-    </div>
+    </nav>
 </div>
 
 <!-- Main Content -->
@@ -202,12 +194,12 @@
     <!-- Topbar -->
     <div class="topbar">
         <div class="d-flex align-items-center gap-3">
-            <button class="mobile-toggle" id="openSidebar">
-                <i class="fas fa-bars"></i>
+            <button class="mobile-toggle btn btn-sm text-dark d-lg-none" id="openSidebar">
+                <i class="fas fa-bars fa-lg"></i>
             </button>
             <div>
-                <h4 class="mb-0 fw-bold d-none d-sm-block">Facturación y Reglas de Negocio</h4>
-                <p class="text-muted mb-0 small">Escalas de tarifas y consumos globales</p>
+                <h4 class="mb-0 fw-bold">Gestión Comercial & Cobranzas por Empresa</h4>
+                <p class="text-muted mb-0 small">Configura planes, cuotas personalizadas, fechas de gracia y verifica comprobantes</p>
             </div>
         </div>
         <div class="user-profile">
@@ -221,59 +213,29 @@
         </div>
     </div>
 
-    <!-- Escala de Tarifas (Settings) -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="tariff-card">
-                <h5 class="fw-bold mb-1"><i class="fas fa-sliders-h me-2"></i> Simulador & Motor de Tarifas (Global)</h5>
-                <p class="small mb-4 text-white-50">Configura cuánto vas a cobrar el mantenimiento base y los excedentes de consumo (Applies a todas las empresas como Default, luego podrás sobreescribir por empresa particular).</p>
-
-                <form action="{{ route('owner.billing.update_tarifas') }}" method="POST">
-                    @csrf
-                    <div class="row g-3 px-2">
-                        <div class="col-md-3">
-                            <label class="small text-white-50 fw-bold mb-1">Mantenimiento Base (USD/ARS)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent text-white border-end-0 border-white-50"><i class="fas fa-dollar-sign"></i></span>
-                                <input type="number" step="0.01" class="form-control input-transparent border-start-0" value="{{ $tarifaBase }}">
-                            </div>
-                            <small class="text-white-50" style="font-size: 0.70rem;">Precio mensual de la suscripción.</small>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="small text-white-50 fw-bold mb-1">Costo Usuario Excedido</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent text-white border-end-0 border-white-50"><i class="fas fa-user-plus"></i></span>
-                                <input type="number" step="0.01" class="form-control input-transparent border-start-0" value="{{ $precioPorUsuarioExtra }}">
-                            </div>
-                            <small class="text-white-50" style="font-size: 0.70rem;">Por c/ usuario arriba de los 50 iniciales.</small>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="small text-white-50 fw-bold mb-1">Costo Almacenamiento. (x GB Extra)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent text-white border-end-0 border-white-50"><i class="fas fa-hdd"></i></span>
-                                <input type="number" step="0.01" class="form-control input-transparent border-start-0" value="{{ $precioPorGBExtra }}">
-                            </div>
-                            <small class="text-white-50" style="font-size: 0.70rem;">Por c/ 1,024 MB arriba de sus límites.</small>
-                        </div>
-                        <div class="col-md-3 d-flex align-items-center mt-4">
-                            <button type="submit" class="btn btn-light fw-bold w-100 mt-2 px-4 shadow-sm" style="color: var(--primario);">
-                                <i class="fas fa-save me-1"></i> Guardar Tarifario
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <!-- Alert Feedback Flash -->
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    @endif
+
+    @if(session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ session('warning') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
 
     <!-- KPIs Rápidos de Facturación -->
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="stat-card border-top-0 border-start border-4 border-primary">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted small fw-bold mb-1">ESTIMADO A COBRAR</p>
-                        <h4 class="mb-0 fw-bold text-dark">${{ number_format($ingresosEstimados ?? 0, 2) }}</h4>
+                        <h4 class="mb-0 fw-bold text-dark">${{ number_format($ingresosEstimados ?? 0, 2, ',', '.') }}</h4>
                     </div>
                     <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
                         <i class="fas fa-money-bill-wave fa-lg"></i>
@@ -298,7 +260,7 @@
             <div class="stat-card border-top-0 border-start border-4 border-danger">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted small fw-bold mb-1">MORA O SUSPENDIDAS</p>
+                        <p class="text-muted small fw-bold mb-1">MORA / DEMO / GRACIA</p>
                         <h4 class="mb-0 fw-bold text-dark">{{ $empresasDeudoras }} <span class="text-muted fs-6">Clientes</span></h4>
                     </div>
                     <div class="bg-danger bg-opacity-10 p-3 rounded-circle text-danger">
@@ -322,38 +284,42 @@
         </div>
     </div>
 
-    <!-- Lista de Cobros Recientes / Simulador por Empresa -->
-    <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-            <h5 class="fw-bold"><i class="fas fa-file-invoice me-2 text-primary"></i> Liquidación de Clientes según Consumo</h5>
-            <p class="text-muted small mb-0">Listado de empresas con su estimación de liquidación actual comparando uso vs límites.</p>
+    <!-- TABLA PRINCIPAL: LIQUIDACIÓN Y CONFIGURACIÓN COMERCIAL POR EMPRESA -->
+    <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px;">
+        <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="fas fa-building me-2 text-primary"></i> Control Comercial & Tarifas por Empresa</h5>
+                <p class="text-muted small mb-0">Administra cuotas fojas, período de gracia, planes demo y vencimientos de cada cliente de forma individual.</p>
+            </div>
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill font-monospace">
+                Total: {{ count($empresas) }} Instituciones
+            </span>
         </div>
         <div class="card-body p-4">
             <div class="table-responsive">
-                <table class="table table-hover table-custom">
+                <table class="table table-hover table-custom align-middle">
                     <thead class="text-muted small text-uppercase">
                         <tr>
-                            <th>Cliente</th>
+                            <th>Cliente / Institución</th>
                             <th>Usuarios / Límite</th>
                             <th>MB Utilizados / Límite</th>
-                            <th class="text-center">Cobro Base</th>
+                            <th class="text-center">Cuota Fija Mensual</th>
                             <th class="text-center">Excedentes</th>
                             <th class="text-end">Total a Facturar</th>
                             <th class="text-center">Próx. Cobro</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($empresas as $emp)
                             @php
-                                $usrCount = $emp->users_count ?? 0;
                                 $usuariosReales = \App\Models\User::where('empresa_id', $emp->id)->count();
-                                
                                 $usuariosExtra = max(0, $usuariosReales - $emp->limite_usuarios);
                                 $mbsExtra = max(0, $emp->consumo_actual_mb - $emp->limite_mb);
                                 $gbsExtra = ceil($mbsExtra / 1024);
                                 
-                                $cobroExcedentesUsr = $usuariosExtra * $precioPorUsuarioExtra;
-                                $cobroExcedentesMb = $gbsExtra * $precioPorGBExtra;
+                                $cobroExcedentesUsr = $usuariosExtra * ($precioPorUsuarioExtra ?? 1.50);
+                                $cobroExcedentesMb = $gbsExtra * ($precioPorGBExtra ?? 5.00);
                                 $totalExcedentes = $cobroExcedentesUsr + $cobroExcedentesMb;
                                 
                                 $cuotaBase = $emp->monto_cuota_mensual ?? 50.00;
@@ -365,32 +331,43 @@
                                 } else {
                                     $totalMes = $cuotaBase + $totalExcedentes;
                                 }
+
+                                $proxFecha = $emp->proximo_vencimiento 
+                                    ? \Carbon\Carbon::parse($emp->proximo_vencimiento)->format('d/m/Y') 
+                                    : \Carbon\Carbon::now()->addMonth()->format('d/m/Y');
                             @endphp
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded p-2 me-3 text-center fw-bold text-primary" style="width:35px;height:35px;line-height:19px;">
-                                            {{ substr($emp->nombre, 0, 1) }}
+                                        <div class="bg-light rounded-circle p-2 me-3 text-center fw-bold text-primary shadow-sm" style="width:40px;height:40px;line-height:24px;">
+                                            {{ strtoupper(substr($emp->nombre, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <h6 class="mb-0 fw-bold">{{ $emp->nombre }}</h6>
-                                            <span class="badge {{ $emp->estado_cuenta == 'al_dia' ? 'bg-success' : 'bg-danger' }} fw-normal me-1" style="font-size:0.65rem;">{{ strtoupper($emp->estado_cuenta) }}</span>
-                                            
-                                            @if($esDemo)
-                                                <span class="badge bg-purple text-white font-monospace" style="font-size:0.65rem; background: #8b5cf6;">🎁 DEMO SIN CARGO</span>
-                                            @elseif($enGracia)
-                                                <span class="badge bg-warning text-dark font-monospace" style="font-size:0.65rem;">⏳ GRACIA HASTA {{ \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('d/m/Y') }}</span>
-                                            @elseif($emp->plan_tipo === 'personalizado')
-                                                <span class="badge bg-info text-dark font-monospace" style="font-size:0.65rem;">✨ PLAN PERSONALIZADO</span>
-                                            @endif
+                                            <h6 class="mb-1 fw-bold text-dark">{{ $emp->nombre }}</h6>
+                                            <div class="d-flex align-items-center gap-1 flex-wrap">
+                                                <span class="badge {{ $emp->estado_cuenta == 'al_dia' ? 'bg-success' : 'bg-danger' }} fw-normal" style="font-size:0.65rem;">
+                                                    {{ strtoupper($emp->estado_cuenta) }}
+                                                </span>
+                                                @if($esDemo)
+                                                    <span class="badge text-white font-monospace" style="font-size:0.65rem; background: #8b5cf6;">🎁 DEMO SIN CARGO</span>
+                                                @elseif($enGracia)
+                                                    <span class="badge bg-warning text-dark font-monospace" style="font-size:0.65rem;">⏳ GRACIA HASTA {{ \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('d/m/Y') }}</span>
+                                                @elseif($emp->plan_tipo === 'personalizado')
+                                                    <span class="badge bg-info text-dark font-monospace" style="font-size:0.65rem;">✨ PERSONALIZADO</span>
+                                                @elseif($emp->plan_tipo === 'bonificado')
+                                                    <span class="badge bg-secondary text-white font-monospace" style="font-size:0.65rem;">🏷️ BONIFICADO</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="fw-bold {{ $usuariosReales > $emp->limite_usuarios ? 'text-danger' : 'text-dark' }}">{{ $usuariosReales }}</span> <span class="text-muted small">/ {{ $emp->limite_usuarios }}</span>
+                                    <span class="fw-bold {{ $usuariosReales > $emp->limite_usuarios ? 'text-danger' : 'text-dark' }}">{{ $usuariosReales }}</span> 
+                                    <span class="text-muted small">/ {{ $emp->limite_usuarios }}</span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold {{ $emp->consumo_actual_mb > $emp->limite_mb ? 'text-danger' : 'text-dark' }}">{{ number_format($emp->consumo_actual_mb, 1) }}</span> <span class="text-muted small">/ {{ $emp->limite_mb }} MB</span>
+                                    <span class="fw-bold {{ $emp->consumo_actual_mb > $emp->limite_mb ? 'text-danger' : 'text-dark' }}">{{ number_format($emp->consumo_actual_mb, 1) }}</span> 
+                                    <span class="text-muted small">/ {{ $emp->limite_mb }} MB</span>
                                 </td>
                                 <td class="text-center">
                                     <span class="fw-bold text-dark">${{ number_format($cuotaBase, 2, ',', '.') }}</span>
@@ -410,70 +387,27 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalConfigPlan{{ $emp->id }}" title="Configurar Tarifa y Gracia">
-                                        <i class="fas fa-cog me-1"></i> Configurar
+                                    <span class="badge bg-light text-dark border font-monospace px-2 py-1">{{ $proxFecha }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalConfigPlan{{ $emp->id }}" title="Configurar Tarifa y Vencimiento">
+                                        <i class="fas fa-sliders-h me-1"></i> Configurar Plan
                                     </button>
-
-                                    <!-- Modal Configuración Económica por Empresa -->
-                                    <div class="modal fade text-start" id="modalConfigPlan{{ $emp->id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content border-0" style="border-radius: 15px;">
-                                                <div class="modal-header bg-dark text-white border-0" style="border-radius: 15px 15px 0 0;">
-                                                    <h5 class="modal-title fw-bold"><i class="fas fa-sliders me-2 text-warning"></i> Tarifa y Plan: {{ $emp->nombre }}</h5>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <form action="{{ route('owner.empresas.update_billing_config', $emp->id) }}" method="POST">
-                                                    @csrf
-                                                    <div class="modal-body p-4">
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small text-muted">Tipo de Plan Comercial</label>
-                                                            <select name="plan_tipo" class="form-select">
-                                                                <option value="estandar" {{ ($emp->plan_tipo ?? 'estandar') === 'estandar' ? 'selected' : '' }}>Estándar (Tarifa Normal)</option>
-                                                                <option value="demo" {{ ($emp->plan_tipo ?? '') === 'demo' ? 'selected' : '' }}>🎁 Demo / Demostración (Sin Cobro Permanente)</option>
-                                                                <option value="personalizado" {{ ($emp->plan_tipo ?? '') === 'personalizado' ? 'selected' : '' }}>✨ Personalizado / Acuerdo Especial</option>
-                                                                <option value="bonificado" {{ ($emp->plan_tipo ?? '') === 'bonificado' ? 'selected' : '' }}>🏷️ Bonificado / Descuento</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small text-muted">Cuota Mensual Fija ($)</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text">$</span>
-                                                                <input type="number" step="0.01" min="0" name="monto_cuota_mensual" class="form-control" value="{{ $emp->monto_cuota_mensual ?? 50.00 }}" required>
-                                                            </div>
-                                                            <small class="text-muted">Define cuánto paga esta empresa específicamente por mes.</small>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small text-muted">Período de Gracia (No Paga Hasta)</label>
-                                                            <input type="date" name="periodo_gracia_hasta" class="form-control" value="{{ $emp->periodo_gracia_hasta ? \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('Y-m-d') : '' }}">
-                                                            <small class="text-muted">Si está en fecha futura, el sistema no le cobrará ni generará deuda.</small>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label fw-bold small text-muted">Notas de Facturación / Acuerdo Interno</label>
-                                                            <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Cliente socio fundador, 50% de descuento o plazo especial.">{{ $emp->notas_facturacion ?? '' }}</textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer border-0 pb-4 pe-4">
-                                                        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar Cambios</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">No existen clientes todavía.</td>
+                                <td colspan="8" class="text-center py-4 text-muted">No existen empresas registradas en el sistema.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4 alert alert-info py-2 small d-flex align-items-center">
-                <i class="fas fa-info-circle fa-lg me-3"></i>
+
+            <div class="mt-4 alert alert-info py-2 small d-flex align-items-center mb-0">
+                <i class="fas fa-info-circle fa-lg me-3 text-info"></i>
                 <p class="mb-0">
-                    <strong>Cobro Directo sin Comisiones:</strong> Los clientes te transfieren directamente a tus cuentas/billeteras habilitadas y suben su comprobante. El motor de IA (Gemini Vision) extrae los datos y tú los verificas en 1-Clic.
+                    <strong>Cobro Directo sin Comisiones:</strong> Tus clientes pueden transferir a tus cuentas/billeteras habilitadas y subir el comprobante. El motor de IA (Gemini Vision) extraerá automáticamente el monto y número de operación para tu verificación en 1-Clic.
                 </p>
             </div>
         </div>
@@ -483,25 +417,25 @@
     <div class="row mb-4">
         <!-- Cuentas Habilitadas -->
         <div class="col-lg-4 mb-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-dark text-white fw-bold py-3 d-flex align-items-center justify-content-between">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
+                <div class="card-header bg-dark text-white fw-bold py-3 d-flex align-items-center justify-content-between" style="border-radius: 15px 15px 0 0;">
                     <span><i class="fas fa-university me-2 text-warning"></i> Mis Cuentas / Billeteras</span>
                     <span class="badge bg-success">Sin Comisiones</span>
                 </div>
                 <div class="card-body">
                     <div class="border-start border-primary border-4 ps-3 mb-3 bg-light p-2 rounded">
                         <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-building-columns me-1 text-primary"></i> Banco Santander</h6>
-                        <small class="text-muted d-block">CBU: 0720000020000012345678</small>
+                        <small class="text-muted d-block font-monospace">CBU: 0720000020000012345678</small>
                         <small class="text-muted d-block">Alias: INTEGRA.SANTANDER</small>
                     </div>
                     <div class="border-start border-success border-4 ps-3 mb-3 bg-light p-2 rounded">
                         <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-landmark me-1 text-success"></i> Banco Provincia</h6>
-                        <small class="text-muted d-block">CBU: 0140000011000087654321</small>
+                        <small class="text-muted d-block font-monospace">CBU: 0140000011000087654321</small>
                         <small class="text-muted d-block">Alias: INTEGRA.PROVINCIA</small>
                     </div>
                     <div class="border-start border-warning border-4 ps-3 mb-3 bg-light p-2 rounded">
                         <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-wallet me-1 text-warning"></i> Billetera ARQ / DollarApp</h6>
-                        <small class="text-muted d-block">CVU: 0000003100087654321098</small>
+                        <small class="text-muted d-block font-monospace">CVU: 0000003100087654321098</small>
                         <small class="text-muted d-block">Alias: INTEGRA.ARQ</small>
                     </div>
                     <div class="border-start border-secondary border-4 ps-3 bg-light p-2 rounded">
@@ -514,8 +448,8 @@
 
         <!-- Tabla de Comprobantes Recibidos (Verificación por IA) -->
         <div class="col-lg-8 mb-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-dark text-white fw-bold py-3 d-flex justify-content-between align-items-center">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
+                <div class="card-header bg-dark text-white fw-bold py-3 d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
                     <span><i class="fas fa-receipt me-2 text-info"></i> Comprobantes de Pago (IA Reader Gemini)</span>
                     <span class="badge bg-info text-dark">{{ count($pagos ?? []) }} Reportados</span>
                 </div>
@@ -557,7 +491,6 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        <!-- Ver Comprobante / Aprobar en 1-Clic -->
                                         @if($pago->comprobante_url)
                                             <a href="{{ asset('storage/' . $pago->comprobante_url) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1" title="Ver Comprobante">
                                                 <i class="fas fa-eye"></i>
@@ -593,6 +526,77 @@
     </div>
 </div>
 
+<!-- CONTENEDOR DE MODALES FUERA DE LA TABLA (COMPATIBILIDAD BOOTSTRAP 5) -->
+@foreach($empresas as $emp)
+    <div class="modal fade" id="modalConfigPlan{{ $emp->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $emp->id }}" aria-hidden="true" style="color: #0f172a;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+                <div class="modal-header bg-dark text-white border-0" style="border-radius: 18px 18px 0 0;">
+                    <h5 class="modal-title fw-bold" id="modalLabel{{ $emp->id }}">
+                        <i class="fas fa-sliders-h me-2 text-warning"></i> Configuración Comercial: {{ $emp->nombre }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('owner.empresas.update_billing_config', $emp->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Tipo de Plan Comercial</label>
+                            <select name="plan_tipo" class="form-select border-secondary border-opacity-20">
+                                <option value="estandar" {{ ($emp->plan_tipo ?? 'estandar') === 'estandar' ? 'selected' : '' }}>Estándar (Tarifa Normal)</option>
+                                <option value="demo" {{ ($emp->plan_tipo ?? '') === 'demo' ? 'selected' : '' }}>🎁 Demo / Demostración (Sin Cobro Permanente)</option>
+                                <option value="personalizado" {{ ($emp->plan_tipo ?? '') === 'personalizado' ? 'selected' : '' }}>✨ Personalizado / Acuerdo Especial</option>
+                                <option value="bonificado" {{ ($emp->plan_tipo ?? '') === 'bonificado' ? 'selected' : '' }}>🏷️ Bonificado / Descuento</option>
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Cuota Mensual Fija ($)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" min="0" name="monto_cuota_mensual" class="form-control" value="{{ $emp->monto_cuota_mensual ?? 50.00 }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Próximo Vencimiento</label>
+                                <input type="date" name="proximo_vencimiento" class="form-control" value="{{ $emp->proximo_vencimiento ? \Carbon\Carbon::parse($emp->proximo_vencimiento)->format('Y-m-d') : '' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Período de Gracia (No Paga Hasta)</label>
+                            <input type="date" name="periodo_gracia_hasta" class="form-control" value="{{ $emp->periodo_gracia_hasta ? \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('Y-m-d') : '' }}">
+                            <small class="text-muted">Si está en fecha futura, el sistema mostrará la cuota exenta a $0.</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Límite Usuarios</label>
+                                <input type="number" name="limite_usuarios" class="form-control" value="{{ $emp->limite_usuarios ?? 50 }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Límite MB</label>
+                                <input type="number" name="limite_mb" class="form-control" value="{{ $emp->limite_mb ?? 500 }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Notas Internas de Facturación</label>
+                            <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Cliente socio fundador o plazo especial negociado.">{{ $emp->notas_facturacion ?? '' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pb-4 pe-4">
+                        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const sidebar = document.getElementById('sidebar');
@@ -613,7 +617,6 @@
         if(closeBtn) closeBtn.addEventListener('click', toggleMenu);
         if(overlay) overlay.addEventListener('click', toggleMenu);
     });
-</script>
 </script>
 </body>
 </html>
