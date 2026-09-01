@@ -36,6 +36,12 @@ class SystemBillingController extends Controller
                         ->get();
         }
 
+        // Traer cuentas bancarias y billeteras de cobro
+        $cuentasCobro = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('cuentas_cobro')) {
+            $cuentasCobro = \App\Models\CuentaCobro::orderBy('created_at', 'asc')->get();
+        }
+
         return view('dashboards.owner_billing', compact(
             'empresas',
             'ingresosEstimados',
@@ -45,7 +51,8 @@ class SystemBillingController extends Controller
             'tarifaBase',
             'precioPorUsuarioExtra',
             'precioPorGBExtra',
-            'pagos'
+            'pagos',
+            'cuentasCobro'
         ));
     }
 

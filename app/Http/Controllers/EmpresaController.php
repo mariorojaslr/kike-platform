@@ -109,7 +109,9 @@ class EmpresaController extends Controller
     {
         $request->validate([
             'plan_tipo' => 'required|in:estandar,demo,personalizado,bonificado',
+            'modalidad_cobro' => 'required|in:cuota_fija,por_afiliado,por_alumno,demo',
             'monto_cuota_mensual' => 'required|numeric|min:0',
+            'monto_por_afiliado' => 'nullable|numeric|min:0',
             'periodo_gracia_hasta' => 'nullable|date',
             'proximo_vencimiento' => 'nullable|date',
             'limite_usuarios' => 'nullable|integer|min:1',
@@ -119,7 +121,9 @@ class EmpresaController extends Controller
 
         $data = [
             'plan_tipo' => $request->plan_tipo,
+            'modalidad_cobro' => $request->modalidad_cobro,
             'monto_cuota_mensual' => $request->monto_cuota_mensual,
+            'monto_por_afiliado' => $request->monto_por_afiliado ?? 0.00,
             'periodo_gracia_hasta' => $request->periodo_gracia_hasta,
             'notas_facturacion' => $request->notas_facturacion,
         ];

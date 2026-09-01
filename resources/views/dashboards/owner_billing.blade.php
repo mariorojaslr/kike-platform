@@ -199,7 +199,7 @@
             </button>
             <div>
                 <h4 class="mb-0 fw-bold">Gestión Comercial & Cobranzas por Empresa</h4>
-                <p class="text-muted mb-0 small">Configura planes, cuotas personalizadas, fechas de gracia y verifica comprobantes</p>
+                <p class="text-muted mb-0 small">Configura cuotas por persona/afiliado, cuotas fijas, gracia y administra tus bancos reales</p>
             </div>
         </div>
         <div class="user-profile">
@@ -289,7 +289,7 @@
         <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center flex-wrap">
             <div>
                 <h5 class="fw-bold mb-1"><i class="fas fa-building me-2 text-primary"></i> Control Comercial & Tarifas por Empresa</h5>
-                <p class="text-muted small mb-0">Administra cuotas fojas, período de gracia, planes demo y vencimientos de cada cliente de forma individual.</p>
+                <p class="text-muted small mb-0">Configura cobro por cuota fija, por afiliado/miembro o por alumno, período de gracia y vencimientos.</p>
             </div>
             <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill font-monospace">
                 Total: {{ count($empresas) }} Instituciones
@@ -301,9 +301,9 @@
                     <thead class="text-muted small text-uppercase">
                         <tr>
                             <th>Cliente / Institución</th>
-                            <th>Usuarios / Límite</th>
-                            <th>MB Utilizados / Límite</th>
-                            <th class="text-center">Cuota Fija Mensual</th>
+                            <th>Modo de Cobro</th>
+                            <th>Titulares / Alumnos</th>
+                            <th class="text-center">Cuota / Valor Base</th>
                             <th class="text-center">Excedentes</th>
                             <th class="text-end">Total a Facturar</th>
                             <th class="text-center">Próx. Cobro</th>
@@ -314,6 +314,9 @@
                         @forelse($empresas as $emp)
                             @php
                                 $usuariosReales = \App\Models\User::where('empresa_id', $emp->id)->count();
+                                $countTitulares = \App\Models\Titular::where('empresa_id', $emp->id)->count();
+                                $countFamiliares = \App\Models\Familiar::where('empresa_id', $emp->id)->count();
+                                
                                 $usuariosExtra = max(0, $usuariosReales - $emp->limite_usuarios);
                                 $mbsExtra = max(0, $emp->consumo_actual_mb - $emp->limite_mb);
                                 $gbsExtra = ceil($mbsExtra / 1024);
@@ -322,8 +325,21 @@
                                 $cobroExcedentesMb = $gbsExtra * ($precioPorGBExtra ?? 5.00);
                                 $totalExcedentes = $cobroExcedentesUsr + $cobroExcedentesMb;
                                 
-                                $cuotaBase = $emp->monto_cuota_mensual ?? 50.00;
-                                $esDemo = ($emp->plan_tipo === 'demo');
+                                $modalidad = $emp->modalidad_cobro ?? 'cuota_fija';
+                                $montoAfiliado = $emp->monto_por_afiliado ?? 0.00;
+
+                                if ($modalidad === 'por_afiliado') {
+                                    $cuotaBase = $countTitulares * $montoAfiliado;
+                                    $detalleModalidad = "👤 {$countTitulares} Afiliados x $" . number_format($montoAfiliado, 2, ',', '.');
+                                } elseif ($modalidad === 'por_alumno') {
+                                    $cuotaBase = $countFamiliares * $montoAfiliado;
+                                    $detalleModalidad = "👶 {$countFamiliares} Alumnos x $" . number_format($montoAfiliado, 2, ',', '.');
+                                } else {
+                                    $cuotaBase = $emp->monto_cuota_mensual ?? 50.00;
+                                    $detalleModalidad = "Cuota Fija Mensual";
+                                }
+
+                                $esDemo = ($emp->plan_tipo === 'demo' || $modalidad === 'demo');
                                 $enGracia = ($emp->periodo_gracia_hasta && \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->isFuture());
 
                                 if ($esDemo || $enGracia) {
@@ -354,23 +370,34 @@
                                                     <span class="badge bg-warning text-dark font-monospace" style="font-size:0.65rem;">⏳ GRACIA HASTA {{ \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('d/m/Y') }}</span>
                                                 @elseif($emp->plan_tipo === 'personalizado')
                                                     <span class="badge bg-info text-dark font-monospace" style="font-size:0.65rem;">✨ PERSONALIZADO</span>
-                                                @elseif($emp->plan_tipo === 'bonificado')
-                                                    <span class="badge bg-secondary text-white font-monospace" style="font-size:0.65rem;">🏷️ BONIFICADO</span>
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="fw-bold {{ $usuariosReales > $emp->limite_usuarios ? 'text-danger' : 'text-dark' }}">{{ $usuariosReales }}</span> 
-                                    <span class="text-muted small">/ {{ $emp->limite_usuarios }}</span>
+                                    @if($modalidad === 'por_afiliado')
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-2 py-1">
+                                            <i class="fas fa-users me-1"></i> Por Afiliado
+                                        </span>
+                                    @elseif($modalidad === 'por_alumno')
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-20 px-2 py-1">
+                                            <i class="fas fa-child me-1"></i> Por Alumno
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary bg-opacity-10 text-dark border px-2 py-1">
+                                            <i class="fas fa-tag me-1"></i> Cuota Fija
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>
-                                    <span class="fw-bold {{ $emp->consumo_actual_mb > $emp->limite_mb ? 'text-danger' : 'text-dark' }}">{{ number_format($emp->consumo_actual_mb, 1) }}</span> 
-                                    <span class="text-muted small">/ {{ $emp->limite_mb }} MB</span>
+                                    <div class="small">
+                                        <strong>{{ $countTitulares }}</strong> <span class="text-muted">Titulares</span> / <strong>{{ $countFamiliares }}</strong> <span class="text-muted">Alumnos</span>
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <span class="fw-bold text-dark">${{ number_format($cuotaBase, 2, ',', '.') }}</span>
+                                    <br><small class="text-muted" style="font-size:0.7rem;">{{ $detalleModalidad }}</small>
                                 </td>
                                 <td class="text-center">
                                     @if($totalExcedentes > 0)
@@ -415,33 +442,51 @@
 
     <!-- SECCIÓN: CUENTAS BANCARIAS HABILITADAS Y RECEPCIÓN DE PAGOS -->
     <div class="row mb-4">
-        <!-- Cuentas Habilitadas -->
+        <!-- Cuentas Habilitadas Configurables -->
         <div class="col-lg-4 mb-3">
             <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
                 <div class="card-header bg-dark text-white fw-bold py-3 d-flex align-items-center justify-content-between" style="border-radius: 15px 15px 0 0;">
                     <span><i class="fas fa-university me-2 text-warning"></i> Mis Cuentas / Billeteras</span>
-                    <span class="badge bg-success">Sin Comisiones</span>
+                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#modalNuevaCuenta">
+                        <i class="fas fa-plus me-1"></i> Agregar
+                    </button>
                 </div>
                 <div class="card-body">
-                    <div class="border-start border-primary border-4 ps-3 mb-3 bg-light p-2 rounded">
-                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-building-columns me-1 text-primary"></i> Banco Santander</h6>
-                        <small class="text-muted d-block font-monospace">CBU: 0720000020000012345678</small>
-                        <small class="text-muted d-block">Alias: INTEGRA.SANTANDER</small>
-                    </div>
-                    <div class="border-start border-success border-4 ps-3 mb-3 bg-light p-2 rounded">
-                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-landmark me-1 text-success"></i> Banco Provincia</h6>
-                        <small class="text-muted d-block font-monospace">CBU: 0140000011000087654321</small>
-                        <small class="text-muted d-block">Alias: INTEGRA.PROVINCIA</small>
-                    </div>
-                    <div class="border-start border-warning border-4 ps-3 mb-3 bg-light p-2 rounded">
-                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-wallet me-1 text-warning"></i> Billetera ARQ / DollarApp</h6>
-                        <small class="text-muted d-block font-monospace">CVU: 0000003100087654321098</small>
-                        <small class="text-muted d-block">Alias: INTEGRA.ARQ</small>
-                    </div>
-                    <div class="border-start border-secondary border-4 ps-3 bg-light p-2 rounded">
-                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-money-bill-wave me-1 text-secondary"></i> Pago Presencial / Efectivo</h6>
-                        <small class="text-muted d-block">Cobro directo en oficina / sede principal</small>
-                    </div>
+                    @forelse($cuentasCobro as $cta)
+                        <div class="border-start border-primary border-4 ps-3 mb-3 bg-light p-2 rounded position-relative">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-landmark me-1 text-primary"></i> {{ $cta->banco_nombre }}</h6>
+                                    @if($cta->titular)
+                                        <small class="text-muted d-block">Titular: {{ $cta->titular }}</small>
+                                    @endif
+                                    @if($cta->cbu_cvu)
+                                        <small class="text-muted d-block font-monospace">CBU/CVU: {{ $cta->cbu_cvu }}</small>
+                                    @endif
+                                    @if($cta->alias)
+                                        <small class="text-muted d-block fw-bold text-dark">Alias: {{ $cta->alias }}</small>
+                                    @endif
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-sm btn-light border text-dark p-1" data-bs-toggle="modal" data-bs-target="#modalEditCuenta{{ $cta->id }}" title="Editar Cuenta">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <form action="{{ route('owner.cuentas.destroy', $cta->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta cuenta bancaria?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-light border text-danger p-1" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-4 text-muted small">
+                            <i class="fas fa-wallet fa-2x mb-2 text-muted"></i>
+                            <p class="mb-0">No has cargado tus cuentas bancarias. Haz clic en <strong>+ Agregar</strong> para configurar CBU/Alias reales.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -526,7 +571,96 @@
     </div>
 </div>
 
-<!-- CONTENEDOR DE MODALES FUERA DE LA TABLA (COMPATIBILIDAD BOOTSTRAP 5) -->
+<!-- MODAL: AGREGAR NUEVA CUENTA / BILLETERA DE COBRO -->
+<div class="modal fade" id="modalNuevaCuenta" tabindex="-1" aria-hidden="true" style="color: #0f172a;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+            <div class="modal-header bg-dark text-white border-0" style="border-radius: 18px 18px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2 text-warning"></i> Nueva Cuenta Bancaria / Billetera</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('owner.cuentas.store') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">Nombre del Banco / Billetera</label>
+                        <input type="text" name="banco_nombre" class="form-control" placeholder="Ej: Banco Santander, MercadoPago, DollarApp..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">Titular de la Cuenta</label>
+                        <input type="text" name="titular" class="form-control" placeholder="Ej: Mario Rojas / Razón Social...">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">CBU / CVU</label>
+                            <input type="text" name="cbu_cvu" class="form-control font-monospace" placeholder="0000000000000000000000">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted">Alias</label>
+                            <input type="text" name="alias" class="form-control fw-bold" placeholder="MIEMPRESA.ALABANCA">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">Instrucciones Adicionales</label>
+                        <textarea name="instrucciones" class="form-control" rows="2" placeholder="Ej: Enviar comprobante con CUIT en el concepto."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 pe-4">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Guardar Cuenta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODALES EDITAR CUENTAS EXISTENTES -->
+@foreach($cuentasCobro as $cta)
+    <div class="modal fade" id="modalEditCuenta{{ $cta->id }}" tabindex="-1" aria-hidden="true" style="color: #0f172a;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+                <div class="modal-header bg-dark text-white border-0" style="border-radius: 18px 18px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-pen me-2 text-warning"></i> Editar Cuenta: {{ $cta->banco_nombre }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('owner.cuentas.update', $cta->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Nombre del Banco / Billetera</label>
+                            <input type="text" name="banco_nombre" class="form-control" value="{{ $cta->banco_nombre }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Titular de la Cuenta</label>
+                            <input type="text" name="titular" class="form-control" value="{{ $cta->titular }}">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">CBU / CVU</label>
+                                <input type="text" name="cbu_cvu" class="form-control font-monospace" value="{{ $cta->cbu_cvu }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Alias</label>
+                                <input type="text" name="alias" class="form-control fw-bold" value="{{ $cta->alias }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Instrucciones Adicionales</label>
+                            <textarea name="instrucciones" class="form-control" rows="2">{{ $cta->instrucciones }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pb-4 pe-4">
+                        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Actualizar Datos</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
+
+<!-- MODALES DE CONFIGURACIÓN COMERCIAL DE EMPRESAS -->
 @foreach($empresas as $emp)
     <div class="modal fade" id="modalConfigPlan{{ $emp->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $emp->id }}" aria-hidden="true" style="color: #0f172a;">
         <div class="modal-dialog modal-dialog-centered">
@@ -549,41 +683,60 @@
                                 <option value="bonificado" {{ ($emp->plan_tipo ?? '') === 'bonificado' ? 'selected' : '' }}>🏷️ Bonificado / Descuento</option>
                             </select>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Modalidad de Cobro</label>
+                            <select name="modalidad_cobro" class="form-select border-primary">
+                                <option value="cuota_fija" {{ ($emp->modalidad_cobro ?? 'cuota_fija') === 'cuota_fija' ? 'selected' : '' }}>💵 Cuota Fija Mensual ($ Fijo)</option>
+                                <option value="por_afiliado" {{ ($emp->modalidad_cobro ?? '') === 'por_afiliado' ? 'selected' : '' }}>👤 Por Afiliado / Persona en Base de Datos ($ por Titular)</option>
+                                <option value="por_alumno" {{ ($emp->modalidad_cobro ?? '') === 'por_alumno' ? 'selected' : '' }}>👶 Por Alumno / Paciente en Base de Datos ($ por Alumno)</option>
+                                <option value="demo" {{ ($emp->modalidad_cobro ?? '') === 'demo' ? 'selected' : '' }}>🎁 Demo / Gracia (Sin Cargo)</option>
+                            </select>
+                        </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">Cuota Mensual Fija ($)</label>
+                                <label class="form-label fw-bold small text-muted">Cuota Fija Mensual ($)</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
                                     <input type="number" step="0.01" min="0" name="monto_cuota_mensual" class="form-control" value="{{ $emp->monto_cuota_mensual ?? 50.00 }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">Próximo Vencimiento</label>
-                                <input type="date" name="proximo_vencimiento" class="form-control" value="{{ $emp->proximo_vencimiento ? \Carbon\Carbon::parse($emp->proximo_vencimiento)->format('Y-m-d') : '' }}">
+                                <label class="form-label fw-bold small text-muted">Monto por Persona / Afiliado ($)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" min="0" name="monto_por_afiliado" class="form-control" value="{{ $emp->monto_por_afiliado ?? 0.00 }}" placeholder="Ej: 500">
+                                </div>
+                                <small class="text-muted">Si cobras por afiliado o por alumno.</small>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">Período de Gracia (No Paga Hasta)</label>
-                            <input type="date" name="periodo_gracia_hasta" class="form-control" value="{{ $emp->periodo_gracia_hasta ? \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('Y-m-d') : '' }}">
-                            <small class="text-muted">Si está en fecha futura, el sistema mostrará la cuota exenta a $0.</small>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">Límite Usuarios</label>
+                                <label class="form-label fw-bold small text-muted">Próximo Vencimiento</label>
+                                <input type="date" name="proximo_vencimiento" class="form-control" value="{{ $emp->proximo_vencimiento ? \Carbon\Carbon::parse($emp->proximo_vencimiento)->format('Y-m-d') : '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Período de Gracia (No Paga Hasta)</label>
+                                <input type="date" name="periodo_gracia_hasta" class="form-control" value="{{ $emp->periodo_gracia_hasta ? \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('Y-m-d') : '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Límite Usuarios App</label>
                                 <input type="number" name="limite_usuarios" class="form-control" value="{{ $emp->limite_usuarios ?? 50 }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">Límite MB</label>
+                                <label class="form-label fw-bold small text-muted">Límite MB Almacenamiento</label>
                                 <input type="number" name="limite_mb" class="form-control" value="{{ $emp->limite_mb ?? 500 }}">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-muted">Notas Internas de Facturación</label>
-                            <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Cliente socio fundador o plazo especial negociado.">{{ $emp->notas_facturacion ?? '' }}</textarea>
+                            <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Cobro acordado por $500 por cada afiliado de la mutual.">{{ $emp->notas_facturacion ?? '' }}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pb-4 pe-4">

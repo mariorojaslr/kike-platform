@@ -40,6 +40,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- MÓDULO: FACTURACIÓN Y CICLOS (SaaS) ---
     Route::get('/owner/billing', [\App\Http\Controllers\SystemBillingController::class , 'index'])->name('owner.billing');
     Route::post('/owner/billing/tarifas', [\App\Http\Controllers\SystemBillingController::class , 'updateTarifas'])->name('owner.billing.update_tarifas');
+    
+    // CRUD Cuentas de Cobro / Billeteras
+    Route::post('/owner/cuentas-cobro', [\App\Http\Controllers\CuentaCobroController::class, 'store'])->name('owner.cuentas.store');
+    Route::put('/owner/cuentas-cobro/{id}', [\App\Http\Controllers\CuentaCobroController::class, 'update'])->name('owner.cuentas.update');
+    Route::post('/owner/cuentas-cobro/{id}/toggle', [\App\Http\Controllers\CuentaCobroController::class, 'toggleStatus'])->name('owner.cuentas.toggle');
+    Route::delete('/owner/cuentas-cobro/{id}', [\App\Http\Controllers\CuentaCobroController::class, 'destroy'])->name('owner.cuentas.destroy');
 
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
