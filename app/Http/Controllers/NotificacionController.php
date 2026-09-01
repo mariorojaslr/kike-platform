@@ -14,7 +14,7 @@ class NotificacionController extends Controller
     public function getNotificaciones()
     {
         $user = Auth::user();
-        if (!$user) {
+        if (!$user || !\Illuminate\Support\Facades\Schema::hasTable('notificaciones_sistema')) {
             return response()->json(['unread_count' => 0, 'items' => []]);
         }
 

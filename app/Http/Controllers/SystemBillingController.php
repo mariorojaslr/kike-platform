@@ -27,11 +27,14 @@ class SystemBillingController extends Controller
         $precioPorUsuarioExtra = 1.50; // $1.50 por cada usuario extra del límite base
         $precioPorGBExtra = 5.00; // $5.00 por cada GB (1024 MB) extra del límite base
 
-        // Traer pagos por transferencia reportados por las empresas
-        $pagos = \App\Models\PagoEmpresa::with(['empresa', 'user'])
-                    ->orderByRaw("FIELD(estado, 'pendiente_verificacion', 'rechazado', 'aprobado')")
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        // Traer pagos por transferencia reportados por las empresas (defensivo ante migraciones pendientes)
+        $pagos = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('pago_empresas')) {
+            $pagos = \App\Models\PagoEmpresa::with(['empresa', 'user'])
+                        ->orderByRaw("FIELD(estado, 'pendiente_verificacion', 'rechazado', 'aprobado')")
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+        }
 
         return view('dashboards.owner_billing', compact(
             'empresas',
