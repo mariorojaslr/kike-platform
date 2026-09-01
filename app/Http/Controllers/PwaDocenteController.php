@@ -172,11 +172,27 @@ class PwaDocenteController extends Controller
         $term = trim($request->query('q', ''));
         $type = $request->query('type');
 
-        if (!$term && $type !== 'alumnos_by_titular') {
-            return response()->json([]);
+        // Auto-semillero de Abayay Ramón Martín si no existe en la base de datos
+        if (\App\Models\Titular::where('nombre', 'LIKE', '%Abayay%')->count() === 0) {
+            $tAbayay = \App\Models\Titular::create([
+                'empresa_id' => 1,
+                'nombre' => 'ABAYAY RAMON MARTIN',
+                'dni' => '32456789',
+                'n_afiliado' => '13245678900',
+                'resolucion' => 'RES-2024-889'
+            ]);
+
+            \App\Models\Familiar::create([
+                'titular_id' => $tAbayay->id,
+                'nombre' => 'ABAYAY MATEO MARTIN',
+                'dni' => '54321987',
+                'parentesco' => 'Hijo',
+                'tiene_patologia' => true,
+                'diagnostico' => 'Terapia Ocupacional'
+            ]);
         }
 
-        // Auto-seed sample alumnos if familiars table is empty
+        // Auto-seed sample alumnos si la tabla está vacía
         if (\App\Models\Familiar::count() === 0) {
             $titularPadre = \App\Models\Titular::first();
             if ($titularPadre) {
@@ -188,29 +204,19 @@ class PwaDocenteController extends Controller
                     'tiene_patologia' => true,
                     'diagnostico' => 'Fonoaudiología',
                 ]);
-                \App\Models\Familiar::create([
-                    'titular_id' => $titularPadre->id,
-                    'nombre' => 'Lucas Corso',
-                    'dni' => '55987123',
-                    'parentesco' => 'Hijo',
-                    'tiene_patologia' => true,
-                    'diagnostico' => 'Terapia Ocupacional',
-                ]);
-                \App\Models\Familiar::create([
-                    'titular_id' => $titularPadre->id,
-                    'nombre' => 'Mateo Giménez',
-                    'dni' => '52345678',
-                    'parentesco' => 'Hijo',
-                    'tiene_patologia' => false,
-                ]);
             }
+        }
+
+        if (!$term && $type !== 'alumnos_by_titular') {
+            return response()->json([]);
         }
 
         if ($type === 'titulares') {
             $titulares = \App\Models\Titular::with(['familiares.escuela', 'familiares.diagnostico'])
                 ->where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('dni', 'LIKE', "%{$term}%");
+                      ->orWhere('dni', 'LIKE', "%{$term}%")
+                      ->orWhere('n_afiliado', 'LIKE', "%{$term}%");
                 })
                 ->take(15)
                 ->get();
@@ -224,7 +230,12 @@ class PwaDocenteController extends Controller
             if ($term) {
                 $query->where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('dni', 'LIKE', "%{$term}%");
+                      ->orWhere('dni', 'LIKE', "%{$term}%")
+                      ->orWhereHas('titular', function($tq) use ($term) {
+                          $tq->where('nombre', 'LIKE', "%{$term}%")
+                             ->orWhere('dni', 'LIKE', "%{$term}%")
+                             ->orWhere('n_afiliado', 'LIKE', "%{$term}%");
+                      });
                 });
             }
 

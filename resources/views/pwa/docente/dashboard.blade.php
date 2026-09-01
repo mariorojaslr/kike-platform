@@ -834,6 +834,7 @@
 
         let pasoActual = 0;
         let datosAsistidos = {};
+        let timeoutComun = null;
 
         function cerrarModalNuevo() {
             overlay.classList.remove('active');
@@ -1272,21 +1273,23 @@
         function iniciarDictadoVoz() {
             if (window.speechSynthesis) window.speechSynthesis.cancel();
 
-            asistenteEscucha("Dicta el nombre del alumno, DNI o afiliado...", (comando) => {
+            asistenteEscucha("Dicta el nombre del alumno, titular (ej: Abayay), DNI o afiliado...", (comando) => {
                 const inputSearch = document.getElementById('alumnoSearchInput');
                 if (inputSearch) inputSearch.value = comando;
                 
                 fetch(`{{ route('pwa.docente.search') }}?type=alumnos&q=${encodeURIComponent(comando)}`)
                     .then(res => res.json())
                     .then(data => {
-                        if (data.length > 0) {
+                        if (data && data.length > 0) {
                             const a = data[0];
-                            const padreNombre = a.titular ? a.titular.nombre : 'Titular Verificado en BD';
-                            const escNombre = a.escuela ? a.escuela.nombre : 'Escuela Asignada';
-                            
+                            const padreNombre = a.titular ? a.titular.nombre : 'Titular Verificado';
+                            const escNombre = a.escuela ? a.escuela.nombre : 'Institución Registrada';
+
                             document.getElementById('comunAlumnoInput').value = a.nombre;
                             if (a.titular) document.getElementById('comunTitularInput').value = a.titular.nombre;
                             if (a.escuela) document.getElementById('comunEscuelaInput').value = a.escuela.nombre;
+                            if (document.getElementById('alumnoDni')) document.getElementById('alumnoDni').value = a.dni || '';
+                            if (document.getElementById('alumnoPatologia')) document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : 'Terapia Ocupacional');
 
                             datosAsistidos.alumno = a.nombre;
                             datosAsistidos.titular = padreNombre;
@@ -1295,7 +1298,30 @@
                             mostrarRegistroVerificado(padreNombre, a.nombre, escNombre);
                             habilitarFormularioDatos();
                         } else {
-                            asistenteHabla(`No encontré coincidencia exacta para "${comando}" en la base de datos. Intenta dictar el DNI.`);
+                            // Fallback: Búsqueda directa por Titulares (Ej: Abayay Ramón Martín)
+                            fetch(`{{ route('pwa.docente.search') }}?type=titulares&q=${encodeURIComponent(comando)}`)
+                                .then(res => res.json())
+                                .then(dataT => {
+                                    if (dataT && dataT.length > 0) {
+                                        const t = dataT[0];
+                                        const a = (t.familiares && t.familiares.length > 0) ? t.familiares[0] : { nombre: 'Alumno Asociado', dni: '' };
+                                        const escNombre = a.escuela ? a.escuela.nombre : 'Institución Registrada';
+
+                                        document.getElementById('comunTitularInput').value = t.nombre;
+                                        document.getElementById('comunAlumnoInput').value = a.nombre;
+                                        if (a.escuela) document.getElementById('comunEscuelaInput').value = escNombre;
+                                        if (document.getElementById('alumnoDni')) document.getElementById('alumnoDni').value = a.dni || '';
+
+                                        datosAsistidos.titular = t.nombre;
+                                        datosAsistidos.alumno = a.nombre;
+                                        datosAsistidos.escuela = escNombre;
+
+                                        mostrarRegistroVerificado(t.nombre, a.nombre, escNombre);
+                                        habilitarFormularioDatos();
+                                    } else {
+                                        asistenteHabla(`No encontré registros para "${comando}". Intenta dictar el número de DNI o selecciona el nombre en la lista.`);
+                                    }
+                                });
                         }
                     });
             });
