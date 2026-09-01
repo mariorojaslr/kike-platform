@@ -152,16 +152,10 @@ class PwaDocenteController extends Controller
         }
 
         if ($type === 'titulares') {
-            $titulares = \App\Models\Titular::where(function($q) use ($term) {
+            $titulares = \App\Models\Titular::with(['familiares.escuela', 'familiares.diagnostico'])
+                ->where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
                       ->orWhere('dni', 'LIKE', "%{$term}%");
-                    
-                    if (\Illuminate\Support\Facades\Schema::hasColumn('titulars', 'nro_afiliado')) {
-                        $q->orWhere('nro_afiliado', 'LIKE', "%{$term}%");
-                    }
-                    if (\Illuminate\Support\Facades\Schema::hasColumn('titulars', 'cuil')) {
-                        $q->orWhere('cuil', 'LIKE', "%{$term}%");
-                    }
                 })
                 ->take(20)
                 ->get();
@@ -170,7 +164,7 @@ class PwaDocenteController extends Controller
         }
 
         if ($type === 'alumnos') {
-            $query = \App\Models\Familiar::with(['escuela', 'titular']);
+            $query = \App\Models\Familiar::with(['escuela', 'titular', 'diagnostico']);
 
             if ($term) {
                 $query->where(function($q) use ($term) {
@@ -188,7 +182,7 @@ class PwaDocenteController extends Controller
         }
         
         if ($type === 'alumnos_by_titular') {
-            $query = \App\Models\Familiar::with(['escuela', 'titular'])
+            $query = \App\Models\Familiar::with(['escuela', 'titular', 'diagnostico'])
                 ->where('titular_id', $request->query('titular_id'));
 
             $alumnos = $query->take(20)->get();
