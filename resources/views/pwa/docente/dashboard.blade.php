@@ -408,11 +408,11 @@
     <header class="header-pwa">
         <div class="docente-perfil">
             <div class="avatar">
-                {{ substr(explode(' ', $docenteNombre)[1] ?? 'A', 0, 1) }}
+                <i class="fas fa-user-nurse"></i>
             </div>
             <div class="saludo">
                 <p>Hola, Terapeuta</p>
-                <h1>{{ explode(' ', $docenteNombre)[0] ?? 'Andrea' }}</h1>
+                <h1>{{ trim(str_replace('(Demo)', '', $docenteNombre)) }}</h1>
             </div>
         </div>
         <div>
