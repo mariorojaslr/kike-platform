@@ -760,6 +760,125 @@
                                 <i class="fas {{ $req->estado_subida == 'aprobado' ? 'fa-check' : 'fa-hourglass-half' }}"></i>
                             </div>
                         @endif
+        <!-- Escáneres Especiales con Subida de Archivos -->
+        <form id="formSubidaDoc" style="display: none;">
+            @csrf
+            <!-- Input para Cámara Directa (Trasera) -->
+            <input type="file" id="cameraPicker" name="documento" accept="image/*" capture="environment" onchange="manejarSubidaArchivo('cameraPicker')">
+            <!-- Input para Galería / PDFs / Archivos Libres -->
+            <input type="file" id="galleryPicker" name="documento" accept="image/*,.pdf" onchange="manejarSubidaArchivo('galleryPicker')">
+        </form>
+
+        <div class="scan-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+            <!-- Opción 1: Cámara Directa -->
+            <div class="scan-btn" id="btnScanCamera" onclick="abrirCamaraUpload('DNI / Documento Frontal', 'cameraPicker')">
+                <i class="fas fa-camera text-success"></i>
+                <span id="spanScanCamera" style="font-size: 0.75rem;">Tomar Foto Directa</span>
+            </div>
+            <!-- Opción 2: Subir de la Galería/PDF -->
+            <div class="scan-btn" id="btnScanGallery" onclick="abrirCamaraUpload('Archivo Adjunto / PDF', 'galleryPicker')">
+                <i class="fas fa-file-upload text-primary"></i>
+                <span id="spanScanGallery" style="font-size: 0.75rem;">Subir de Galería/PDF</span>
+            </div>
+            
+            <!-- Opción 3: Lector QR Nativo -->
+            <div class="scan-btn" onclick="abrirCamaraUpload('Código QR / Factura', 'cameraPicker')" style="grid-column: span 2;">
+                <i class="fas fa-qrcode text-warning"></i>
+                <span style="font-size: 0.8rem;">Escanear Código QR en Vivo</span>
+            </div>
+        </div>
+
+        <button class="btn-primary-dark mt-3" onclick="cerrarYCrear()">
+            <i class="fas fa-arrow-right me-2" style="font-size: 0.8rem;"></i> Procesar Datos
+        </button>
+    </div>
+
+    <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (MIS ALUMNOS) -->
+    <div class="bottom-sheet" id="sheetMisAlumnos" style="height: 85vh; overflow-y: auto;">
+        <div class="sheet-pill"></div>
+        <div class="sheet-header">
+            <h3>Mis Alumnos</h3>
+            <button class="sheet-close" onclick="cerrarModalMisAlumnos()"><i class="fas fa-times-circle"></i></button>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+            Busque o seleccione un paciente recurrente para informar asistencia o novedades.
+        </p>
+
+        <!-- Barra de búsqueda rápida -->
+        <div class="input-group-voice" style="margin-bottom: 25px;">
+            <input type="text" id="misAlumnosSearchInput" class="input-dark shadow-sm" placeholder="🔍 Escribe un nombre o patología..." oninput="filtrarAlumnosActivos()">
+        </div>
+
+        <!-- Lista Integrada -->
+        <div id="listaMisAlumnosContenedor">
+            @foreach($alumnosDemo as $alumno)
+                <div class="alumno-card item-alumno-filtrable" data-nombre="{{ strtolower($alumno->nombre) }}" data-curso="{{ strtolower($alumno->curso) }}" onclick="alert('Abriendo herramientas para: {{ $alumno->nombre }}...\nAquí el docente podrá cargar novedades, validar asistencias y actualizar reportes en tiempo real.');">
+                    <div class="alumno-info">
+                        <h4 style="font-size: 1rem;">{{ $alumno->nombre }}</h4>
+                        <p style="font-size: 0.8rem;"><i class="fas fa-briefcase-medical me-1 text-primary"></i> {{ $alumno->curso }}</p>
+                    </div>
+                    
+                    @if($alumno->estado == 'aprobado')
+                        <div class="estado aprobado" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fas fa-check"></i></div>
+                    @elseif($alumno->estado == 'pendiente')
+                        <div class="estado pendiente" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fas fa-fingerprint"></i></div>
+                    @else
+                        <div class="estado sin_informar text-center" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fas fa-plus"></i></div>
+                    @endif
+                </div>
+            @endforeach
+            <div id="noResultsMsg" style="display: none; text-align: center; color: var(--gris-texto); margin-top: 30px;">
+                <i class="fas fa-search mb-2" style="font-size: 2rem; opacity: 0.5;"></i>
+                <p>No se encontraron alumnos con ese criterio.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (MIS REQUISITOS) -->
+    <div class="bottom-sheet" id="sheetRequisitos" style="height: 85vh; overflow-y: auto;">
+        <div class="sheet-pill"></div>
+        <div class="sheet-header">
+            <h3>Documentación Docente</h3>
+            <button class="sheet-close" onclick="cerrarModalRequisitos()"><i class="fas fa-times-circle"></i></button>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+            Tu perfil requiere adjuntar la siguiente documentación (exigido por Auditoría)
+        </p>
+
+        <!-- Lista Integrada de Requisitos -->
+        <div id="listaMisRequisitosContenedor">
+            @forelse($tiposDocumentos as $req)
+                <div class="alumno-card" style="align-items: center;" @if(in_array($req->estado_subida, ['sin_entregar', 'rechazado', 'observado'])) onclick="abrirCamaraUpload('{{ $req->nombre }}', 'cameraPicker')" @endif>
+                    <div class="alumno-info" style="color: {{ in_array($req->estado_subida, ['sin_entregar', 'rechazado']) ? '#facc15' : '#a1a1aa' }}">
+                        <h4 style="font-size: 1rem; color:inherit;">
+                            {{ $req->nombre }} 
+                            {!! $req->es_obligatorio ? '<span class="text-danger" style="font-size:0.7rem;">(Obligatorio)</span>' : '' !!}
+                        </h4>
+                        <p style="font-size: 0.75rem;"><i class="fas fa-clock me-1 mb-2 text-warning"></i> @if($req->vencimiento_dias) Vence cada {{ $req->vencimiento_dias }} días @else Única Vez @endif</p>
+                        
+                        @if($req->estado_subida == 'observado' || $req->estado_subida == 'rechazado')
+                            <p style="font-size: 0.75rem; color: #ef4444; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> {{ $req->comentarios ?? 'Documento rechazado o requiere cambios.' }}</p>
+                        @elseif($req->estado_subida == 'pendiente')
+                            <p style="font-size: 0.75rem; color: #3b82f6;"><i class="fas fa-search"></i> En Revisión por Auditor</p>
+                        @elseif($req->estado_subida == 'aprobado')
+                            <p style="font-size: 0.75rem; color: #10b981;"><i class="fas fa-check-double"></i> Aprobado Vigente</p>
+                        @else
+                            <p style="font-size: 0.75rem; color: #a1a1aa;">{{ $req->descripcion }}</p>
+                        @endif
+                    </div>
+                    
+                    <div class="text-center">
+                        @if(in_array($req->estado_subida, ['sin_entregar', 'rechazado', 'observado']))
+                            <div class="estado sin_informar text-center" style="width: 40px; height: 40px; font-size: 1rem;">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        @else
+                            <div class="estado {{ $req->estado_subida == 'aprobado' ? 'aprobado' : 'pendiente' }}" style="width: 40px; height: 40px; font-size: 1rem;">
+                                <i class="fas {{ $req->estado_subida == 'aprobado' ? 'fa-check' : 'fa-hourglass-half' }}"></i>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @empty
@@ -783,11 +902,6 @@
         let pasoActual = 0;
         let datosAsistidos = {};
 
-
-
-
-            
-        
         function cerrarModalNuevo() {
             overlay.classList.remove('active');
             sheet.classList.remove('active');
@@ -870,11 +984,9 @@
                 document.getElementById('lblEscuelaReq').innerText = datosAsistidos.escuela || "la Institución";
                 document.getElementById('lblTitularReq').innerText = datosAsistidos.titular || "el Responsable";
                 pasoActual = 3; 
-                asistenteHabla(`Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentación requerida escaneando con la cámara.`);
+                asistenteHabla("Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentación requerida escaneando con la cámara.");
             }
         }
-            
-        let timeoutComun = null;
 
         function resaltarCoincidencia(texto, termino) {
             if (!texto || !termino) return texto || '';
@@ -934,7 +1046,6 @@
                                     datosAsistidos.titular_id = e.id;
                                     list.style.display = 'none';
                                     
-                                    // Cargar alumnos dependientes de este titular
                                     const alumSelect = document.getElementById('comunAlumnoInput');
                                     const listAlum = document.getElementById('listaAlumnosComun');
                                     listAlum.style.display = 'block';
@@ -1012,7 +1123,6 @@
                                     datosAsistidos.alumno_data = a;
                                     list.style.display = 'none';
 
-                                    // AUTO-COMPLETAR EL PADRE / TITULAR
                                     if (a.titular) {
                                         document.getElementById('comunTitularInput').value = a.titular.nombre;
                                         datosAsistidos.titular = a.titular.nombre;
@@ -1074,6 +1184,7 @@
 
         function abrirModalNuevo() {
             sheetMis.classList.remove('active');
+            if(document.getElementById('sheetRequisitos')) document.getElementById('sheetRequisitos').classList.remove('active');
             overlay.classList.add('active');
             sheet.classList.add('active');
             cambiarMetodo('comun');
@@ -1087,7 +1198,6 @@
             if(window.speechSynthesis) window.speechSynthesis.cancel();
             pasoActual = 0;
             
-            // Reset de UI (quitar brishos)
             if(document.getElementById('btnScanCamera')) {
                 document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
                 document.getElementById('btnScanCamera').style.boxShadow = "none";
@@ -1097,212 +1207,65 @@
 
         function abrirModalMisAlumnos() {
             sheet.classList.remove('active');
-            if(sheetReq) sheetReq.classList.remove('active');
+            if(document.getElementById('sheetRequisitos')) document.getElementById('sheetRequisitos').classList.remove('active');
             overlay.classList.add('active');
             sheetMis.classList.add('active');
-                        if(data.length > 0) {
-                            list.style.display = 'block';
-                            data.forEach(e => {
-                                const row = document.createElement('div');
-                                row.className = "alumno-card";
-                                row.style = "margin-bottom: 8px; padding: 12px; cursor: pointer; background: #1e293b; border-left: 3px solid #3b82f6;";
-                                const nomH = resaltarCoincidencia(e.nombre, term);
-                                const dniH = resaltarCoincidencia(e.dni || '', term);
-                                const afilH = e.nro_afiliado ? ' | Af: ' + resaltarCoincidencia(e.nro_afiliado, term) : '';
-
-                                let hijosHtml = '';
-                                if (e.familiares && e.familiares.length > 0) {
-                                    const nombresHijos = e.familiares.map(h => `<span class="badge bg-secondary bg-opacity-20 text-warning me-1"><i class="fas fa-child me-1"></i>${h.nombre}</span>`).join('');
-                                    hijosHtml = `<div class="mt-1 small text-muted">${nombresHijos}</div>`;
-                                } else {
-                                    hijosHtml = `<div class="mt-1 small text-muted font-italic">Sin alumnos dependientes vinculados</div>`;
-                                }
-
-                                row.innerHTML = `<div>
-                                    <div class="fw-bold text-white"><i class="fas fa-user-shield text-info me-2"></i> ${nomH} <small class="text-muted ms-1">(${dniH}${afilH})</small></div>
-                                    ${hijosHtml}
-                                </div>`;
-
-                                row.onclick = () => {
-                                    document.getElementById('comunTitularInput').value = e.nombre;
-                                    datosAsistidos.titular = e.nombre;
-                                    datosAsistidos.titular_id = e.id;
-                                    list.style.display = 'none';
-                                    
-                                    // Cargar alumnos dependientes de este titular
-                                    const alumSelect = document.getElementById('comunAlumnoInput');
-                                    const listAlum = document.getElementById('listaAlumnosComun');
-                                    listAlum.style.display = 'block';
-                                    listAlum.innerHTML = "";
-                                    
-                                    if (e.familiares && e.familiares.length > 0) {
-                                        alumSelect.placeholder = `🔍 Seleccionar hijo de ${e.nombre}...`;
-                                        e.familiares.forEach(a => {
-                                            const rowAlum = document.createElement('div');
-                                            rowAlum.className = "alumno-card";
-                                            rowAlum.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b; border-left: 3px solid #f59e0b;";
-                                            rowAlum.innerHTML = `<i class="fas fa-child text-warning me-2"></i> <strong>${a.nombre}</strong> <small class="text-muted ms-1">(DNI: ${a.dni || 'S/D'})</small>`;
-                                            rowAlum.onclick = () => {
-                                                alumSelect.value = a.nombre;
-                                                datosAsistidos.alumno = a.nombre;
-                                                datosAsistidos.alumno_data = a;
-                                                listAlum.style.display = 'none';
-                                                
-                                                document.getElementById('alumnoDni').value = a.dni || '';
-                                                document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
-                                                
-                                                const escNombre = a.escuela ? a.escuela.nombre : '';
-                                                if (a.escuela) {
-                                                    document.getElementById('comunEscuelaInput').value = escNombre;
-                                                    datosAsistidos.escuela = escNombre;
-                                                }
-
-                                                mostrarRegistroVerificado(e.nombre, a.nombre, escNombre);
-                                                habilitarFormularioDatos();
-                                            };
-                                            listAlum.appendChild(rowAlum);
-                                        });
-                                    } else {
-                                        alumSelect.placeholder = "⚠️ Este titular no tiene hijos registrados.";
-                                    }
-                                };
-                                list.appendChild(row);
-                            });
-                        } else { list.style.display = 'none'; }
-                    });
-            }, 150);
-        }
-
-        function filtrarAlumnoComun() {
-            clearTimeout(timeoutComun);
-            const term = document.getElementById('comunAlumnoInput').value.trim();
-            const list = document.getElementById('listaAlumnosComun');
-            if(!term || term.length < 1) { return; }
-
-            timeoutComun = setTimeout(() => {
-                fetch(`{{ route('pwa.docente.search') }}?type=alumnos&q=${encodeURIComponent(term)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.length > 0) {
-                            list.style.display = 'block';
-                            list.innerHTML = "";
-                            data.forEach(a => {
-                                const row = document.createElement('div');
-                                row.className = "alumno-card";
-                                row.style = "margin-bottom: 8px; padding: 12px; cursor: pointer; background: #1e293b; border-left: 3px solid #f59e0b;";
-                                const nomH = resaltarCoincidencia(a.nombre, term);
-                                const dniH = resaltarCoincidencia(a.dni || '', term);
-
-                                const padreNombre = a.titular ? a.titular.nombre : 'Sin Titular Asignado';
-                                const padreDni = a.titular && a.titular.dni ? ` (DNI: ${a.titular.dni})` : '';
-
-                                row.innerHTML = `<div>
-                                    <div class="fw-bold text-white"><i class="fas fa-child text-warning me-2"></i> ${nomH} <small class="text-muted ms-1">(DNI: ${dniH})</small></div>
-                                    <div class="small text-info mt-1"><i class="fas fa-user-shield me-1"></i> Padre/Titular: ${padreNombre}${padreDni}</div>
-                                </div>`;
-
-                                row.onclick = () => {
-                                    document.getElementById('comunAlumnoInput').value = a.nombre;
-                                    datosAsistidos.alumno = a.nombre;
-                                    datosAsistidos.alumno_data = a;
-                                    list.style.display = 'none';
-
-                                    // AUTO-COMPLETAR EL PADRE / TITULAR
-                                    if (a.titular) {
-                                        document.getElementById('comunTitularInput').value = a.titular.nombre;
-                                        datosAsistidos.titular = a.titular.nombre;
-                                        datosAsistidos.titular_id = a.titular.id;
-                                    }
-
-                                    document.getElementById('alumnoDni').value = a.dni || '';
-                                    document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
-
-                                    const escNombre = a.escuela ? a.escuela.nombre : '';
-                                    if (a.escuela) {
-                                        document.getElementById('comunEscuelaInput').value = escNombre;
-                                        datosAsistidos.escuela = escNombre;
-                                    }
-
-                                    mostrarRegistroVerificado(padreNombre, a.nombre, escNombre);
-                                    habilitarFormularioDatos();
-                                };
-                                list.appendChild(row);
-                            });
-                        }
-                    });
-            }, 150);
-        }
-
-        function filtrarEscuelaComun() {
-            clearTimeout(timeoutComun);
-            const term = document.getElementById('comunEscuelaInput').value.trim();
-            const list = document.getElementById('listaEscuelasComun');
-            list.innerHTML = "";
-            if(!term || term.length < 1) { list.style.display = 'none'; return; }
-            
-            timeoutComun = setTimeout(() => {
-                fetch(`{{ route('pwa.docente.search') }}?type=escuelas&q=${encodeURIComponent(term)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.length > 0) {
-                            list.style.display = 'block';
-                            data.forEach(e => {
-                                const row = document.createElement('div');
-                                row.className = "alumno-card";
-                                row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                                const nomH = resaltarCoincidencia(e.nombre, term);
-                                const cueH = e.cue ? ' (CUE: ' + resaltarCoincidencia(e.cue, term) + ')' : '';
-
-                                row.innerHTML = `<i class="fas fa-school text-primary me-2"></i> ${nomH} <small class="text-muted ms-1">${cueH}</small>`;
-                                row.onclick = () => {
-                                    document.getElementById('comunEscuelaInput').value = e.nombre;
-                                    datosAsistidos.escuela = e.nombre;
-                                    list.style.display = 'none';
-                                    habilitarFormularioDatos();
-                                };
-                                list.appendChild(row);
-                            });
-                        } else { list.style.display = 'none'; }
-                    });
-            }, 150);
-        }
-
-        function abrirModalNuevo() {
-            sheetMis.classList.remove('active');
-            overlay.classList.add('active');
-            sheet.classList.add('active');
-            cambiarMetodo('comun');
-            datosAsistidos = {};
-            pasoActual = 1;
-        }
-
-        function cerrarModalNuevo() {
-            overlay.classList.remove('active');
-            sheet.classList.remove('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
-            pasoActual = 0;
-            
-            // Reset de UI (quitar brishos)
-            if(document.getElementById('btnScanCamera')) {
-                document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
-                document.getElementById('btnScanCamera').style.boxShadow = "none";
-                document.getElementById('spanScanCamera').innerText = "Tomar Foto Directa";
-            }
-        }
-
-        function abrirModalMisAlumnos() {
-            sheet.classList.remove('active');
-            if(sheetReq) sheetReq.classList.remove('active');
-            overlay.classList.add('active');
-            sheetMis.classList.add('active');
-            
-            // Detener cualquier asistente activo si se salta de ventana
             if(window.speechSynthesis) window.speechSynthesis.cancel();
         }
 
         function cerrarModalMisAlumnos() {
             overlay.classList.remove('active');
             sheetMis.classList.remove('active');
+        }
+
+        function abrirModalRequisitos() {
+            sheet.classList.remove('active');
+            sheetMis.classList.remove('active');
+            overlay.classList.add('active');
+            const sheetReq = document.getElementById('sheetRequisitos');
+            if(sheetReq) sheetReq.classList.add('active');
+            if(window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        function cerrarModalRequisitos() {
+            overlay.classList.remove('active');
+            const sheetReq = document.getElementById('sheetRequisitos');
+            if(sheetReq) sheetReq.classList.remove('active');
+        }
+
+        // --- CERRAR MODALES CLICKANDO EN EL OVERLAY NEGRO ---
+        document.getElementById('overlayNuevo').addEventListener('click', function() {
+            cerrarModalNuevo();
+            cerrarModalMisAlumnos();
+            cerrarModalRequisitos();
+        });
+
+        // --- FILTRO LIVE SEARCH (MIS ALUMNOS) ---
+        function filtrarAlumnosActivos() {
+            const term = document.getElementById('misAlumnosSearchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.item-alumno-filtrable');
+            let encontrados = 0;
+
+            cards.forEach(card => {
+                const nombre = card.getAttribute('data-nombre') || '';
+                const curso = card.getAttribute('data-curso') || '';
+                
+                if (nombre.toLowerCase().includes(term) || curso.toLowerCase().includes(term)) {
+                    card.style.display = 'flex';
+                    encontrados++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if(document.getElementById('noResultsMsg')) {
+                document.getElementById('noResultsMsg').style.display = encontrados === 0 ? 'block' : 'none';
+            }
+        }
+
+        function cerrarYCrear() {
+            alert("Procesando información...");
+            cerrarModalNuevo();
         }
 
         // --- SISTEMA INTELIGENTE DE HABLA Y ESCUCHA ---
@@ -1409,6 +1372,66 @@
             asistenteHabla("Hola. Por favor presiona el botón del micrófono o dicta el nombre del alumno o su DNI.", () => {
                 iniciarDictadoVoz();
             });
+        }
+
+        function abrirCamaraUpload(tipo, inputId) {
+            const input = document.getElementById(inputId);
+            if(input) {
+                input.setAttribute('data-tipo-doc', tipo);
+                input.click();
+            }
+        }
+
+        async function manejarSubidaArchivo(inputId) {
+            const input = document.getElementById(inputId);
+            const file = input ? input.files[0] : null;
+            if (!file) return;
+
+            const tipoDoc = input.getAttribute('data-tipo-doc') || 'Documento';
+            const alumnoActual = datosAsistidos.alumno || 'Paciente Desconocido';
+            
+            let spanId = inputId === 'cameraPicker' ? 'spanScanCamera' : 'spanScanGallery';
+            let btnEle = inputId === 'cameraPicker' ? document.getElementById('btnScanCamera') : document.getElementById('btnScanGallery');
+            
+            let originalText = document.getElementById(spanId) ? document.getElementById(spanId).innerText : 'Subir';
+            if(document.getElementById(spanId)) document.getElementById(spanId).innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+            if(btnEle) btnEle.style.opacity = "0.7";
+
+            const formData = new FormData();
+            formData.append('documento', file);
+            formData.append('tipo_documento', tipoDoc);
+            formData.append('alumno_nombre', alumnoActual);
+            
+            const csrfTokenInput = document.querySelector('form#formSubidaDoc input[name="_token"]');
+            if(csrfTokenInput) formData.append('_token', csrfTokenInput.value);
+
+            try {
+                const response = await fetch("{{ route('pwa.docente.upload') }}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if(document.getElementById(spanId)) document.getElementById(spanId).innerHTML = '<i class="fas fa-check-circle"></i> ¡Subido!';
+                    if(btnEle) btnEle.style.opacity = "1";
+                    setTimeout(() => { if(document.getElementById(spanId)) document.getElementById(spanId).innerText = originalText; }, 1500);
+                    alert(`✅ ¡Tu documento (${tipoDoc}) se cargó perfectamente en la plataforma!`);
+                } else {
+                    if(document.getElementById(spanId)) document.getElementById(spanId).innerText = originalText; 
+                    if(btnEle) btnEle.style.opacity = "1";
+                    alert("⚠️ Ocurrió un error: " + (result.message || "Fallo en servidor"));
+                }
+            } catch (error) {
+                console.error("Error subiendo el archivo:", error);
+                if(document.getElementById(spanId)) document.getElementById(spanId).innerText = originalText; 
+                if(btnEle) btnEle.style.opacity = "1";
+                alert("⚠️ Error de conexión al intentar subir el archivo.");
+            }
+            
+            if(input) input.value = "";
         }
     </script>
     @include('partials.ai_assistant_widget')
