@@ -626,6 +626,21 @@
             </div>
         </div>
 
+        <!-- Tarjeta de Confirmación de Coincidencia en BD -->
+        <div id="cardVerificadoBd" style="display: none; background: rgba(16, 185, 129, 0.15); border: 2px solid #10b981; border-radius: 14px; padding: 15px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span style="font-weight: 700; color: #10b981; font-size: 0.9rem; text-transform: uppercase;">
+                    <i class="fas fa-check-circle me-1" style="font-size: 1.1rem;"></i> ¡REGISTRO OFICIAL VERIFICADO EN BD!
+                </span>
+                <span class="badge bg-success" style="font-size: 0.75rem; padding: 5px 8px;">VÁLIDO 100%</span>
+            </div>
+            <div style="font-size: 0.85rem; color: white; line-height: 1.6;">
+                <div><strong style="color: #60a5fa;"><i class="fas fa-user-shield me-1"></i> Titular / Padre:</strong> <span id="verificadoTitular" class="fw-bold"></span></div>
+                <div><strong style="color: #fbbf24;"><i class="fas fa-child me-1"></i> Alumno Atendido:</strong> <span id="verificadoAlumno" class="fw-bold"></span></div>
+                <div><strong style="color: #34d399;"><i class="fas fa-school me-1"></i> Institución:</strong> <span id="verificadoEscuela" class="fw-bold"></span></div>
+            </div>
+        </div>
+
         <!-- Escáneres Especiales con Subida de Archivos -->
         <form id="formSubidaDoc" style="display: none;">
             @csrf
@@ -867,6 +882,18 @@
             return texto.toString().replace(re, '<mark style="background:#f59e0b; color:#0f172a; font-weight:bold; padding:0 3px; border-radius:3px;">$1</mark>');
         }
 
+        function mostrarRegistroVerificado(titular, alumno, escuela) {
+            const card = document.getElementById('cardVerificadoBd');
+            if (!card) return;
+            
+            document.getElementById('verificadoTitular').innerText = titular || 'Titular Verificado en BD';
+            document.getElementById('verificadoAlumno').innerText = alumno || 'Alumno Verificado en BD';
+            document.getElementById('verificadoEscuela').innerText = escuela || 'Institución Asignada';
+            
+            card.style.display = 'block';
+            asistenteHabla(`¡Registro verificado en base de datos! Encontrado ${alumno}, hijo de ${titular}.`);
+        }
+
         function filtrarTitularComun() {
             clearTimeout(timeoutComun);
             const term = document.getElementById('comunTitularInput').value.trim();
@@ -929,13 +956,14 @@
                                                 document.getElementById('alumnoDni').value = a.dni || '';
                                                 document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
                                                 
+                                                const escNombre = a.escuela ? a.escuela.nombre : '';
                                                 if (a.escuela) {
-                                                    document.getElementById('comunEscuelaInput').value = a.escuela.nombre;
-                                                    datosAsistidos.escuela = a.escuela.nombre;
-                                                    habilitarFormularioDatos();
-                                                } else {
-                                                    document.getElementById('comunEscuelaInput').focus();
+                                                    document.getElementById('comunEscuelaInput').value = escNombre;
+                                                    datosAsistidos.escuela = escNombre;
                                                 }
+
+                                                mostrarRegistroVerificado(e.nombre, a.nombre, escNombre);
+                                                habilitarFormularioDatos();
                                             };
                                             listAlum.appendChild(rowAlum);
                                         });
@@ -994,13 +1022,14 @@
                                     document.getElementById('alumnoDni').value = a.dni || '';
                                     document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
 
+                                    const escNombre = a.escuela ? a.escuela.nombre : '';
                                     if (a.escuela) {
-                                        document.getElementById('comunEscuelaInput').value = a.escuela.nombre;
-                                        datosAsistidos.escuela = a.escuela.nombre;
-                                        habilitarFormularioDatos();
-                                    } else {
-                                        document.getElementById('comunEscuelaInput').focus();
+                                        document.getElementById('comunEscuelaInput').value = escNombre;
+                                        datosAsistidos.escuela = escNombre;
                                     }
+
+                                    mostrarRegistroVerificado(padreNombre, a.nombre, escNombre);
+                                    habilitarFormularioDatos();
                                 };
                                 list.appendChild(row);
                             });
@@ -1183,30 +1212,6 @@
                 btnMic.classList.remove('listening');
             };
 
-            reconocimiento.onend = function() {
-                btnMic.classList.remove('listening');
-            };
-
-            try {
-                reconocimiento.start();
-            } catch(e) {
-                console.warn(e);
-            }
-        }
-
-        // Reemplazo del Dictado manual por si el usuario lo oprime manual
-        function iniciarDictadoVoz() {
-            asistenteEscucha("Te escucho...", (comando) => {
-                inputSearch.value = comando;
-                if(pasoActual === 1) { datosAsistidos.titular = comando; pasoActual=2; flujoAsistente(); return; }
-                if(pasoActual === 2) { datosAsistidos.alumno = comando; pasoActual=3; flujoAsistente(); return; }
-                if(pasoActual === 3) { datosAsistidos.escuela = comando; pasoActual=4; flujoAsistente(); return; }
-            });
-        }
-
-        function abrirCamaraUpload(tipo, inputId) {
-            // Guardamos temporalmente qué estamos subiendo para el post-procesado
-            document.getElementById(inputId).setAttribute('data-tipo-doc', tipo);
             // Ejecutamos el click en el input type=file oculto dinámico
             document.getElementById(inputId).click();
         }

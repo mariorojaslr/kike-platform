@@ -157,7 +157,7 @@ class PwaDocenteController extends Controller
                     $q->where('nombre', 'LIKE', "%{$term}%")
                       ->orWhere('dni', 'LIKE', "%{$term}%");
                 })
-                ->take(20)
+                ->take(50)
                 ->get();
 
             return response()->json($titulares);
@@ -177,7 +177,7 @@ class PwaDocenteController extends Controller
                 $query->where('titular_id', $request->query('titular_id'));
             }
 
-            $alumnos = $query->take(20)->get();
+            $alumnos = $query->take(50)->get();
             return response()->json($alumnos);
         }
         
@@ -185,7 +185,7 @@ class PwaDocenteController extends Controller
             $query = \App\Models\Familiar::with(['escuela', 'titular', 'diagnostico'])
                 ->where('titular_id', $request->query('titular_id'));
 
-            $alumnos = $query->take(20)->get();
+            $alumnos = $query->take(50)->get();
             return response()->json($alumnos);
         }
 
@@ -196,7 +196,7 @@ class PwaDocenteController extends Controller
                         $q->orWhere('cue', 'LIKE', "%{$term}%");
                     }
                 })
-                ->take(20)
+                ->take(50)
                 ->get();
 
             return response()->json($escuelas);
