@@ -426,18 +426,18 @@
         
         <!-- BILLETERAS GEMELAS -->
         <div class="billeteras-grid">
-            <!-- Izquierda: Lo que ya es suyo, aprobado -->
+            <!-- Izquierda: Lo que ya es suyo, aprobado 100% por Auditoría -->
             <div class="billetera-card billetera-ok">
-                <div class="billetera-titulo ok-text">Cobro Listo</div>
+                <div class="billetera-titulo ok-text">Lo que vas a cobrar</div>
                 <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoCobrado, 0, ',', '.') }}</div>
-                <div class="billetera-subtexto"><i class="fas fa-check-double me-1"></i>Aprobado Total</div>
+                <div class="billetera-subtexto"><i class="fas fa-check-double me-1"></i>100% Aprobado por Auditoría</div>
             </div>
 
-            <!-- Derecha: Lo que proyecta si termina sus horas + validaciones padre/auditor en curso -->
+            <!-- Derecha: Lo que proyecta si completa expedientes y facturas -->
             <div class="billetera-card billetera-pretendido">
-                <div class="billetera-titulo espera-text">Proyectado</div>
+                <div class="billetera-titulo espera-text">Lo que deberías cobrar</div>
                 <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoPretendido, 0, ',', '.') }}</div>
-                <div class="billetera-subtexto"><i class="fas fa-hourglass-half me-1"></i>En Validación</div>
+                <div class="billetera-subtexto"><i class="fas fa-hourglass-half me-1"></i>Potencial Total del Mes</div>
             </div>
         </div>
 

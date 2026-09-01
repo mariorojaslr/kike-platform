@@ -188,6 +188,121 @@ class GeminiService
     }
 
     /**
+     * Analiza una Factura Electrónica de ARCA / AFIP (imagen o PDF) y extrae datos de código QR y texto.
+     *
+     * @param string $filePath Ruta local del archivo
+     * @return array ['success' => bool, 'data' => array]
+     */
+    public function analizarFacturaArca(string $filePath): array
+    {
+        if (empty($this->apiKey) || !file_exists($filePath)) {
+            return ['success' => false, 'data' => [], 'error' => 'Archivo no encontrado o API Key faltante.'];
+        }
+
+        $fileData = file_get_contents($filePath);
+        $base64Data = base64_encode($fileData);
+        $mimeType = mime_content_type($filePath) ?: 'image/jpeg';
+
+        $prompt = "Analiza esta Factura Electrónica ARCA / AFIP (Argentina). Lee el código QR y los campos del texto en la factura y extrae exclusivamente un objeto JSON plano con la siguiente información:\n" .
+                  "- nro_factura: (string) número completo de comprobante (ej: 00001-00000123)\n" .
+                  "- punto_venta: (string) código de punto de venta (ej: 00001)\n" .
+                  "- cuit_emisor: (string) CUIT del docente/profesional emisor sin guiones\n" .
+                  "- razon_social_emisor: (string) nombre o razón social del docente/emisor\n" .
+                  "- domicilio_emisor: (string) domicilio fiscal\n" .
+                  "- cae: (string) Código de Autorización Electrónico CAE (ej: 74251890234512)\n" .
+                  "- vencimiento_cae: (string) fecha de vencimiento CAE en formato YYYY-MM-DD\n" .
+                  "- monto_total: (float) monto total exacto de la factura\n" .
+                  "- qr_raw_data: (string) texto embebido en el código QR de AFIP si es visible\n\n" .
+                  "Responde ÚNICAMENTE con el objeto JSON plano sin Markdown ```json y sin comentarios.";
+
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}";
+
+        try {
+            $response = Http::withHeaders(['Content-Type' => 'application/json'])->timeout(35)->post($url, [
+                'contents' => [
+                    [
+                        'role' => 'user',
+                        'parts' => [
+                            ['text' => $prompt],
+                            ['inlineData' => ['mimeType' => $mimeType, 'data' => $base64Data]]
+                        ]
+                    ]
+                ],
+                'generationConfig' => ['temperature' => 0.1, 'maxOutputTokens' => 800]
+            ]);
+
+            if ($response->successful()) {
+                $rawText = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
+                $cleanJson = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($rawText));
+                $parsed = json_decode($cleanJson, true);
+
+                if (is_array($parsed)) {
+                    return ['success' => true, 'data' => $parsed];
+                }
+            }
+
+            return ['success' => false, 'data' => [], 'error' => 'No se pudo decodificar la factura ARCA.'];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'data' => [], 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Analiza un documento en papel / imagen de Resolución del Instituto usando Gemini Vision.
+     */
+    public function analizarResolucionInstituto(string $filePath): array
+    {
+        if (empty($this->apiKey) || !file_exists($filePath)) {
+            return ['success' => false, 'data' => [], 'error' => 'Archivo no encontrado o API Key faltante.'];
+        }
+
+        $fileData = file_get_contents($filePath);
+        $base64Data = base64_encode($fileData);
+        $mimeType = mime_content_type($filePath) ?: 'image/jpeg';
+
+        $prompt = "Analiza este documento oficial en papel / foto de Resolución del Instituto o Ministerio para Educación Especial. Extrae la información en JSON plano con los siguientes campos:\n" .
+                  "- nro_resolucion: (string) número o código de resolución\n" .
+                  "- nombre_alumno: (string) nombre del alumno/beneficiario mencionado\n" .
+                  "- dni_alumno: (string) DNI del alumno si figura\n" .
+                  "- fecha_resolucion: (string) fecha de emisión YYYY-MM-DD\n" .
+                  "- fecha_vigencia_hasta: (string) fecha de vencimiento o vigencia YYYY-MM-DD\n" .
+                  "- diagnostico_resumido: (string) resumen del diagnóstico o cobertura aprobada\n" .
+                  "- horas_aprobadas: (int) cantidad de horas de atención aprobadas\n\n" .
+                  "Responde ÚNICAMENTE con el objeto JSON plano sin Markdown ```json.";
+
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}";
+
+        try {
+            $response = Http::withHeaders(['Content-Type' => 'application/json'])->timeout(35)->post($url, [
+                'contents' => [
+                    [
+                        'role' => 'user',
+                        'parts' => [
+                            ['text' => $prompt],
+                            ['inlineData' => ['mimeType' => $mimeType, 'data' => $base64Data]]
+                        ]
+                    ]
+                ],
+                'generationConfig' => ['temperature' => 0.1, 'maxOutputTokens' => 800]
+            ]);
+
+            if ($response->successful()) {
+                $rawText = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
+                $cleanJson = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($rawText));
+                $parsed = json_decode($cleanJson, true);
+
+                if (is_array($parsed)) {
+                    return ['success' => true, 'data' => $parsed];
+                }
+            }
+
+            return ['success' => false, 'data' => [], 'error' => 'No se pudo decodificar la resolución.'];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'data' => [], 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
      * Contexto de sistema predeterminado para INTEGRA Platform.
      */
     protected function getDefaultSystemPrompt(): string

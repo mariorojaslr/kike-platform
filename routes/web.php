@@ -47,6 +47,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/owner/cuentas-cobro/{id}/toggle', [\App\Http\Controllers\CuentaCobroController::class, 'toggleStatus'])->name('owner.cuentas.toggle');
     Route::delete('/owner/cuentas-cobro/{id}', [\App\Http\Controllers\CuentaCobroController::class, 'destroy'])->name('owner.cuentas.destroy');
 
+    // --- MÓDULO: AUDITORÍA DE DOCENTES & NOVEDADES EN TIEMPO REAL ---
+    Route::get('/auditor/docentes-legajos', [\App\Http\Controllers\AuditorDocenteController::class, 'indexLegajos'])->name('auditor.docentes.legajos');
+    Route::get('/auditor/novedades', [\App\Http\Controllers\AuditorDocenteController::class, 'novedades'])->name('auditor.novedades');
+    
+    Route::post('/auditor/expedientes/{id}/aprobar', [\App\Http\Controllers\AuditorDocenteController::class, 'aprobarExpediente'])->name('auditor.expedientes.aprobar');
+    Route::post('/auditor/expedientes/{id}/rechazar', [\App\Http\Controllers\AuditorDocenteController::class, 'rechazarExpediente'])->name('auditor.expedientes.rechazar');
+    
+    Route::post('/auditor/facturas-docente/{id}/aprobar', [\App\Http\Controllers\AuditorDocenteController::class, 'aprobarFactura'])->name('auditor.facturas_docente.aprobar');
+    Route::post('/auditor/facturas-docente/{id}/rechazar', [\App\Http\Controllers\AuditorDocenteController::class, 'rechazarFactura'])->name('auditor.facturas_docente.rechazar');
+
+    Route::post('/auditor/documento-legajo/{id}/aprobar', [\App\Http\Controllers\AuditorDocenteController::class, 'aprobarDocumentoLegajo'])->name('auditor.legajo_doc.aprobar');
+    Route::post('/auditor/documento-legajo/{id}/rechazar', [\App\Http\Controllers\AuditorDocenteController::class, 'rechazarDocumentoLegajo'])->name('auditor.legajo_doc.rechazar');
+
+    // --- MÓDULO: PWA DOCENTE / EXPEDIENTES ---
+    Route::post('/pwa/expediente/store', [\App\Http\Controllers\ExpedienteAlumnoController::class, 'store'])->name('pwa.expediente.store');
+    Route::post('/pwa/factura-arca/store', [\App\Http\Controllers\ExpedienteAlumnoController::class, 'subirFacturaArca'])->name('pwa.factura_arca.store');
+
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class , 'index'])->name('tenant.dashboard');
