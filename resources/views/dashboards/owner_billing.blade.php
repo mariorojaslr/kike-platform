@@ -198,8 +198,8 @@
                 <i class="fas fa-bars fa-lg"></i>
             </button>
             <div>
-                <h4 class="mb-0 fw-bold">Gestión Comercial & Cobranzas por Empresa</h4>
-                <p class="text-muted mb-0 small">Configura cuotas por persona/afiliado, cuotas fijas, gracia y administra tus bancos reales</p>
+                <h4 class="mb-0 fw-bold">Gestión Comercial & Cobranzas Granulares</h4>
+                <p class="text-muted mb-0 small">Configura cobros individuales por Titular/Afiliado, por Alumno/Paciente o por Docente/Terapeuta</p>
             </div>
         </div>
         <div class="user-profile">
@@ -288,8 +288,8 @@
     <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px;">
         <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center flex-wrap">
             <div>
-                <h5 class="fw-bold mb-1"><i class="fas fa-building me-2 text-primary"></i> Control Comercial & Tarifas por Empresa</h5>
-                <p class="text-muted small mb-0">Configura cobro por cuota fija, por afiliado/miembro o por alumno, período de gracia y vencimientos.</p>
+                <h5 class="fw-bold mb-1"><i class="fas fa-building me-2 text-primary"></i> Control Comercial Granular por Empresa</h5>
+                <p class="text-muted small mb-0">Combina cuota fija base con tarifas unitarias por Titular, Alumno o Docente según tu negociación.</p>
             </div>
             <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill font-monospace">
                 Total: {{ count($empresas) }} Instituciones
@@ -301,9 +301,9 @@
                     <thead class="text-muted small text-uppercase">
                         <tr>
                             <th>Cliente / Institución</th>
-                            <th>Modo de Cobro</th>
-                            <th>Titulares / Alumnos</th>
-                            <th class="text-center">Cuota / Valor Base</th>
+                            <th>Registros en BD</th>
+                            <th>Desglose de Tarifas Aplicadas</th>
+                            <th class="text-center">Cuota Base Calculada</th>
                             <th class="text-center">Excedentes</th>
                             <th class="text-end">Total a Facturar</th>
                             <th class="text-center">Próx. Cobro</th>
@@ -316,6 +316,7 @@
                                 $usuariosReales = \App\Models\User::where('empresa_id', $emp->id)->count();
                                 $countTitulares = \App\Models\Titular::where('empresa_id', $emp->id)->count();
                                 $countFamiliares = \App\Models\Familiar::where('empresa_id', $emp->id)->count();
+                                $countDocentes = \App\Models\Docente::where('empresa_id', $emp->id)->count();
                                 
                                 $usuariosExtra = max(0, $usuariosReales - $emp->limite_usuarios);
                                 $mbsExtra = max(0, $emp->consumo_actual_mb - $emp->limite_mb);
@@ -325,27 +326,24 @@
                                 $cobroExcedentesMb = $gbsExtra * ($precioPorGBExtra ?? 5.00);
                                 $totalExcedentes = $cobroExcedentesUsr + $cobroExcedentesMb;
                                 
-                                $modalidad = $emp->modalidad_cobro ?? 'cuota_fija';
-                                $montoAfiliado = $emp->monto_por_afiliado ?? 0.00;
+                                $baseFija = $emp->monto_cuota_mensual ?? 0.00;
+                                $valTitular = $emp->monto_por_titular ?? 0.00;
+                                $valAlumno = $emp->monto_por_alumno ?? 0.00;
+                                $valDocente = $emp->monto_por_docente ?? 0.00;
 
-                                if ($modalidad === 'por_afiliado') {
-                                    $cuotaBase = $countTitulares * $montoAfiliado;
-                                    $detalleModalidad = "👤 {$countTitulares} Afiliados x $" . number_format($montoAfiliado, 2, ',', '.');
-                                } elseif ($modalidad === 'por_alumno') {
-                                    $cuotaBase = $countFamiliares * $montoAfiliado;
-                                    $detalleModalidad = "👶 {$countFamiliares} Alumnos x $" . number_format($montoAfiliado, 2, ',', '.');
-                                } else {
-                                    $cuotaBase = $emp->monto_cuota_mensual ?? 50.00;
-                                    $detalleModalidad = "Cuota Fija Mensual";
-                                }
+                                $cobroTitulares = $countTitulares * $valTitular;
+                                $cobroAlumnos = $countFamiliares * $valAlumno;
+                                $cobroDocentes = $countDocentes * $valDocente;
 
-                                $esDemo = ($emp->plan_tipo === 'demo' || $modalidad === 'demo');
+                                $cuotaCalculada = $baseFija + $cobroTitulares + $cobroAlumnos + $cobroDocentes;
+
+                                $esDemo = ($emp->plan_tipo === 'demo');
                                 $enGracia = ($emp->periodo_gracia_hasta && \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->isFuture());
 
                                 if ($esDemo || $enGracia) {
                                     $totalMes = 0.00;
                                 } else {
-                                    $totalMes = $cuotaBase + $totalExcedentes;
+                                    $totalMes = $cuotaCalculada + $totalExcedentes;
                                 }
 
                                 $proxFecha = $emp->proximo_vencimiento 
@@ -376,28 +374,40 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if($modalidad === 'por_afiliado')
-                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-2 py-1">
-                                            <i class="fas fa-users me-1"></i> Por Afiliado
-                                        </span>
-                                    @elseif($modalidad === 'por_alumno')
-                                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-20 px-2 py-1">
-                                            <i class="fas fa-child me-1"></i> Por Alumno
-                                        </span>
-                                    @else
-                                        <span class="badge bg-secondary bg-opacity-10 text-dark border px-2 py-1">
-                                            <i class="fas fa-tag me-1"></i> Cuota Fija
-                                        </span>
-                                    @endif
+                                    <div class="small">
+                                        <div><i class="fas fa-users me-1 text-primary"></i> <strong>{{ $countTitulares }}</strong> <span class="text-muted">Titulares</span></div>
+                                        <div><i class="fas fa-child me-1 text-info"></i> <strong>{{ $countFamiliares }}</strong> <span class="text-muted">Alumnos</span></div>
+                                        <div><i class="fas fa-chalkboard-teacher me-1 text-purple" style="color:#8b5cf6;"></i> <strong>{{ $countDocentes }}</strong> <span class="text-muted">Docentes</span></div>
+                                    </div>
                                 </td>
                                 <td>
-                                    <div class="small">
-                                        <strong>{{ $countTitulares }}</strong> <span class="text-muted">Titulares</span> / <strong>{{ $countFamiliares }}</strong> <span class="text-muted">Alumnos</span>
+                                    <div class="d-flex flex-column gap-1">
+                                        @if($baseFija > 0)
+                                            <span class="badge bg-light text-dark border text-start">💵 Base Fija: ${{ number_format($baseFija, 2, ',', '.') }}</span>
+                                        @endif
+                                        @if($valTitular > 0)
+                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 text-start">
+                                                👤 {{ $countTitulares }} Tit. x ${{ number_format($valTitular, 2, ',', '.') }} = ${{ number_format($cobroTitulares, 2, ',', '.') }}
+                                            </span>
+                                        @endif
+                                        @if($valAlumno > 0)
+                                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-20 text-start">
+                                                👶 {{ $countFamiliares }} Alum. x ${{ number_format($valAlumno, 2, ',', '.') }} = ${{ number_format($cobroAlumnos, 2, ',', '.') }}
+                                            </span>
+                                        @endif
+                                        @if($valDocente > 0)
+                                            <span class="badge bg-purple bg-opacity-10 text-purple border border-purple border-opacity-20 text-start" style="color: #8b5cf6; background: rgba(139,92,246,0.1);">
+                                                👨‍🏫 {{ $countDocentes }} Doc. x ${{ number_format($valDocente, 2, ',', '.') }} = ${{ number_format($cobroDocentes, 2, ',', '.') }}
+                                            </span>
+                                        @endif
+
+                                        @if($baseFija == 0 && $valTitular == 0 && $valAlumno == 0 && $valDocente == 0)
+                                            <span class="text-muted small">Sin tarifario asignado ($0)</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <span class="fw-bold text-dark">${{ number_format($cuotaBase, 2, ',', '.') }}</span>
-                                    <br><small class="text-muted" style="font-size:0.7rem;">{{ $detalleModalidad }}</small>
+                                    <span class="fw-bold text-dark fs-6">${{ number_format($cuotaCalculada, 2, ',', '.') }}</span>
                                 </td>
                                 <td class="text-center">
                                     @if($totalExcedentes > 0)
@@ -663,7 +673,7 @@
 <!-- MODALES DE CONFIGURACIÓN COMERCIAL DE EMPRESAS -->
 @foreach($empresas as $emp)
     <div class="modal fade" id="modalConfigPlan{{ $emp->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $emp->id }}" aria-hidden="true" style="color: #0f172a;">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
                 <div class="modal-header bg-dark text-white border-0" style="border-radius: 18px 18px 0 0;">
                     <h5 class="modal-title fw-bold" id="modalLabel{{ $emp->id }}">
@@ -674,6 +684,10 @@
                 <form action="{{ route('owner.empresas.update_billing_config', $emp->id) }}" method="POST">
                     @csrf
                     <div class="modal-body p-4">
+                        <div class="alert alert-primary bg-primary bg-opacity-10 border-0 p-3 mb-4 rounded-3 small text-dark">
+                            <i class="fas fa-lightbulb text-primary me-2"></i> <strong>Poder Negociador Total:</strong> Puedes asignar montos a cualquier combinación de variables (Base, Titulares, Alumnos, Docentes). Deja en $0 los ítems que no desees cobrar.
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-muted">Tipo de Plan Comercial</label>
                             <select name="plan_tipo" class="form-select border-secondary border-opacity-20">
@@ -684,33 +698,47 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">Modalidad de Cobro</label>
-                            <select name="modalidad_cobro" class="form-select border-primary">
-                                <option value="cuota_fija" {{ ($emp->modalidad_cobro ?? 'cuota_fija') === 'cuota_fija' ? 'selected' : '' }}>💵 Cuota Fija Mensual ($ Fijo)</option>
-                                <option value="por_afiliado" {{ ($emp->modalidad_cobro ?? '') === 'por_afiliado' ? 'selected' : '' }}>👤 Por Afiliado / Persona en Base de Datos ($ por Titular)</option>
-                                <option value="por_alumno" {{ ($emp->modalidad_cobro ?? '') === 'por_alumno' ? 'selected' : '' }}>👶 Por Alumno / Paciente en Base de Datos ($ por Alumno)</option>
-                                <option value="demo" {{ ($emp->modalidad_cobro ?? '') === 'demo' ? 'selected' : '' }}>🎁 Demo / Gracia (Sin Cargo)</option>
-                            </select>
-                        </div>
+                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-calculator me-2 text-success"></i> Matriz de Precios y Unidades</h6>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">Cuota Fija Mensual ($)</label>
+                                <label class="form-label fw-bold small text-muted">💵 Cuota Fija Mensual Base ($)</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" min="0" name="monto_cuota_mensual" class="form-control" value="{{ $emp->monto_cuota_mensual ?? 50.00 }}" required>
+                                    <input type="number" step="0.01" min="0" name="monto_cuota_mensual" class="form-control" value="{{ $emp->monto_cuota_mensual ?? 0.00 }}" required>
                                 </div>
+                                <small class="text-muted">Mantenimiento fijo general ($0 si es puro unitario).</small>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">Monto por Persona / Afiliado ($)</label>
+                                <label class="form-label fw-bold small text-muted">👤 Valor por Titular / Afiliado ($/unidad)</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" min="0" name="monto_por_afiliado" class="form-control" value="{{ $emp->monto_por_afiliado ?? 0.00 }}" placeholder="Ej: 500">
+                                    <input type="number" step="0.01" min="0" name="monto_por_titular" class="form-control" value="{{ $emp->monto_por_titular ?? 0.00 }}" placeholder="Ej: 500">
                                 </div>
-                                <small class="text-muted">Si cobras por afiliado o por alumno.</small>
+                                <small class="text-muted">Se multiplica por los Titulares en BD (0 si no aplica).</small>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">👶 Valor por Alumno / Paciente ($/unidad)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" min="0" name="monto_por_alumno" class="form-control" value="{{ $emp->monto_por_alumno ?? 0.00 }}" placeholder="Ej: 1000">
+                                </div>
+                                <small class="text-muted">Se multiplica por los Alumnos/Pacientes en BD.</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">👨‍🏫 Valor por Docente / Terapeuta ($/unidad)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" min="0" name="monto_por_docente" class="form-control" value="{{ $emp->monto_por_docente ?? 0.00 }}" placeholder="Ej: 2500">
+                                </div>
+                                <small class="text-muted">Se multiplica por los Docentes/Terapeutas en BD.</small>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mt-2 mb-3"><i class="fas fa-calendar-alt me-2 text-info"></i> Fechas y Límites de la Suscripción</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -735,8 +763,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">Notas Internas de Facturación</label>
-                            <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Cobro acordado por $500 por cada afiliado de la mutual.">{{ $emp->notas_facturacion ?? '' }}</textarea>
+                            <label class="form-label fw-bold small text-muted">Notas Internas de Facturación / Acuerdo Comercial</label>
+                            <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Negociado $1.000 por alumno y $500 por docente. Exento cargo por titular.">{{ $emp->notas_facturacion ?? '' }}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pb-4 pe-4">
