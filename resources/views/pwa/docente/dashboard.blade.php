@@ -323,31 +323,39 @@
         .sheet-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
         .sheet-close { background: none; border: none; color: var(--gris-texto); font-size: 1.5rem; }
 
-        /* Input y Micrófono */
+        /* Input y Micrófono 100% Responsive */
         .input-group-voice {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .input-dark {
-            flex-grow: 1;
+            flex: 1;
+            min-width: 0; /* Clave para evitar desbordamientos en celulares */
+            width: 100%;
             background: #0f172a;
             border: 1px solid var(--tarjeta-borde);
             border-radius: 12px;
-            padding: 15px;
+            padding: 14px;
             color: white;
             font-family: inherit;
             font-size: 0.95rem;
+            box-sizing: border-box;
         }
         .input-dark::placeholder { color: #64748b; }
         .input-dark:focus { outline: none; border-color: #3b82f6; }
 
         .btn-mic {
+            flex-shrink: 0; /* El botón nunca se comprime ni sale de pantalla */
             background: linear-gradient(135deg, #8b5cf6, #6d28d9);
             border: none;
             border-radius: 12px;
-            width: 55px;
+            width: 50px;
+            height: 50px;
             color: white;
             font-size: 1.2rem;
             display: flex;
@@ -355,6 +363,7 @@
             justify-content: center;
             box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4);
             cursor: pointer;
+            box-sizing: border-box;
         }
         .btn-mic:active { transform: scale(0.95); }
         .btn-mic.listening { animation: pulseBg 1.5s infinite; }
@@ -606,6 +615,201 @@
 
                 <div class="mt-2" style="font-size: 0.8rem; background: #0f172a; padding: 12px; border-radius: 8px; border-left: 3px solid var(--dinero-espera);">
                     <div class="text-warning mb-1" style="font-weight: 600;"><i class="fas fa-clipboard-check"></i> Requerimientos Pendientes:</div>
+                <p>Hola, Terapeuta</p>
+                <h1>{{ trim(str_replace('(Demo)', '', $docenteNombre)) }}</h1>
+            </div>
+        </div>
+        <div>
+            <i class="fas fa-bell text-white" style="font-size: 1.3rem; position: relative;">
+                <span style="position:absolute; top:-4px; right:-2px; background:var(--dinero-espera); width:10px; height:10px; border-radius:50%; border:2px solid var(--bg-oscuro);"></span>
+            </i>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- BILLETERAS GEMELAS -->
+        <div class="billeteras-grid">
+            <!-- Izquierda: Lo que ya es suyo, aprobado 100% por Auditoría -->
+            <div class="billetera-card billetera-ok">
+                <div class="billetera-titulo ok-text">Lo que vas a cobrar</div>
+                <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoCobrado, 0, ',', '.') }}</div>
+                <div class="billetera-subtexto"><i class="fas fa-check-double me-1"></i>100% Aprobado por Auditoría</div>
+            </div>
+
+            <!-- Derecha: Lo que proyecta si completa expedientes y facturas -->
+            <div class="billetera-card billetera-pretendido">
+                <div class="billetera-titulo espera-text">Lo que deberías cobrar</div>
+                <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoPretendido, 0, ',', '.') }}</div>
+                <div class="billetera-subtexto"><i class="fas fa-hourglass-half me-1"></i>Potencial Total del Mes</div>
+            </div>
+        </div>
+
+        <!-- EL VÚMETRO (ECUALIZADOR DE RENDIMIENTO) -->
+        <div class="vumetro-container">
+            <div class="vumetro-header">
+                <span>Rendimiento Mensual</span>
+                <span class="ok-text">75% Óptimo</span>
+            </div>
+            <div class="ecualizador" id="ecualizadorPuas">
+                <!-- Se crearán por JS para darles el efecto exacto descrito: Puas bajas en los extremos, grandes al centro (Fuego/Rojo a la derecha) o secuencial -->
+            </div>
+        </div>
+
+        <!-- SECTOR: ALUMNO NUEVO / ACCIÓN RÁPIDA -->
+        <div class="accion-rapida" onclick="abrirModalNuevo()">
+            <div class="accion-rapida-info">
+                <h3>Alumno Nuevo</h3>
+                <p>Escanear o buscar por comando de voz</p>
+            </div>
+            <div class="accion-rapida-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+        </div>
+
+        <!-- SECTOR: MIS ALUMNOS / ACCIÓN RÁPIDA -->
+        <div class="accion-rapida" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="abrirModalMisAlumnos()">
+            <div class="accion-rapida-info">
+                <h3>Mis Alumnos</h3>
+                <p>Buscar paciente para cargar novedad</p>
+            </div>
+            <div class="accion-rapida-icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+
+        <!-- SECTOR: MIS REQUISITOS (DOCUMENTACIÓN) -->
+        <div class="accion-rapida" style="background: linear-gradient(135deg, #f59e0b, #d97706); margin-top: 15px;" onclick="abrirModalRequisitos()">
+            <div class="accion-rapida-info">
+                @php $pendientesCount = isset($tiposDocumentos) ? $tiposDocumentos->whereIn('estado_subida', ['sin_entregar', 'rechazado', 'observado'])->count() : 0; @endphp
+                <h3>Mis Requisitos <span class="badge bg-danger rounded-pill ms-2" style="font-size:0.7rem;">{{ $pendientesCount }} Pendientes</span></h3>
+                <p>Sube tu documentación obligatoria (Ej: Seguro Méd., DNI)</p>
+            </div>
+            <div class="accion-rapida-icon">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVEGACIÓN INFERIOR (TAB NAV) -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-link nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Hoy</span>
+        </a>
+        <a href="#" class="nav-link nav-item">
+            <i class="fas fa-history"></i>
+            <span>Historial</span>
+        </a>
+        <a href="#" class="nav-link nav-item">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Mi Billetera</span>
+        </a>
+        <a href="#" class="nav-link nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Perfil</span>
+        </a>
+    </nav>
+
+    <script>
+        // --- SCRIPT GENERADOR DEL VÚMETRO MUSICAL (ECUALIZADOR) ---
+        // Generaremos 18 barritas visuales simulando sonido, el % de progreso activará/iluminará de izquierda a derecha.
+        const ecualizadorContenedor = document.getElementById('ecualizadorPuas');
+        const totalBarras = 18;
+        const rendimientoActivo = Math.floor(totalBarras * 0.75); // 75% activado
+
+        // Creamos un patrón de vúmetro: Empezando bajo, cresta al centro/der
+        const alturasPattern = [20, 30, 45, 60, 80, 50, 40, 65, 90, 100, 85, 75, 55, 65, 80, 95, 85, 75];
+
+        for (let i = 0; i < totalBarras; i++) {
+            const barra = document.createElement('div');
+            barra.classList.add('barra');
+            
+            // Asignamos su altura en base al patrón vúmetro (%)
+            barra.style.height = alturasPattern[i] + '%';
+            
+            // Asignamos color de acuerdo a su posición (Niveles del vúmetro)
+            if (i < 8) {
+                barra.classList.add('lvl-bajo'); // Verdes
+            } else if (i < 13) {
+                barra.classList.add('lvl-medio'); // Amarillas
+            } else {
+                barra.classList.add('lvl-alto');  // Rojas
+            }
+
+            // Encendemos (Activamos) las barras hasta donde llegó su rendimiento (75% en el demo)
+            if (i < rendimientoActivo) {
+                // Pequeño delay para que "suban" o se enciendan fluidamente cuando se carga la app
+                setTimeout(() => {
+                    barra.classList.add('activa');
+                }, i * 50); // Cascada de luz
+            }
+
+            ecualizadorContenedor.appendChild(barra);
+        }
+    </script>
+
+    <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (NUEVO ALUMNO) -->
+    <div class="modal-overlay" id="overlayNuevo" onclick="cerrarModalNuevo()"></div>
+    <div class="bottom-sheet" id="sheetNuevo">
+        <div class="sheet-pill"></div>
+        <div class="sheet-header">
+            <h3>Nuevo Alumno / Ingreso</h3>
+            <button class="sheet-close" onclick="cerrarModalNuevo()"><i class="fas fa-times-circle"></i></button>
+        </div>
+
+        <!-- Selector de Métodos -->
+        <div style="display: flex; gap: 10px; margin: -10px auto 20px auto; max-width: 90%;">
+            <div id="tabModoComun" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1);" onclick="cambiarMetodo('comun')">
+                <i class="fas fa-list-ul" style="font-size: 1.2rem; color: #3b82f6;"></i>
+                <span style="font-size: 0.8rem; color: white;">Método Común</span>
+            </div>
+            <div id="tabModoParlante" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid var(--tarjeta-borde); background: var(--bg-oscuro);" onclick="cambiarMetodo('parlante')">
+                <i class="fas fa-microphone" style="font-size: 1.2rem; color: #8b5cf6;"></i>
+                <span style="font-size: 0.8rem; color: var(--gris-texto);">Modo Parlante</span>
+            </div>
+        </div>
+
+        <p id="subtextoInteraccion" style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+            Inicie la búsqueda seleccionando Escuela y Alumno manualmente.
+        </p>
+
+        <!-- === VISTA MÁTODO COMÚN (TRADICIONAL) === -->
+        <div id="seccionModoComun">
+            <!-- Buscador de Titular -->
+            <div class="input-group-voice" style="margin-bottom: 12px;">
+                <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Titular / Padre..." oninput="filtrarTitularComun()">
+            </div>
+            <div id="listaTitularesComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
+            </div>
+
+            <!-- Buscador de Alumno (Dependiente) -->
+            <div class="input-group-voice" style="margin-bottom: 12px;">
+                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()">
+            </div>
+            <div id="listaAlumnosComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
+            </div>
+
+            <!-- Buscador de Escuela -->
+            <div class="input-group-voice" style="margin-bottom: 12px;">
+                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Institución / Escuela..." oninput="filtrarEscuelaComun()">
+            </div>
+            <div id="listaEscuelasComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
+                <!-- Opciones que se cargaran por JS -->
+            </div>
+
+            <!-- Formulario Datos del Alumno -->
+            <div id="formDatosAlumno" style="display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #3b82f6;"><i class="fas fa-pen"></i> Completar Datos del Estudiante</h4>
+                
+                <input type="text" id="alumnoDni" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DNI del Alumno">
+                <input type="number" id="alumnoEdad" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Edad">
+                <input type="text" id="alumnoPatologia" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Diagnóstico / Patología">
+                <input type="text" id="alumnoCUD" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Nro de CUD (Opcional)">
+
+                <div class="mt-2" style="font-size: 0.8rem; background: #0f172a; padding: 12px; border-radius: 8px; border-left: 3px solid var(--dinero-espera);">
+                    <div class="text-warning mb-1" style="font-weight: 600;"><i class="fas fa-clipboard-check"></i> Requerimientos Pendientes:</div>
                     <ul style="margin: 5px 0 0 0; padding-left: 20px; color: var(--gris-texto);">
                         <li>Autorización de ingreso firmada por directivos de <strong id="lblEscuelaReq" class="text-white">la Escuela</strong></li>
                         <li>Consentimiento informado de <strong id="lblTitularReq" class="text-white">el Titular</strong></li>
@@ -617,13 +821,17 @@
 
         <!-- === VISTA MÁTODO PARLANTE (DICTADO) === -->
         <div id="seccionModoParlante" style="display: none;">
-            <!-- Ingreso / Dictado de Voz -->
-            <div class="input-group-voice" style="margin-bottom: 20px;">
-                <input type="text" id="alumnoSearchInput" class="input-dark" placeholder="Ej: Nombre del alumno...">
+            <!-- Ingreso / Dictado de Voz Adaptado 100% Mobile -->
+            <div class="input-group-voice" style="margin-bottom: 15px; width: 100%; box-sizing: border-box;">
+                <input type="text" id="alumnoSearchInput" class="input-dark" style="min-width: 0; flex: 1;" placeholder="Ej: Dicta o escribe el nombre...">
                 <button class="btn-mic" id="btnMicSearch" onclick="iniciarDictadoVoz()" title="Búsqueda por Voz">
                     <i class="fas fa-microphone"></i>
                 </button>
             </div>
+            
+            <button type="button" onclick="iniciarDictadoVoz()" class="btn w-100 py-3 rounded-3 fw-bold mb-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);">
+                <i class="fas fa-microphone fa-lg me-1"></i> Tocar para Hablar / Activar Micrófono
+            </button>
         </div>
 
         <!-- Tarjeta de Confirmación de Coincidencia en BD -->
