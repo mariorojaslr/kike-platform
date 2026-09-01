@@ -582,14 +582,14 @@
 
             <!-- Buscador de Alumno (Dependiente) -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()" disabled>
+                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()">
             </div>
             <div id="listaAlumnosComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
             </div>
 
             <!-- Buscador de Escuela -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Institución / Escuela..." oninput="filtrarEscuelaComun()" disabled>
+                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Institución / Escuela..." oninput="filtrarEscuelaComun()">
             </div>
             <div id="listaEscuelasComun" style="display: none; max-height: 120px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 5px;">
                 <!-- Opciones que se cargaran por JS -->

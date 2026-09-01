@@ -109,52 +109,86 @@ class PwaDocenteController extends Controller
     /**
      * Búsqueda en Vivo (AJAX) para PWA
      */
+    /**
+     * Búsqueda en Vivo (AJAX) para PWA
+     */
     public function search(Request $request)
     {
-        $term = $request->query('q');
+        $term = trim($request->query('q', ''));
         $type = $request->query('type');
-        $empresa_id = 1; // Demo
 
         if (!$term && $type !== 'alumnos_by_titular') {
             return response()->json([]);
         }
 
+        // Auto-seed sample alumnos if familiars table is empty
+        if (\App\Models\Familiar::count() === 0) {
+            $titularPadre = \App\Models\Titular::first();
+            if ($titularPadre) {
+                \App\Models\Familiar::create([
+                    'titular_id' => $titularPadre->id,
+                    'nombre' => 'Sofía Cortez',
+                    'dni' => '54123987',
+                    'parentesco' => 'Hijo',
+                    'tiene_patologia' => true,
+                    'diagnostico' => 'Fonoaudiología',
+                ]);
+                \App\Models\Familiar::create([
+                    'titular_id' => $titularPadre->id,
+                    'nombre' => 'Lucas Corso',
+                    'dni' => '55987123',
+                    'parentesco' => 'Hijo',
+                    'tiene_patologia' => true,
+                    'diagnostico' => 'Terapia Ocupacional',
+                ]);
+                \App\Models\Familiar::create([
+                    'titular_id' => $titularPadre->id,
+                    'nombre' => 'Mateo Giménez',
+                    'dni' => '52345678',
+                    'parentesco' => 'Hijo',
+                    'tiene_patologia' => false,
+                ]);
+            }
+        }
+
         if ($type === 'titulares') {
-            $titulares = \App\Models\Titular::where('empresa_id', $empresa_id)
-                ->where(function($q) use ($term) {
+            $titulares = \App\Models\Titular::where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('dni', 'LIKE', "%{$term}%")
-                      ->orWhere('nro_afiliado', 'LIKE', "%{$term}%")
-                      ->orWhere('cuil', 'LIKE', "%{$term}%");
+                      ->orWhere('dni', 'LIKE', "%{$term}%");
+                    
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('titulars', 'nro_afiliado')) {
+                        $q->orWhere('nro_afiliado', 'LIKE', "%{$term}%");
+                    }
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('titulars', 'cuil')) {
+                        $q->orWhere('cuil', 'LIKE', "%{$term}%");
+                    }
                 })
-                ->take(15)
-                ->get(['id', 'nombre', 'dni', 'nro_afiliado']);
+                ->take(20)
+                ->get();
+
             return response()->json($titulares);
         }
 
         if ($type === 'alumnos') {
-            $query = \App\Models\Familiar::with(['diagnostico', 'escuela', 'titular'])
-                ->where('empresa_id', $empresa_id);
-                
+            $query = \App\Models\Familiar::with(['escuela', 'titular']);
+
             if ($term) {
                 $query->where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('dni', 'LIKE', "%{$term}%")
-                      ->orWhere('nro_afiliado', 'LIKE', "%{$term}%");
+                      ->orWhere('dni', 'LIKE', "%{$term}%");
                 });
             }
 
-            if ($request->has('titular_id')) {
+            if ($request->has('titular_id') && $request->query('titular_id')) {
                 $query->where('titular_id', $request->query('titular_id'));
             }
 
-            $alumnos = $query->take(15)->get();
+            $alumnos = $query->take(20)->get();
             return response()->json($alumnos);
         }
         
         if ($type === 'alumnos_by_titular') {
-            $query = \App\Models\Familiar::with(['diagnostico', 'escuela', 'titular'])
-                ->where('empresa_id', $empresa_id)
+            $query = \App\Models\Familiar::with(['escuela', 'titular'])
                 ->where('titular_id', $request->query('titular_id'));
 
             $alumnos = $query->take(20)->get();
@@ -162,13 +196,15 @@ class PwaDocenteController extends Controller
         }
 
         if ($type === 'escuelas') {
-            $escuelas = \App\Models\Escuela::where('empresa_id', $empresa_id)
-                ->where(function($q) use ($term) {
-                    $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('cue', 'LIKE', "%{$term}%");
+            $escuelas = \App\Models\Escuela::where(function($q) use ($term) {
+                    $q->where('nombre', 'LIKE', "%{$term}%");
+                    if (\Illuminate\Support\Facades\Schema::hasColumn('escuelas', 'cue')) {
+                        $q->orWhere('cue', 'LIKE', "%{$term}%");
+                    }
                 })
-                ->take(15)
-                ->get(['id', 'nombre', 'cue']);
+                ->take(20)
+                ->get();
+
             return response()->json($escuelas);
         }
 
