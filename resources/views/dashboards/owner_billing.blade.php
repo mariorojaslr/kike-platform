@@ -345,8 +345,7 @@
                     <tbody>
                         @forelse($empresas as $emp)
                             @php
-                                $usrCount = $emp->users_count ?? 0; // O la relación que indique los usuarios, por ej. Titulares + Familiares + Docentes...
-                                // Si no está cargada la cuenta real, vamos a contar la cantidad de usuarios que tienen el empresa_id asociado
+                                $usrCount = $emp->users_count ?? 0;
                                 $usuariosReales = \App\Models\User::where('empresa_id', $emp->id)->count();
                                 
                                 $usuariosExtra = max(0, $usuariosReales - $emp->limite_usuarios);
@@ -357,7 +356,15 @@
                                 $cobroExcedentesMb = $gbsExtra * $precioPorGBExtra;
                                 $totalExcedentes = $cobroExcedentesUsr + $cobroExcedentesMb;
                                 
-                                $totalMes = $tarifaBase + $totalExcedentes;
+                                $cuotaBase = $emp->monto_cuota_mensual ?? 50.00;
+                                $esDemo = ($emp->plan_tipo === 'demo');
+                                $enGracia = ($emp->periodo_gracia_hasta && \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->isFuture());
+
+                                if ($esDemo || $enGracia) {
+                                    $totalMes = 0.00;
+                                } else {
+                                    $totalMes = $cuotaBase + $totalExcedentes;
+                                }
                             @endphp
                             <tr>
                                 <td>
@@ -367,7 +374,15 @@
                                         </div>
                                         <div>
                                             <h6 class="mb-0 fw-bold">{{ $emp->nombre }}</h6>
-                                            <span class="badge {{ $emp->estado_cuenta == 'al_dia' ? 'bg-success' : 'bg-danger' }} fw-normal" style="font-size:0.65rem;">{{ strtoupper($emp->estado_cuenta) }}</span>
+                                            <span class="badge {{ $emp->estado_cuenta == 'al_dia' ? 'bg-success' : 'bg-danger' }} fw-normal me-1" style="font-size:0.65rem;">{{ strtoupper($emp->estado_cuenta) }}</span>
+                                            
+                                            @if($esDemo)
+                                                <span class="badge bg-purple text-white font-monospace" style="font-size:0.65rem; background: #8b5cf6;">🎁 DEMO SIN CARGO</span>
+                                            @elseif($enGracia)
+                                                <span class="badge bg-warning text-dark font-monospace" style="font-size:0.65rem;">⏳ GRACIA HASTA {{ \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('d/m/Y') }}</span>
+                                            @elseif($emp->plan_tipo === 'personalizado')
+                                                <span class="badge bg-info text-dark font-monospace" style="font-size:0.65rem;">✨ PLAN PERSONALIZADO</span>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -378,20 +393,73 @@
                                     <span class="fw-bold {{ $emp->consumo_actual_mb > $emp->limite_mb ? 'text-danger' : 'text-dark' }}">{{ number_format($emp->consumo_actual_mb, 1) }}</span> <span class="text-muted small">/ {{ $emp->limite_mb }} MB</span>
                                 </td>
                                 <td class="text-center">
-                                    <span class="text-muted">${{ number_format($tarifaBase, 2) }}</span>
+                                    <span class="fw-bold text-dark">${{ number_format($cuotaBase, 2, ',', '.') }}</span>
                                 </td>
                                 <td class="text-center">
                                     @if($totalExcedentes > 0)
-                                        <span class="badge bg-warning text-dark px-2 py-1 shadow-sm">+ ${{ number_format($totalExcedentes, 2) }}</span>
+                                        <span class="badge bg-warning text-dark px-2 py-1 shadow-sm">+ ${{ number_format($totalExcedentes, 2, ',', '.') }}</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    <h6 class="mb-0 fw-bold text-primary">${{ number_format($totalMes, 2) }}</h6>
+                                    @if($esDemo || $enGracia)
+                                        <h6 class="mb-0 fw-bold text-success">$0.00 <small class="text-muted small">(Exento)</small></h6>
+                                    @else
+                                        <h6 class="mb-0 fw-bold text-primary">${{ number_format($totalMes, 2, ',', '.') }}</h6>
+                                    @endif
                                 </td>
-                                <td class="text-center text-muted small">
-                                    {{ $emp->proximo_vencimiento ? \Carbon\Carbon::parse($emp->proximo_vencimiento)->format('d M') : \Carbon\Carbon::now()->addMonth()->format('d M') }}
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalConfigPlan{{ $emp->id }}" title="Configurar Tarifa y Gracia">
+                                        <i class="fas fa-cog me-1"></i> Configurar
+                                    </button>
+
+                                    <!-- Modal Configuración Económica por Empresa -->
+                                    <div class="modal fade text-start" id="modalConfigPlan{{ $emp->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content border-0" style="border-radius: 15px;">
+                                                <div class="modal-header bg-dark text-white border-0" style="border-radius: 15px 15px 0 0;">
+                                                    <h5 class="modal-title fw-bold"><i class="fas fa-sliders me-2 text-warning"></i> Tarifa y Plan: {{ $emp->nombre }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="{{ route('owner.empresas.update_billing_config', $emp->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-body p-4">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small text-muted">Tipo de Plan Comercial</label>
+                                                            <select name="plan_tipo" class="form-select">
+                                                                <option value="estandar" {{ ($emp->plan_tipo ?? 'estandar') === 'estandar' ? 'selected' : '' }}>Estándar (Tarifa Normal)</option>
+                                                                <option value="demo" {{ ($emp->plan_tipo ?? '') === 'demo' ? 'selected' : '' }}>🎁 Demo / Demostración (Sin Cobro Permanente)</option>
+                                                                <option value="personalizado" {{ ($emp->plan_tipo ?? '') === 'personalizado' ? 'selected' : '' }}>✨ Personalizado / Acuerdo Especial</option>
+                                                                <option value="bonificado" {{ ($emp->plan_tipo ?? '') === 'bonificado' ? 'selected' : '' }}>🏷️ Bonificado / Descuento</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small text-muted">Cuota Mensual Fija ($)</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text">$</span>
+                                                                <input type="number" step="0.01" min="0" name="monto_cuota_mensual" class="form-control" value="{{ $emp->monto_cuota_mensual ?? 50.00 }}" required>
+                                                            </div>
+                                                            <small class="text-muted">Define cuánto paga esta empresa específicamente por mes.</small>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small text-muted">Período de Gracia (No Paga Hasta)</label>
+                                                            <input type="date" name="periodo_gracia_hasta" class="form-control" value="{{ $emp->periodo_gracia_hasta ? \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('Y-m-d') : '' }}">
+                                                            <small class="text-muted">Si está en fecha futura, el sistema no le cobrará ni generará deuda.</small>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small text-muted">Notas de Facturación / Acuerdo Interno</label>
+                                                            <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Cliente socio fundador, 50% de descuento o plazo especial.">{{ $emp->notas_facturacion ?? '' }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0 pb-4 pe-4">
+                                                        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

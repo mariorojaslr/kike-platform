@@ -101,4 +101,26 @@ class EmpresaController extends Controller
 
         return back()->with('success', "Administrador creado. Correo: {$email} / Clave: {$password}");
     }
+
+    /**
+     * Actualiza la configuración comercial/económica de una empresa (Cuota personalizada, Plan Demo, Período de Gracia).
+     */
+    public function updateBillingConfig(Request $request, Empresa $empresa)
+    {
+        $request->validate([
+            'plan_tipo' => 'required|in:estandar,demo,personalizado,bonificado',
+            'monto_cuota_mensual' => 'required|numeric|min:0',
+            'periodo_gracia_hasta' => 'nullable|date',
+            'notas_facturacion' => 'nullable|string|max:1000'
+        ]);
+
+        $empresa->update([
+            'plan_tipo' => $request->plan_tipo,
+            'monto_cuota_mensual' => $request->monto_cuota_mensual,
+            'periodo_gracia_hasta' => $request->periodo_gracia_hasta,
+            'notas_facturacion' => $request->notas_facturacion,
+        ]);
+
+        return back()->with('success', "Configuración económica de '{$empresa->nombre}' actualizada exitosamente.");
+    }
 }

@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/empresas/{empresa}/toggle-status', [\App\Http\Controllers\EmpresaController::class , 'toggleStatus'])->name('empresas.toggle_status');
     Route::post('/empresas/{empresa}/reset-password', [\App\Http\Controllers\EmpresaController::class , 'resetPassword'])->name('owner.empresas.reset_password');
     Route::post('/empresas/{empresa}/crear-admin', [\App\Http\Controllers\EmpresaController::class , 'crearAdminPorDefecto'])->name('owner.empresas.crear_admin');
+    Route::post('/empresas/{empresa}/billing-config', [\App\Http\Controllers\EmpresaController::class , 'updateBillingConfig'])->name('owner.empresas.update_billing_config');
 
     // --- MÓDULO: FACTURACIÓN Y CICLOS (SaaS) ---
     Route::get('/owner/billing', [\App\Http\Controllers\SystemBillingController::class , 'index'])->name('owner.billing');
