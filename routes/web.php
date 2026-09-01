@@ -217,6 +217,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ==========================================
 // MÓDULO PWA Docentes / Terapeutas (Demo)
 // ==========================================
+Route::get('/demo', function() { return view('demo_selector'); })->name('demo.selector');
 Route::get('/app-docente/demo', [\App\Http\Controllers\PwaDocenteController::class , 'demo'])->name('pwa.docente.demo');
 Route::post('/app-docente/upload', [\App\Http\Controllers\PwaDocenteController::class , 'uploadDocument'])->name('pwa.docente.upload');
 Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::class, 'search'])->name('pwa.docente.search');
