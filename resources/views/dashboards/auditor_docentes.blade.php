@@ -238,6 +238,55 @@
                             <div class="text-center py-4 text-muted small">No se han subido documentos de legajo aún.</div>
                         @endforelse
                     </div>
+
+                    <!-- Formulario de Carga Directa por Auditoría / Administración -->
+                    <div class="mt-4 pt-3 border-top">
+                        <button class="btn btn-sm btn-outline-primary fw-bold rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubirAuditor{{ $doc->id }}">
+                            <i class="fas fa-file-upload me-1"></i> 📤 Cargar Documento en Nombre del Docente (Vía Auditoría)
+                        </button>
+
+                        <div class="collapse mt-3" id="collapseSubirAuditor{{ $doc->id }}">
+                            <form action="{{ route('auditor.legajo_doc.subir') }}" method="POST" enctype="multipart/form-data" class="bg-light p-3 rounded-3 border">
+                                @csrf
+                                <input type="hidden" name="docente_id" value="{{ $doc->id }}">
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Tipo de Documento *</label>
+                                        <select name="tipo_documento" class="form-select form-select-sm" required>
+                                            <option value="DNI (Frente y Dorso)">DNI (Frente y Dorso)</option>
+                                            <option value="Certificado de Matrícula Profesional">Certificado de Matrícula Profesional</option>
+                                            <option value="Certificado de Domicilio">Certificado de Domicilio</option>
+                                            <option value="Certificado de Buena Conducta / Antecedentes">Certificado de Buena Conducta / Antecedentes</option>
+                                            <option value="Título Profesional / Diploma">Título Profesional / Diploma</option>
+                                            <option value="Seguro de Mala Praxis / RCP">Seguro de Mala Praxis / RCP</option>
+                                            <option value="Otro Certificado u Hoja de Legajo">Otro Certificado / Documento</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Archivo PDF o Imagen *</label>
+                                        <input type="file" name="documento" class="form-control form-control-sm" accept="image/*,.pdf" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Fecha de Vencimiento (Opcional)</label>
+                                        <input type="date" name="fecha_vencimiento" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <div class="form-check form-switch mb-1">
+                                            <input class="form-check-input" type="checkbox" name="es_frente_dorso" value="1" id="chkFD{{ $doc->id }}">
+                                            <label class="form-check-label small fw-bold" for="chkFD{{ $doc->id }}">Es Documento Frente y Dorso</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-4 fw-bold">
+                                            <i class="fas fa-check-circle me-1"></i> Guardar y Aprobar Legajo
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

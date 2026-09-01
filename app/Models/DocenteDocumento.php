@@ -16,7 +16,11 @@ class DocenteDocumento extends Model
         'tipo_documento', // Ej: Certificado Buena Conducta
         'ruta_archivo',
         'fecha_vencimiento',
-        'estado'
+        'estado',
+        'estado_auditoria',
+        'motivo_rechazo',
+        'es_frente_dorso',
+        'comentarios'
     ];
 
     /**

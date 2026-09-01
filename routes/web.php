@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/auditor/documento-legajo/{id}/aprobar', [\App\Http\Controllers\AuditorDocenteController::class, 'aprobarDocumentoLegajo'])->name('auditor.legajo_doc.aprobar');
     Route::post('/auditor/documento-legajo/{id}/rechazar', [\App\Http\Controllers\AuditorDocenteController::class, 'rechazarDocumentoLegajo'])->name('auditor.legajo_doc.rechazar');
+    Route::post('/auditor/documento-legajo/subir', [\App\Http\Controllers\AuditorDocenteController::class, 'subirDocumentoAuditor'])->name('auditor.legajo_doc.subir');
 
     // --- MÓDULO: PWA DOCENTE / EXPEDIENTES ---
     Route::post('/pwa/expediente/store', [\App\Http\Controllers\ExpedienteAlumnoController::class, 'store'])->name('pwa.expediente.store');

@@ -1263,10 +1263,61 @@
             }
         }
 
+        function comprimirImagen(file, maxWidth = 1600, maxHeight = 1600, quality = 0.8) {
+            return new Promise((resolve) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    resolve(file); // Si es PDF o no es imagen, se envía original
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth || height > maxHeight) {
+                            if (width > height) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            } else {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                resolve(file);
+                                return;
+                            }
+                            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            console.log(`Compresión completada: de ${(file.size/1024/1024).toFixed(2)}MB a ${(compressedFile.size/1024).toFixed(1)}KB`);
+                            resolve(compressedFile);
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = () => resolve(file);
+                };
+                reader.onerror = () => resolve(file);
+            });
+        }
+
         async function manejarSubidaArchivo(inputId) {
             const input = document.getElementById(inputId);
-            const file = input ? input.files[0] : null;
-            if (!file) return;
+            const fileOriginal = input ? input.files[0] : null;
+            if (!fileOriginal) return;
 
             const tipoDoc = input.getAttribute('data-tipo-doc') || 'Documento';
             const alumnoActual = datosAsistidos.alumno || 'Paciente Desconocido';
@@ -1275,8 +1326,11 @@
             let btnEle = inputId === 'cameraPicker' ? document.getElementById('btnScanCamera') : document.getElementById('btnScanGallery');
             
             let originalText = document.getElementById(spanId) ? document.getElementById(spanId).innerText : 'Subir';
-            if(document.getElementById(spanId)) document.getElementById(spanId).innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+            if(document.getElementById(spanId)) document.getElementById(spanId).innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizando y Subiendo...';
             if(btnEle) btnEle.style.opacity = "0.7";
+
+            // Compresión automática client-side para reducir 10MB a ~300KB
+            const file = await comprimirImagen(fileOriginal);
 
             const formData = new FormData();
             formData.append('documento', file);

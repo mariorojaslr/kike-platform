@@ -142,6 +142,37 @@ class AuditorDocenteController extends Controller
         return back()->with('success', 'Documento rechazado con motivo.');
     }
 
+    /**
+     * Cargar Documento de Legajo en nombre del Docente por el Auditor/Admin
+     */
+    public function subirDocumentoAuditor(Request $request)
+    {
+        $request->validate([
+            'docente_id' => 'required|exists:docentes,id',
+            'tipo_documento' => 'required|string',
+            'documento' => 'required|file|max:15240',
+            'fecha_vencimiento' => 'nullable|date',
+            'es_frente_dorso' => 'nullable|boolean'
+        ]);
+
+        $docente = Docente::findOrFail($request->docente_id);
+        $path = $request->file('documento')->store('documentos_docentes', 'public');
+
+        DocenteDocumento::create([
+            'docente_id' => $docente->id,
+            'tipo_documento' => $request->tipo_documento,
+            'ruta_archivo' => $path,
+            'fecha_vencimiento' => $request->fecha_vencimiento,
+            'estado_auditoria' => 'aprobado',
+            'es_frente_dorso' => $request->has('es_frente_dorso'),
+            'comentarios' => 'Documento verificado y cargado directamente por Auditoría/Administración',
+        ]);
+
+        $this->recalcularLegajoDocente($docente->id);
+
+        return back()->with('success', "Documento '{$request->tipo_documento}' cargado y verificado exitosamente para {$docente->nombre}.");
+    }
+
     protected function recalcularLegajoDocente($docenteId)
     {
         $docente = Docente::find($docenteId);

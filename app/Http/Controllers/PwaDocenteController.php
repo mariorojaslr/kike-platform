@@ -37,6 +37,27 @@ class PwaDocenteController extends Controller
         $tiposDocumentos = \App\Models\TipoDocumento::where('empresa_id', $empresaIdDemo)
             ->where('entidad_tipo', 'docente')
             ->get();
+
+        // Si la empresa aún no tiene requisitos cargados, auto-inicializamos los 4 esenciales de Cotolar
+        if ($tiposDocumentos->count() === 0) {
+            $defaultReqs = [
+                ['nombre' => 'DNI (Frente y Dorso)', 'descripcion' => 'Fotocopia o foto nítida de frente y dorso de DNI', 'es_obligatorio' => true, 'vencimiento_dias' => null],
+                ['nombre' => 'Certificado de Matrícula Profesional', 'descripcion' => 'Matrícula profesional vigente emitida por el Colegio', 'es_obligatorio' => true, 'vencimiento_dias' => 365],
+                ['nombre' => 'Certificado de Domicilio', 'descripcion' => 'Comprobante de domicilio reciente (Policía o Servicio)', 'es_obligatorio' => true, 'vencimiento_dias' => 365],
+                ['nombre' => 'Certificado de Buena Conducta / Antecedentes', 'descripcion' => 'Certificado de antecedentes penales provincial/nacional', 'es_obligatorio' => true, 'vencimiento_dias' => 365],
+            ];
+
+            foreach ($defaultReqs as $reqData) {
+                \App\Models\TipoDocumento::create(array_merge($reqData, [
+                    'empresa_id' => $empresaIdDemo,
+                    'entidad_tipo' => 'docente'
+                ]));
+            }
+
+            $tiposDocumentos = \App\Models\TipoDocumento::where('empresa_id', $empresaIdDemo)
+                ->where('entidad_tipo', 'docente')
+                ->get();
+        }
             
         // Le adjuntamos la subida actual
         foreach ($tiposDocumentos as $tipo) {
