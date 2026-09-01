@@ -27,6 +27,12 @@ class SystemBillingController extends Controller
         $precioPorUsuarioExtra = 1.50; // $1.50 por cada usuario extra del límite base
         $precioPorGBExtra = 5.00; // $5.00 por cada GB (1024 MB) extra del límite base
 
+        // Traer pagos por transferencia reportados por las empresas
+        $pagos = \App\Models\PagoEmpresa::with(['empresa', 'user'])
+                    ->orderByRaw("FIELD(estado, 'pendiente_verificacion', 'rechazado', 'aprobado')")
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
         return view('dashboards.owner_billing', compact(
             'empresas',
             'ingresosEstimados',
@@ -35,7 +41,8 @@ class SystemBillingController extends Controller
             'totalMbConsumidos',
             'tarifaBase',
             'precioPorUsuarioExtra',
-            'precioPorGBExtra'
+            'precioPorGBExtra',
+            'pagos'
         ));
     }
 

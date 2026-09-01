@@ -405,8 +405,121 @@
             <div class="mt-4 alert alert-info py-2 small d-flex align-items-center">
                 <i class="fas fa-info-circle fa-lg me-3"></i>
                 <p class="mb-0">
-                    <strong>Nota Arquitectónica:</strong> El sistema calculará el cierre mensual de cada empresa e insertará automáticamente estas facturas (Cobro Base + Excedibles) al historial contable. Aún no está la pasarela de pago para cobranzas en automático conectada, pero puedes usar este simulador.
+                    <strong>Cobro Directo sin Comisiones:</strong> Los clientes te transfieren directamente a tus cuentas/billeteras habilitadas y suben su comprobante. El motor de IA (Gemini Vision) extrae los datos y tú los verificas en 1-Clic.
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN: CUENTAS BANCARIAS HABILITADAS Y RECEPCIÓN DE PAGOS -->
+    <div class="row mb-4">
+        <!-- Cuentas Habilitadas -->
+        <div class="col-lg-4 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-dark text-white fw-bold py-3 d-flex align-items-center justify-content-between">
+                    <span><i class="fas fa-university me-2 text-warning"></i> Mis Cuentas / Billeteras</span>
+                    <span class="badge bg-success">Sin Comisiones</span>
+                </div>
+                <div class="card-body">
+                    <div class="border-start border-primary border-4 ps-3 mb-3 bg-light p-2 rounded">
+                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-building-columns me-1 text-primary"></i> Banco Santander</h6>
+                        <small class="text-muted d-block">CBU: 0720000020000012345678</small>
+                        <small class="text-muted d-block">Alias: INTEGRA.SANTANDER</small>
+                    </div>
+                    <div class="border-start border-success border-4 ps-3 mb-3 bg-light p-2 rounded">
+                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-landmark me-1 text-success"></i> Banco Provincia</h6>
+                        <small class="text-muted d-block">CBU: 0140000011000087654321</small>
+                        <small class="text-muted d-block">Alias: INTEGRA.PROVINCIA</small>
+                    </div>
+                    <div class="border-start border-warning border-4 ps-3 mb-3 bg-light p-2 rounded">
+                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-wallet me-1 text-warning"></i> Billetera ARQ / DollarApp</h6>
+                        <small class="text-muted d-block">CVU: 0000003100087654321098</small>
+                        <small class="text-muted d-block">Alias: INTEGRA.ARQ</small>
+                    </div>
+                    <div class="border-start border-secondary border-4 ps-3 bg-light p-2 rounded">
+                        <h6 class="mb-1 fw-bold text-dark"><i class="fas fa-money-bill-wave me-1 text-secondary"></i> Pago Presencial / Efectivo</h6>
+                        <small class="text-muted d-block">Cobro directo en oficina / sede principal</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Comprobantes Recibidos (Verificación por IA) -->
+        <div class="col-lg-8 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-dark text-white fw-bold py-3 d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-receipt me-2 text-info"></i> Comprobantes de Pago (IA Reader Gemini)</span>
+                    <span class="badge bg-info text-dark">{{ count($pagos ?? []) }} Reportados</span>
+                </div>
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light small">
+                            <tr>
+                                <th>Empresa</th>
+                                <th>N° Comprobante (IA)</th>
+                                <th>Monto</th>
+                                <th>Banco</th>
+                                <th>Estado</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($pagos ?? [] as $pago)
+                                <tr>
+                                    <td>
+                                        <strong class="text-dark">{{ $pago->empresa->nombre ?? 'Tenant #' . $pago->empresa_id }}</strong>
+                                        <br><small class="text-muted">{{ $pago->created_at->format('d/m/Y H:i') }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary font-monospace">{{ $pago->nro_comprobante ?? 'Sin N°' }}</span>
+                                    </td>
+                                    <td>
+                                        <strong class="text-success">${{ number_format($pago->monto, 2, ',', '.') }}</strong>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted"><i class="fas fa-university me-1"></i>{{ $pago->banco_origen ?? 'Transferencia' }}</small>
+                                    </td>
+                                    <td>
+                                        @if($pago->estado === 'aprobado')
+                                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Aprobado</span>
+                                        @elseif($pago->estado === 'rechazado')
+                                            <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Rechazado</span>
+                                        @else
+                                            <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pendiente</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        <!-- Ver Comprobante / Aprobar en 1-Clic -->
+                                        @if($pago->comprobante_url)
+                                            <a href="{{ asset('storage/' . $pago->comprobante_url) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1" title="Ver Comprobante">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        @endif
+
+                                        @if($pago->estado === 'pendiente_verificacion')
+                                            <form action="{{ route('pagos.aprobar', $pago->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success shadow-sm" title="Aprobar Pago en 1-Clic" onclick="return confirm('¿Confirmas que verificaste esta transferencia en tu homebanking?')">
+                                                    <i class="fas fa-check me-1"></i> Aprobar
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('pagos.rechazar', $pago->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Rechazar Comprobante">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted small">No hay comprobantes de pago reportados pendientes.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

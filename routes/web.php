@@ -196,6 +196,20 @@ Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::c
 // ==========================================
 Route::post('/asistente/consultar', [\App\Http\Controllers\AiAssistantController::class, 'query'])->name('ai.assistant.query');
 
+// ==========================================
+// MÓDULO PAGOS Y TRANSFERENCIAS (CON IA)
+// ==========================================
+Route::post('/pagos/reportar', [\App\Http\Controllers\PagoEmpresaController::class, 'reportarPago'])->name('pagos.reportar');
+Route::post('/pagos/{pago}/aprobar', [\App\Http\Controllers\PagoEmpresaController::class, 'aprobar'])->name('pagos.aprobar');
+Route::post('/pagos/{pago}/rechazar', [\App\Http\Controllers\PagoEmpresaController::class, 'rechazar'])->name('pagos.rechazar');
+
+// ==========================================
+// MÓDULO NOTIFICACIONES INTERNAS
+// ==========================================
+Route::get('/api/notificaciones', [\App\Http\Controllers\NotificacionController::class, 'getNotificaciones'])->name('notificaciones.get');
+Route::post('/api/notificaciones/{id}/leer', [\App\Http\Controllers\NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar_leida');
+Route::post('/api/notificaciones/leer-todas', [\App\Http\Controllers\NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.leer_todas');
+
 
 /**
  * 3. SISTEMA DE AUTENTICACIÓN (Breeze/Jetstream)

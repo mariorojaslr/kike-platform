@@ -251,6 +251,9 @@
                 </div>
             </div>
             <div class="topbar-right align-items-center gap-3">
+                <!-- Widget Notificaciones Internas -->
+                @include('partials.notificaciones_widget')
+
                 <!-- Toggle Modo Noche/Día -->
                 <button class="theme-toggle" id="btnThemeToggle" title="Cambiar a Modo Nocturno">
                     <i class="fas fa-moon"></i>
