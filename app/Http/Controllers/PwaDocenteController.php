@@ -123,10 +123,12 @@ class PwaDocenteController extends Controller
             $titulares = \App\Models\Titular::where('empresa_id', $empresa_id)
                 ->where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('dni', 'LIKE', "%{$term}%");
+                      ->orWhere('dni', 'LIKE', "%{$term}%")
+                      ->orWhere('nro_afiliado', 'LIKE', "%{$term}%")
+                      ->orWhere('cuil', 'LIKE', "%{$term}%");
                 })
-                ->take(10)
-                ->get(['id', 'nombre', 'dni']);
+                ->take(15)
+                ->get(['id', 'nombre', 'dni', 'nro_afiliado']);
             return response()->json($titulares);
         }
 
@@ -135,7 +137,11 @@ class PwaDocenteController extends Controller
                 ->where('empresa_id', $empresa_id);
                 
             if ($term) {
-                $query->where('nombre', 'LIKE', "%{$term}%");
+                $query->where(function($q) use ($term) {
+                    $q->where('nombre', 'LIKE', "%{$term}%")
+                      ->orWhere('dni', 'LIKE', "%{$term}%")
+                      ->orWhere('nro_afiliado', 'LIKE', "%{$term}%");
+                });
             }
 
             if ($request->has('titular_id')) {
@@ -161,7 +167,7 @@ class PwaDocenteController extends Controller
                     $q->where('nombre', 'LIKE', "%{$term}%")
                       ->orWhere('cue', 'LIKE', "%{$term}%");
                 })
-                ->take(10)
+                ->take(15)
                 ->get(['id', 'nombre', 'cue']);
             return response()->json($escuelas);
         }

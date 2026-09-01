@@ -858,15 +858,21 @@
                 asistenteHabla(`Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentación requerida escaneando con la cámara.`);
             }
         }
-
+            
         let timeoutComun = null;
+
+        function resaltarCoincidencia(texto, termino) {
+            if (!texto || !termino) return texto || '';
+            const re = new RegExp(`(${termino.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return texto.toString().replace(re, '<mark style="background:#f59e0b; color:#0f172a; font-weight:bold; padding:0 3px; border-radius:3px;">$1</mark>');
+        }
 
         function filtrarTitularComun() {
             clearTimeout(timeoutComun);
-            const term = document.getElementById('comunTitularInput').value;
+            const term = document.getElementById('comunTitularInput').value.trim();
             const list = document.getElementById('listaTitularesComun');
             list.innerHTML = "";
-            if(!term || term.length < 2) { list.style.display = 'none'; return; }
+            if(!term || term.length < 1) { list.style.display = 'none'; return; }
             
             timeoutComun = setTimeout(() => {
                 fetch(`{{ route('pwa.docente.search') }}?type=titulares&q=${encodeURIComponent(term)}`)
@@ -878,7 +884,11 @@
                                 const row = document.createElement('div');
                                 row.className = "alumno-card";
                                 row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                                row.innerHTML = `<i class="fas fa-user-shield text-info me-2"></i> ${e.nombre} <small class="text-muted ms-1">(${e.dni})</small>`;
+                                const nomH = resaltarCoincidencia(e.nombre, term);
+                                const dniH = resaltarCoincidencia(e.dni || '', term);
+                                const afilH = e.nro_afiliado ? ' | Af: ' + resaltarCoincidencia(e.nro_afiliado, term) : '';
+
+                                row.innerHTML = `<i class="fas fa-user-shield text-info me-2"></i> ${nomH} <small class="text-muted ms-1">(${dniH}${afilH})</small>`;
                                 row.onclick = () => {
                                     document.getElementById('comunTitularInput').value = e.nombre;
                                     datosAsistidos.titular = e.nombre;
@@ -894,7 +904,7 @@
                                     fetch(`{{ route('pwa.docente.search') }}?type=alumnos_by_titular&titular_id=${e.id}`)
                                         .then(r => r.json())
                                         .then(alumData => {
-                                            alumSelect.placeholder = alumData.length > 0 ? "🔍 Seleccionar Alumno..." : "⚠️ No tiene registros de alumnos";
+                                            alumSelect.placeholder = alumData.length > 0 ? "🔍 Seleccionar o buscar Alumno..." : "⚠️ No tiene registros de alumnos";
                                             if(alumData.length > 0) {
                                                 const listAlum = document.getElementById('listaAlumnosComun');
                                                 listAlum.style.display = 'block';
@@ -933,29 +943,60 @@
                             });
                         } else { list.style.display = 'none'; }
                     });
-            }, 300);
+            }, 150);
         }
 
         function filtrarAlumnoComun() {
-            // Ya cargado por fetch al seleccionar el titular
-            const term = document.getElementById('comunAlumnoInput').value.toLowerCase();
+            clearTimeout(timeoutComun);
+            const term = document.getElementById('comunAlumnoInput').value.trim();
             const list = document.getElementById('listaAlumnosComun');
-            if (list.children.length === 0) return;
-            let showCount = 0;
-            [...list.children].forEach(child => {
-                const isMatch = child.innerText.toLowerCase().includes(term);
-                child.style.display = isMatch ? 'block' : 'none';
-                if(isMatch) showCount++;
-            });
-            list.style.display = showCount > 0 ? 'block' : 'none';
+            if(!term || term.length < 1) { return; }
+
+            timeoutComun = setTimeout(() => {
+                fetch(`{{ route('pwa.docente.search') }}?type=alumnos&q=${encodeURIComponent(term)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.length > 0) {
+                            list.style.display = 'block';
+                            list.innerHTML = "";
+                            data.forEach(a => {
+                                const row = document.createElement('div');
+                                row.className = "alumno-card";
+                                row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
+                                const nomH = resaltarCoincidencia(a.nombre, term);
+                                const dniH = resaltarCoincidencia(a.dni || '', term);
+                                row.innerHTML = `<i class="fas fa-child text-warning me-2"></i> ${nomH} <small class="text-muted ms-1">(${dniH})</small>`;
+                                row.onclick = () => {
+                                    document.getElementById('comunAlumnoInput').value = a.nombre;
+                                    datosAsistidos.alumno = a.nombre;
+                                    datosAsistidos.alumno_data = a;
+                                    list.style.display = 'none';
+
+                                    document.getElementById('alumnoDni').value = a.dni || '';
+                                    document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
+
+                                    if (a.escuela) {
+                                        document.getElementById('comunEscuelaInput').value = a.escuela.nombre;
+                                        datosAsistidos.escuela = a.escuela.nombre;
+                                        habilitarFormularioDatos();
+                                    } else {
+                                        document.getElementById('comunEscuelaInput').disabled = false;
+                                        document.getElementById('comunEscuelaInput').focus();
+                                    }
+                                };
+                                list.appendChild(row);
+                            });
+                        }
+                    });
+            }, 150);
         }
 
         function filtrarEscuelaComun() {
             clearTimeout(timeoutComun);
-            const term = document.getElementById('comunEscuelaInput').value;
+            const term = document.getElementById('comunEscuelaInput').value.trim();
             const list = document.getElementById('listaEscuelasComun');
             list.innerHTML = "";
-            if(!term || term.length < 2) { list.style.display = 'none'; return; }
+            if(!term || term.length < 1) { list.style.display = 'none'; return; }
             
             timeoutComun = setTimeout(() => {
                 fetch(`{{ route('pwa.docente.search') }}?type=escuelas&q=${encodeURIComponent(term)}`)
@@ -967,7 +1008,10 @@
                                 const row = document.createElement('div');
                                 row.className = "alumno-card";
                                 row.style = "margin-bottom: 5px; padding: 10px; cursor: pointer; background: #1e293b;";
-                                row.innerHTML = `<i class="fas fa-school text-primary me-2"></i> ${e.nombre}`;
+                                const nomH = resaltarCoincidencia(e.nombre, term);
+                                const cueH = e.cue ? ' (CUE: ' + resaltarCoincidencia(e.cue, term) + ')' : '';
+
+                                row.innerHTML = `<i class="fas fa-school text-primary me-2"></i> ${nomH} <small class="text-muted ms-1">${cueH}</small>`;
                                 row.onclick = () => {
                                     document.getElementById('comunEscuelaInput').value = e.nombre;
                                     datosAsistidos.escuela = e.nombre;
@@ -978,7 +1022,7 @@
                             });
                         } else { list.style.display = 'none'; }
                     });
-            }, 300);
+            }, 150);
         }
 
         function abrirModalNuevo() {
