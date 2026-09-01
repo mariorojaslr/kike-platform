@@ -687,6 +687,52 @@
         </p>
 
         <!-- Barra de búsqueda rápida -->
+        <!-- Escáneres Especiales con Subida de Archivos -->
+        <form id="formSubidaDoc" style="display: none;">
+            @csrf
+            <!-- Input para Cámara Directa (Trasera) -->
+            <input type="file" id="cameraPicker" name="documento" accept="image/*" capture="environment" onchange="manejarSubidaArchivo('cameraPicker')">
+            <!-- Input para Galería / PDFs / Archivos Libres -->
+            <input type="file" id="galleryPicker" name="documento" accept="image/*,.pdf" onchange="manejarSubidaArchivo('galleryPicker')">
+        </form>
+
+        <div class="scan-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+            <!-- Opción 1: Cámara Directa -->
+            <div class="scan-btn" id="btnScanCamera" onclick="abrirCamaraUpload('DNI / Documento Frontal', 'cameraPicker')">
+                <i class="fas fa-camera text-success"></i>
+                <span id="spanScanCamera" style="font-size: 0.75rem;">Tomar Foto Directa</span>
+            </div>
+            <!-- Opción 2: Subir de la Galería/PDF -->
+            <div class="scan-btn" id="btnScanGallery" onclick="abrirCamaraUpload('Archivo Adjunto / PDF', 'galleryPicker')">
+                <i class="fas fa-file-upload text-primary"></i>
+                <span id="spanScanGallery" style="font-size: 0.75rem;">Subir de Galería/PDF</span>
+            </div>
+            
+            <!-- Opción 3: Lector QR Nativo -->
+            <div class="scan-btn" onclick="abrirCamaraUpload('Código QR / Factura', 'cameraPicker')" style="grid-column: span 2;">
+                <i class="fas fa-qrcode text-warning"></i>
+                <span style="font-size: 0.8rem;">Escanear Código QR en Vivo</span>
+            </div>
+        </div>
+
+        <button class="btn-primary-dark mt-3" onclick="cerrarYCrear()">
+            <i class="fas fa-arrow-right me-2" style="font-size: 0.8rem;"></i> Procesar Datos
+        </button>
+    </div>
+
+    <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (MIS ALUMNOS) -->
+    <div class="bottom-sheet" id="sheetMisAlumnos" style="height: 85vh; overflow-y: auto;">
+        <div class="sheet-pill"></div>
+        <div class="sheet-header">
+            <h3>Mis Alumnos</h3>
+            <button class="sheet-close" onclick="cerrarModalMisAlumnos()"><i class="fas fa-times-circle"></i></button>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+            Busque o seleccione un paciente recurrente para informar asistencia o novedades.
+        </p>
+
+        <!-- Barra de búsqueda rápida -->
         <div class="input-group-voice" style="margin-bottom: 25px;">
             <input type="text" id="misAlumnosSearchInput" class="input-dark shadow-sm" placeholder="🔍 Escribe un nombre o patología..." oninput="filtrarAlumnosActivos()">
         </div>
@@ -694,18 +740,24 @@
         <!-- Lista Integrada -->
         <div id="listaMisAlumnosContenedor">
             @foreach($alumnosDemo as $alumno)
-                <div class="alumno-card item-alumno-filtrable" data-nombre="{{ strtolower($alumno->nombre) }}" data-curso="{{ strtolower($alumno->curso) }}" onclick="alert('Abriendo herramientas para: {{ $alumno->nombre }}...\nAquí el docente podrá cargar novedades, validar asistencias y actualizar reportes en tiempo real.');">
-                    <div class="alumno-info">
-                        <h4 style="font-size: 1rem;">{{ $alumno->nombre }}</h4>
-                        <p style="font-size: 0.8rem;"><i class="fas fa-briefcase-medical me-1 text-primary"></i> {{ $alumno->curso }}</p>
+                <div class="alumno-card item-alumno-filtrable" data-nombre="{{ strtolower($alumno->nombre) }}" data-curso="{{ strtolower($alumno->curso) }}" onclick="alert('Estado del Expediente de {{ $alumno->nombre }}:\n📌 {{ $alumno->paso_label ?? 'Progreso de Documentación' }}\nProgreso: {{ $alumno->progreso ?? 25 }}% completado.');">
+                    <div class="alumno-info" style="flex: 1; margin-right: 12px;">
+                        <h4 style="font-size: 1rem; margin-bottom: 2px;">{{ $alumno->nombre }}</h4>
+                        <p style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;"><i class="fas fa-briefcase-medical me-1 text-primary"></i> {{ $alumno->curso }}</p>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="height: 6px; flex: 1; background: #0f172a; border-radius: 6px; overflow: hidden;">
+                                <div style="height: 100%; width: {{ $alumno->progreso ?? 25 }}%; background: {{ ($alumno->progreso ?? 0) == 100 ? '#10b981' : '#f59e0b' }}; border-radius: 6px;"></div>
+                            </div>
+                            <span style="font-size: 0.7rem; font-weight: 700; color: {{ ($alumno->progreso ?? 0) == 100 ? '#10b981' : '#f59e0b' }};">{{ $alumno->progreso ?? 25 }}%</span>
+                        </div>
                     </div>
                     
                     @if($alumno->estado == 'aprobado')
-                        <div class="estado aprobado" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fas fa-check"></i></div>
+                        <div class="estado aprobado" style="width: 40px; height: 40px; font-size: 1rem;" title="100% Aprobado por Auditoría"><i class="fas fa-check"></i></div>
                     @elseif($alumno->estado == 'pendiente')
-                        <div class="estado pendiente" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fas fa-fingerprint"></i></div>
+                        <div class="estado pendiente" style="width: 40px; height: 40px; font-size: 1rem;" title="En Auditoría"><i class="fas fa-hourglass-half"></i></div>
                     @else
-                        <div class="estado sin_informar text-center" style="width: 40px; height: 40px; font-size: 1rem;"><i class="fas fa-plus"></i></div>
+                        <div class="estado sin_informar text-center" style="width: 40px; height: 40px; font-size: 1rem;" title="Pendiente de Carga"><i class="fas fa-plus"></i></div>
                     @endif
                 </div>
             @endforeach

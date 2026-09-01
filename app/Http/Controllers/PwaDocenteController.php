@@ -20,19 +20,53 @@ class PwaDocenteController extends Controller
         // --- DATA DE DEMOSTRACIÓN PARA EL OWNER ---
         $docenteNombre = 'Prof. Andrea V. (Demo)';
         
-        // Simulación financiera y gamificada
-        $montoCobrado = 45000; // Dinero listo a cobrar
-        $montoPretendido = 15000; // Dinero en auditoría (padre aceptó, falta admin)
-        
-        $alumnosDemo = [
-            (object)['id' => 1, 'nombre' => 'Mateo Giménez', 'curso' => 'Terapia Ocupacional', 'estado' => 'aprobado'],
-            (object)['id' => 2, 'nombre' => 'Sofía Cortez', 'curso' => 'Fonoaudiología', 'estado' => 'pendiente'],
-            (object)['id' => 3, 'nombre' => 'Lucas Benítez', 'curso' => 'Psicología Infantil', 'estado' => 'sin_informar'],
-        ];
-
         // LECTURA DE REQUISITOS (Simulando Empresa 1 y Docente Demo 1)
         $empresaIdDemo = 1;
         $docenteIdDemo = 1;
+
+        // Carga de Expedientes Reales de la Base de Datos para el Docente
+        $expedientesReales = \App\Models\ExpedienteAlumno::with(['alumno', 'escuela', 'facturas'])
+            ->where('docente_id', $docenteIdDemo)
+            ->get();
+
+        $alumnosDemo = [];
+        $montoCobrado = 0;
+        $montoPretendido = 0;
+
+        if ($expedientesReales->count() > 0) {
+            foreach ($expedientesReales as $exp) {
+                $pct = $exp->porcentaje_progreso;
+                $montoExp = ($exp->horas_mensuales_asignadas ?? 3) * 15000; // Valor de referencia por horas
+                
+                if ($exp->estado_auditoria === 'aprobado') {
+                    $montoCobrado += $montoExp;
+                    $estadoLabel = 'aprobado';
+                } elseif ($exp->estado_auditoria === 'rechazado') {
+                    $estadoLabel = 'rechazado';
+                } else {
+                    $montoPretendido += $montoExp;
+                    $estadoLabel = 'pendiente';
+                }
+
+                $alumnosDemo[] = (object)[
+                    'id' => $exp->id,
+                    'nombre' => $exp->alumno->nombre ?? 'Alumno Desconocido',
+                    'curso' => ($exp->escuela->nombre ?? 'Escuela Asignada') . " ({$pct}% Completado)",
+                    'estado' => $estadoLabel,
+                    'progreso' => $pct,
+                    'paso_label' => $exp->paso_actual_label
+                ];
+            }
+        } else {
+            // Valores de fallback simulados para demostración inicial
+            $montoCobrado = 45000;
+            $montoPretendido = 15000;
+            $alumnosDemo = [
+                (object)['id' => 1, 'nombre' => 'Mateo Giménez', 'curso' => 'Terapia Ocupacional (100% Aprobado)', 'estado' => 'aprobado', 'progreso' => 100, 'paso_label' => '100% - Expediente Completo'],
+                (object)['id' => 2, 'nombre' => 'Sofía Cortez', 'curso' => 'Fonoaudiología (50% Avance)', 'estado' => 'pendiente', 'progreso' => 50, 'paso_label' => '50% - Alumno Verificado'],
+                (object)['id' => 3, 'nombre' => 'Lucas Benítez', 'curso' => 'Psicología Infantil (25% Avance)', 'estado' => 'sin_informar', 'progreso' => 25, 'paso_label' => '25% - Ingreso Inicial'],
+            ];
+        }
         
         $tiposDocumentos = \App\Models\TipoDocumento::where('empresa_id', $empresaIdDemo)
             ->where('entidad_tipo', 'docente')

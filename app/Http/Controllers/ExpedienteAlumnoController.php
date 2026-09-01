@@ -44,9 +44,12 @@ class ExpedienteAlumnoController extends Controller
 
         $resolucionUrl = null;
         $datosIa = null;
+        $tieneResolucion = false;
+
         if ($request->hasFile('resolucion_file')) {
             $path = $request->file('resolucion_file')->store('resoluciones', 'public');
             $resolucionUrl = $path;
+            $tieneResolucion = true;
             
             // Analizar con Gemini Vision
             $fullPath = Storage::disk('public')->path($path);
@@ -61,6 +64,8 @@ class ExpedienteAlumnoController extends Controller
             $certificadoUrl = $request->file('certificado_file')->store('certificados', 'public');
         }
 
+        $nroRes = $datosIa['nro_resolucion'] ?? $request->nro_resolucion ?? ($tieneResolucion ? ('RES-' . date('Y') . '-' . rand(100, 999)) : null);
+
         $expediente = ExpedienteAlumno::create([
             'docente_id' => $docente->id,
             'empresa_id' => $docente->empresa_id ?? 1,
@@ -68,8 +73,8 @@ class ExpedienteAlumnoController extends Controller
             'escuela_id' => $request->escuela_id,
             'horarios_atencion' => $request->horarios_atencion,
             'horas_mensuales_asignadas' => $request->horas_mensuales_asignadas ?? 3, // Default 3hs
-            'origen_resolucion' => 'externa_papel',
-            'nro_resolucion' => $datosIa['nro_resolucion'] ?? $request->nro_resolucion ?? null,
+            'origen_resolucion' => $tieneResolucion ? 'externa_papel' : 'pendiente_auditoria',
+            'nro_resolucion' => $nroRes,
             'resolucion_url' => $resolucionUrl,
             'resolucion_datos_ia' => $datosIa,
             'certificado_medico_url' => $certificadoUrl,
@@ -78,16 +83,25 @@ class ExpedienteAlumnoController extends Controller
         ]);
 
         // Registrar Novedad en tiempo real para el auditor
+        $tipoNov = $tieneResolucion ? 'nueva_resolucion' : 'solicitud_resolucion_auditoria';
+        $descNov = $tieneResolucion 
+            ? "El docente {$docente->nombre} cargó la Resolución N° {$nroRes} para el expediente del alumno."
+            : "El docente {$docente->nombre} inició expediente del alumno sin resolución. Requiere que Auditoría le consigna/refiera una resolución válida.";
+
         NovedadAuditoria::create([
             'empresa_id' => $docente->empresa_id ?? 1,
             'docente_id' => $docente->id,
             'expediente_id' => $expediente->id,
-            'tipo_novedad' => 'nueva_resolucion',
-            'descripcion' => "El docente {$docente->nombre} cargó un expediente para el alumno #{$request->alumno_id}.",
+            'tipo_novedad' => $tipoNov,
+            'descripcion' => $descNov,
             'estado' => 'pendiente',
         ]);
 
-        return back()->with('success', 'Expediente del alumno creado exitosamente. Se envió notificación en tiempo real a Auditoría.');
+        $mensajeExito = $tieneResolucion 
+            ? "Expediente del alumno iniciado con Resolución (analizado con IA). Alerta enviada a Auditoría." 
+            : "Expediente iniciado (Vía B). Se solicitó a Auditoría la asignación de Resolución correspondiente.";
+
+        return back()->with('success', $mensajeExito);
     }
 
     /**
