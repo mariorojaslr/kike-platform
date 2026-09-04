@@ -94,6 +94,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/app-afiliado/credencial', [\App\Http\Controllers\AfiliadoPortalController::class, 'credencialDemo'])->name('afiliado.credencial.demo');
     Route::get('/app-afiliado/turnos', [\App\Http\Controllers\AfiliadoPortalController::class, 'cartillaTurnos'])->name('afiliado.turnos.demo');
 
+    // --- MÓDULO: FASE 6 - PORTAL DE FARMACIAS CONVENIDAS Y VALIDADOR DE VADEMÉCUM MUTUAL ---
+    Route::get('/farmacia/demo', [\App\Http\Controllers\FarmaciaPortalController::class, 'validadorDemo'])->name('farmacia.demo');
+    Route::post('/farmacia/validar-receta', [\App\Http\Controllers\FarmaciaPortalController::class, 'validarReceta'])->name('farmacia.validar');
+
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class , 'index'])->name('tenant.dashboard');

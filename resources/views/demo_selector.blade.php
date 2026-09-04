@@ -186,6 +186,19 @@
                     </div>
                 </div>
             </a>
+
+            <!-- 9. Portal Farmacias Convenidas y Validador de Vademécum -->
+            <a href="{{ route('farmacia.demo') }}" class="btn-demo-option btn-pwa" style="border-color: #10b981;">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle text-white me-3" style="background: #059669;">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-6 mb-0" style="color: #047857 !important;">9. Portal Farmacias Convenidas (Validador en Vivo)</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Consulta de vademécum, cálculo de coberturas (40%, 70%, 100%) y bonos con QR</small>
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="text-center mt-3 pt-3 border-top">
