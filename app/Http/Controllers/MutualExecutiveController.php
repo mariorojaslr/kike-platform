@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\MedicalAuditAntiFraudService;
 
 class MutualExecutiveController extends Controller
 {
@@ -15,6 +16,8 @@ class MutualExecutiveController extends Controller
         $capitasTotal = 130000;
         $sucursalSeleccionada = $request->input('sucursal', 'todas');
         
+        $matrizAuditoria = MedicalAuditAntiFraudService::obtenerMatrizAhorroAuditoria();
+
         $sucursales = [
             'todas' => (object)[
                 'nombre' => 'Todas las Sedes (Visión Global Mutual)',
@@ -22,7 +25,8 @@ class MutualExecutiveController extends Controller
                 'recaudacion' => 1820000000,
                 'gasto' => 680000000,
                 'gasto_discapacidad' => 145000000,
-                'ahorro_ia' => 92500000,
+                'ahorro_ia' => $matrizAuditoria['total_ahorro_acumulado'],
+                'fraudes_bloqueados' => $matrizAuditoria['fraudes_bloqueados_count'],
                 'siniestralidad' => 37.3,
                 'prestadores' => 840,
                 'sanatorios' => 14
@@ -33,7 +37,8 @@ class MutualExecutiveController extends Controller
                 'recaudacion' => 455000000,
                 'gasto' => 162000000,
                 'gasto_discapacidad' => 68000000,
-                'ahorro_ia' => 24500000,
+                'ahorro_ia' => $matrizAuditoria['sucursales']['chilecito']['ahorro_ars'],
+                'fraudes_bloqueados' => $matrizAuditoria['sucursales']['chilecito']['solapamientos_bloqueados'],
                 'siniestralidad' => 35.6,
                 'prestadores' => 210,
                 'sanatorios' => 3
@@ -44,7 +49,8 @@ class MutualExecutiveController extends Controller
                 'recaudacion' => 812000000,
                 'gasto' => 310000000,
                 'gasto_discapacidad' => 52000000,
-                'ahorro_ia' => 41000000,
+                'ahorro_ia' => $matrizAuditoria['sucursales']['la_rioja']['ahorro_ars'],
+                'fraudes_bloqueados' => $matrizAuditoria['sucursales']['la_rioja']['solapamientos_bloqueados'],
                 'siniestralidad' => 38.1,
                 'prestadores' => 420,
                 'sanatorios' => 6
@@ -55,7 +61,8 @@ class MutualExecutiveController extends Controller
                 'recaudacion' => 336000000,
                 'gasto' => 142000000,
                 'gasto_discapacidad' => 18000000,
-                'ahorro_ia' => 19000000,
+                'ahorro_ia' => $matrizAuditoria['sucursales']['cordoba']['ahorro_ars'],
+                'fraudes_bloqueados' => $matrizAuditoria['sucursales']['cordoba']['solapamientos_bloqueados'],
                 'siniestralidad' => 42.2,
                 'prestadores' => 130,
                 'sanatorios' => 3
@@ -66,7 +73,8 @@ class MutualExecutiveController extends Controller
                 'recaudacion' => 217000000,
                 'gasto' => 66000000,
                 'gasto_discapacidad' => 7000000,
-                'ahorro_ia' => 8000000,
+                'ahorro_ia' => $matrizAuditoria['sucursales']['buenos_aires']['ahorro_ars'],
+                'fraudes_bloqueados' => $matrizAuditoria['sucursales']['buenos_aires']['solapamientos_bloqueados'],
                 'siniestralidad' => 30.4,
                 'prestadores' => 80,
                 'sanatorios' => 2
@@ -80,6 +88,7 @@ class MutualExecutiveController extends Controller
             'gasto_prestaciones' => $datosSedeActual->gasto,
             'gasto_discapacidad' => $datosSedeActual->gasto_discapacidad,
             'ahorro_auditoria_ia' => $datosSedeActual->ahorro_ia,
+            'fraudes_bloqueados' => $datosSedeActual->fraudes_bloqueados,
             'ratio_siniestralidad' => $datosSedeActual->siniestralidad,
             'prestadores_activos' => $datosSedeActual->prestadores,
             'sanatorios_convenio' => $datosSedeActual->sanatorios,
@@ -202,7 +211,8 @@ class MutualExecutiveController extends Controller
             'patologiasPrevalentes',
             'totalizadoresSucursales',
             'topSanatorios',
-            'departamentosGasto'
+            'departamentosGasto',
+            'matrizAuditoria'
         ));
     }
 }
