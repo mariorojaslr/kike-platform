@@ -267,6 +267,7 @@ Route::post('/pagos/{pago}/rechazar', [\App\Http\Controllers\PagoEmpresaControll
 // ==========================================
 Route::get('/api/notificaciones', [\App\Http\Controllers\NotificacionController::class, 'getNotificaciones'])->name('notificaciones.get');
 Route::post('/api/notificaciones/{id}/leer', [\App\Http\Controllers\NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar_leida');
+Route::post('/api/notificaciones/leer-todas', [\App\Http\Controllers\NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.leer_todas');
 // ==========================================
 // MÓDULOS DE TELEMEDICINA, LIQUIDACIONES, DERIVACIONES & WHATSAPP
 // ==========================================
