@@ -160,6 +160,19 @@
                     </div>
                 </div>
             </a>
+
+            <!-- 7. Cuadro de Mando Ejecutivo (Panel del Dueño de la Mutual - 130.000 Cápitas) -->
+            <a href="{{ route('owner.mutual_dashboard') }}" class="btn-demo-option btn-admin" style="border-color: #f59e0b; background: linear-gradient(135deg, #fffbeb, #ffffff);">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle text-white me-3" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-6 mb-0" style="color: #b45309 !important;">7. Cuadro de Mando Ejecutivo (Panel Dueño Mutual)</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Visión 360° Recaudación $1.820M, 130.000 cápitas, siniestralidad y ahorro IA</small>
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="text-center mt-3 pt-3 border-top">

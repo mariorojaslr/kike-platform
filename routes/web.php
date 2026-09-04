@@ -87,6 +87,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/auditor/prestaciones', [\App\Http\Controllers\PrestadorMedicoController::class, 'auditoriaIndex'])->name('auditor.prestaciones.demo');
     Route::post('/auditor/practica/{id}/autorizar', [\App\Http\Controllers\PrestadorMedicoController::class, 'autorizarPractica'])->name('auditor.practica.autorizar');
 
+    // --- MÓDULO: FASE 4 - CUADRO DE MANDO EJECUTIVO (PANEL DEL DUEÑO DE LA MUTUAL - 130.000 CÁPITAS) ---
+    Route::get('/owner/mutual-dashboard', [\App\Http\Controllers\MutualExecutiveController::class, 'indexDashboard'])->name('owner.mutual_dashboard');
+
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class , 'index'])->name('tenant.dashboard');
