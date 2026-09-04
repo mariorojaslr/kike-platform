@@ -136,14 +136,14 @@
                                     <small class="text-muted"><i class="fas fa-building me-1"></i> {{ $suc->prestador_top }}</small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-info bg-opacity-20 text-info border border-info px-3 py-1 rounded-pill fw-bold">
-                                        {{ number_format($suc->capitas, 0, ',', '.') }} Cápitas
+                                    <span class="badge px-3 py-1.5 rounded-pill fw-bold" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); font-size: 0.8rem;">
+                                        <i class="fas fa-users me-1"></i> {{ number_format($suc->capitas, 0, ',', '.') }} Cápitas
                                     </span>
                                 </td>
                                 <td class="fw-bold text-success">${{ number_format($suc->recaudacion, 0, ',', '.') }}</td>
                                 <td class="fw-bold text-primary">${{ number_format($suc->gasto, 0, ',', '.') }}</td>
                                 <td class="text-center">
-                                    <span class="badge {{ $suc->siniestralidad > 40 ? 'bg-danger' : ($suc->siniestralidad > 36 ? 'bg-warning text-dark' : 'bg-success') }} px-3 py-1 rounded-pill fw-bold">
+                                    <span class="badge {{ $suc->siniestralidad > 40 ? 'bg-danger' : ($suc->siniestralidad > 36 ? 'bg-warning text-dark' : 'bg-success') }} px-3 py-1.5 rounded-pill fw-bold">
                                         {{ $suc->siniestralidad }}%
                                     </span>
                                 </td>
@@ -193,7 +193,7 @@
                                     <div class="fw-bold text-white">{{ $pat->enfermedad }}</div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary bg-opacity-20 text-info border border-info px-2 py-1">
+                                    <span class="badge px-3 py-1.5 rounded-pill fw-bold" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); font-size: 0.8rem;">
                                         {{ $pat->categoria }}
                                     </span>
                                 </td>
