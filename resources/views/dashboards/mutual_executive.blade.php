@@ -231,9 +231,9 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="small fw-bold text-white">{{ $dep->nombre }}</span>
-                                <span class="small font-monospace text-muted">${{ number_format($dep->monto, 0, ',', '.') }} ({{ $dep->porcentaje }}%)</span>
+                                <span class="small font-monospace text-info fw-bold" style="font-size: 0.85rem;">${{ number_format($dep->monto, 0, ',', '.') }} ({{ $dep->porcentaje }}%)</span>
                             </div>
-                            <div style="height: 8px; background: #1e293b; border-radius: 6px; overflow: hidden;">
+                            <div style="height: 10px; background: #1e293b; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                                 <div style="height: 100%; width: {{ $dep->porcentaje }}%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 6px;"></div>
                             </div>
                         </div>
@@ -264,12 +264,12 @@
                                             <small class="text-muted">Convenio Vigente</small>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge bg-primary px-3 py-1">{{ $san->internaciones }} Camas</span>
+                                            <span class="badge bg-primary px-3 py-1.5 rounded-pill fw-bold">{{ $san->internaciones }} Camas</span>
                                         </td>
                                         <td class="fw-bold text-success">${{ number_format($san->monto, 0, ',', '.') }}</td>
                                         <td class="text-end">
-                                            <span class="badge bg-success bg-opacity-20 text-success border border-success px-2 py-1">
-                                                <i class="fas fa-star me-1"></i> {{ $san->satisfaccion }}% Aprobado
+                                            <span class="badge px-3 py-1.5 rounded-pill fw-bold" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.8rem;">
+                                                <i class="fas fa-star text-warning me-1"></i> {{ $san->satisfaccion }}% Aprobado
                                             </span>
                                         </td>
                                     </tr>
