@@ -423,7 +423,62 @@
                                 <i class="fab fa-whatsapp me-1"></i> WhatsApp
                             </button>
                         </div>
-                        <a href="{{ url('/app-afiliado/certificado-anual') }}" class="btn btn-success btn-open-link">
+            <!-- Central de Emergencias SOS -->
+            <div class="col-md-6 col-lg-4">
+                <div class="link-card" style="border-color: #ef4444;">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box bg-danger text-white">
+                                <i class="fas fa-ambulance"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">Central de Emergencias SOS 24/7</h6>
+                                <span class="badge bg-danger text-white" style="font-size: 0.65rem;">Despacho Médico & GPS</span>
+                            </div>
+                        </div>
+                        <p class="small text-muted mb-3">Botón de pánico médico, geolocalización satelital en vivo de ambulancia UMED y tiempo estimado de arribo.</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/emergencias') }}', 'Central de Emergencias SOS')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-afiliado/emergencias') }}', 'Central de Emergencias SOS')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
+                        <a href="{{ url('/app-afiliado/emergencias') }}" class="btn btn-danger btn-open-link">
+                            🚀 Ingresar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billetera Virtual Mutual & Préstamos -->
+            <div class="col-md-6 col-lg-4">
+                <div class="link-card" style="border-color: #10b981;">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box bg-success text-white">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">Billetera Virtual & Créditos Salud</h6>
+                                <span class="badge bg-success text-white" style="font-size: 0.65rem;">Finanzas & Copagos</span>
+                            </div>
+                        </div>
+                        <p class="small text-muted mb-3">Saldo para copagos y farmacia, préstamos de salud preaprobados hasta $300.000 y transferencias CBU.</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/billetera') }}', 'Billetera Virtual Mutual')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-afiliado/billetera') }}', 'Billetera Virtual Mutual')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
+                        <a href="{{ url('/app-afiliado/billetera') }}" class="btn btn-success btn-open-link">
                             🚀 Ingresar
                         </a>
                     </div>
@@ -655,6 +710,33 @@
                             </button>
                         </div>
                         <a href="{{ url('/simulador/whatsapp') }}" class="btn btn-success btn-open-link">
+                            🚀 Ingresar
+                        </a>
+            <!-- Gestor de Cirugías & Prótesis ANMAT -->
+            <div class="col-md-6 col-lg-4">
+                <div class="link-card" style="border-color: #6366f1;">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box bg-primary text-white">
+                                <i class="fas fa-procedures"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">Gestor de Cirugías & Prótesis</h6>
+                                <span class="badge bg-primary text-white" style="font-size: 0.65rem;">Alta Complejidad ANMAT</span>
+                            </div>
+                        </div>
+                        <p class="small text-muted mb-3">Auditoría de ortopedias, trazabilidad de prótesis por lote ANMAT y aprobación criptográfica en 24hs.</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/auditoria/cirugias') }}', 'Gestor de Cirugías y Prótesis')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/auditoria/cirugias') }}', 'Gestor de Cirugías y Prótesis')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
+                        <a href="{{ url('/auditoria/cirugias') }}" class="btn btn-primary btn-open-link">
                             🚀 Ingresar
                         </a>
                     </div>

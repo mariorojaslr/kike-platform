@@ -302,6 +302,18 @@ Route::post('/api/pwa/offline-sync', [\App\Http\Controllers\PwaOfflineSyncContro
 
 Route::get('/app-afiliado/certificado-anual', [\App\Http\Controllers\CertificadosAnualesController::class, 'indexDemo'])->name('afiliado.certificado_anual.demo');
 
+// ==========================================
+// MÓDULOS EXPANDIDOS: EMERGENCIAS SOS, CIRUGÍAS/PRÓTESIS Y BILLETERA VIRTUAL
+// ==========================================
+Route::get('/app-afiliado/emergencias', [\App\Http\Controllers\EmergenciasPortalController::class, 'indexDemo'])->name('afiliado.emergencias.demo');
+Route::post('/app-afiliado/emergencias/pedir', [\App\Http\Controllers\EmergenciasPortalController::class, 'pedirAmbulancia'])->name('afiliado.emergencias.pedir');
+
+Route::get('/auditoria/cirugias', [\App\Http\Controllers\CirugiasProtesisController::class, 'indexDemo'])->name('auditoria.cirugias.demo');
+Route::post('/auditoria/cirugias/{id}/autorizar', [\App\Http\Controllers\CirugiasProtesisController::class, 'autorizarProtesis'])->name('auditoria.cirugias.autorizar');
+
+Route::get('/app-afiliado/billetera', [\App\Http\Controllers\BilleteraMutualController::class, 'indexDemo'])->name('afiliado.billetera.demo');
+Route::post('/app-afiliado/billetera/credito', [\App\Http\Controllers\BilleteraMutualController::class, 'solicitarCredito'])->name('afiliado.billetera.credito');
+
 /**
  * 3. SISTEMA DE AUTENTICACIÓN (Breeze/Jetstream)
  */
