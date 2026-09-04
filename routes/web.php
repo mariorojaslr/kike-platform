@@ -72,11 +72,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/pwa/factura-arca/store', [\App\Http\Controllers\ExpedienteAlumnoController::class, 'subirFacturaArca'])->name('pwa.factura_arca.store');
 
     // --- MÓDULO: PORTAL DIRECTORA DE ESCUELA (CERTIFICACIÓN DIGITAL DE ASISTENCIA) ---
+    Route::get('/app-directora/demo', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo'])->name('directora.demo');
+    Route::get('/directora/asistencia', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);
     Route::get('/directora/asistencias', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo'])->name('directora.asistencias.demo');
     Route::post('/directora/asistencia/firmar', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'firmarAsistencia'])->name('directora.asistencia.firmar');
 
     // --- MÓDULO: PORTAL PADRE / TITULAR (REINTEGROS Y AVAL) ---
     Route::get('/app-padre/demo', [\App\Http\Controllers\PadreAsistenciaController::class, 'indexDemo'])->name('padre.dashboard.demo');
+    Route::get('/padre/demo', [\App\Http\Controllers\PadreAsistenciaController::class, 'indexDemo']);
     Route::post('/padre/asistencia/confirmar', [\App\Http\Controllers\PadreAsistenciaController::class, 'confirmarAsistencia'])->name('padre.asistencia.confirmar');
 
     // --- MÓDULO: EXPORTACIÓN DE EXPEDIENTE EN PDF CON QR DE TRAZABILIDAD ---
@@ -247,6 +250,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ==========================================
 Route::get('/demo', function() { return view('demo_selector'); })->name('demo.selector');
 Route::get('/app-docente/demo', [\App\Http\Controllers\PwaDocenteController::class , 'demo'])->name('pwa.docente.demo');
+Route::get('/app-directora/demo', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);
+Route::get('/directora/asistencia', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);
 Route::post('/app-docente/upload', [\App\Http\Controllers\PwaDocenteController::class , 'uploadDocument'])->name('pwa.docente.upload');
 Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::class, 'search'])->name('pwa.docente.search');
 
