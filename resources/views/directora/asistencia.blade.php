@@ -18,7 +18,7 @@
                 <p class="text-white-50 mb-0"><i class="fas fa-building me-1 text-info"></i> <strong class="text-warning">{{ $escuelaNombre }}</strong> <span class="text-white mx-1">|</span> <span class="text-white">{{ $directoraNombre }}</span></p>
             </div>
             <div>
-                <span class="badge bg-success bg-opacity-20 text-success border border-success px-3 py-2 rounded-pill">
+                <span class="badge bg-success text-white border border-light px-3 py-2 rounded-pill shadow-sm fw-bold">
                     <i class="fas fa-shield-alt me-1"></i> Trazabilidad Expresa Activa
                 </span>
             </div>
@@ -62,9 +62,9 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h5 class="fw-bold text-white mb-0"><i class="fas fa-child text-warning me-2"></i> {{ $item->alumno_nombre }}</h5>
                                     @if($item->estado_aval == 'firmado')
-                                        <span class="badge bg-success rounded-pill px-3 py-1"><i class="fas fa-check-double me-1"></i> AVALADO</span>
+                                        <span class="badge bg-success text-white rounded-pill px-3 py-1 fw-bold shadow-sm"><i class="fas fa-check-double me-1"></i> AVALADO</span>
                                     @else
-                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-1"><i class="fas fa-clock me-1"></i> PENDIENTE</span>
+                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold shadow-sm"><i class="fas fa-clock me-1"></i> PENDIENTE</span>
                                     @endif
                                 </div>
                                 <p class="small text-info mb-3"><i class="fas fa-user-md me-1"></i> {{ $item->docente_nombre }}</p>
@@ -78,8 +78,8 @@
 
                             <div>
                                 @if($item->estado_aval == 'firmado')
-                                    <div class="p-2 bg-success bg-opacity-10 border border-success rounded text-success small text-center">
-                                        <i class="fas fa-signature me-1"></i> Avalado el {{ $item->fecha_firma }}
+                                    <div class="p-2 bg-success text-white rounded small text-center fw-bold shadow-sm">
+                                        <i class="fas fa-check-circle me-1"></i> Avalado el {{ $item->fecha_firma }}
                                     </div>
                                 @else
                                     <button type="button" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalFirmar{{ $item->id }}">
