@@ -82,6 +82,10 @@ class AiAssistantController extends Controller
                          "- Prestadores Médicos: /prestadores/demo\n" .
                          "- Credencial QR Afiliado: /app-afiliado/credencial\n" .
                          "- Turnos y Cartilla: /app-afiliado/turnos\n" .
+                         "- Telemedicina & Videoconsulta: /app-afiliado/telemedicina\n" .
+                         "- Cierre de Liquidaciones CBU: /owner/liquidaciones\n" .
+                         "- Derivaciones & Viáticos: /app-afiliado/derivaciones\n" .
+                         "- Bot Oficial WhatsApp: /simulador/whatsapp\n" .
                          "- Panel Ejecutivo / Balances: /owner/mutual-dashboard";
 
         $geminiResult = $this->geminiService->ask($prompt, $systemContext);
@@ -110,6 +114,34 @@ class AiAssistantController extends Controller
     protected function obtenerRespuestaManual(string $prompt, string $path, string $contexto): string
     {
         $promptLower = mb_strtolower($prompt);
+
+        // --- TELEMEDICINA / VIDEOCONSULTA EN VIVO ---
+        if (str_contains($promptLower, 'telemedicina') || str_contains($promptLower, 'video') || str_contains($promptLower, 'virtual') || str_contains($promptLower, 'videoconsulta')) {
+            return "¡Por supuesto! Podés acceder a la **Sala de Videoconsulta Médica en Vivo (WebRTC)** desde aquí:\n\n" .
+                   "👉 [🩺 Ir a Sala de Telemedicina](/app-afiliado/telemedicina)\n\n" .
+                   "¿Querés que te explique cómo emitir una receta digital durante la videollamada?";
+        }
+
+        // --- LIQUIDACIONES & BILLETERAS CBU ---
+        if (str_contains($promptLower, 'liquidacion') || str_contains($promptLower, 'liquidación') || str_contains($promptLower, 'transferencia') || str_contains($promptLower, 'cbu') || str_contains($promptLower, 'tesoreria') || str_contains($promptLower, 'tesorería')) {
+            return "¡Con gusto! Podés consultar el **Tablero de Cierre de Liquidaciones CBU a Prestadores** aquí:\n\n" .
+                   "👉 [💰 Ir al Tablero de Liquidaciones](/owner/liquidaciones)\n\n" .
+                   "¿Deseas autorizar la acreditación masiva de lotes?";
+        }
+
+        // --- DERIVACIONES & VIÁTICOS ---
+        if (str_contains($promptLower, 'derivac') || str_contains($promptLower, 'viatico') || str_contains($promptLower, 'viático') || str_contains($promptLower, 'cordoba') || str_contains($promptLower, 'córdoba') || str_contains($promptLower, 'transito') || str_contains($promptLower, 'tránsito')) {
+            return "¡Por supuesto! Podés gestionar las **Derivaciones de Alta Complejidad y Vales de Viáticos** aquí:\n\n" .
+                   "👉 [✈️ Ir a Derivaciones & Viáticos](/app-afiliado/derivaciones)\n\n" .
+                   "¿Necesitas emitir una Credencial Provisoria de Tránsito?";
+        }
+
+        // --- SIMULADOR BOT DE WHATSAPP ---
+        if (str_contains($promptLower, 'whatsapp') || str_contains($promptLower, 'bot') || str_contains($promptLower, 'chat')) {
+            return "¡Claro que sí! Podés probar la interacción con el **Bot Oficial de WhatsApp de la Mutual** aquí:\n\n" .
+                   "👉 [📲 Abrir Simulador de WhatsApp](/simulador/whatsapp)\n\n" .
+                   "¿Querés probar la validación por foto de receta?";
+        }
 
         // --- MAESTRAS INTEGRADORAS / EDUCACIÓN ESPECIAL / DOCENTES ---
         if (str_contains($promptLower, 'maestra') || str_contains($promptLower, 'integradora') || str_contains($promptLower, 'terapeuta') || str_contains($promptLower, 'educacion especial') || str_contains($promptLower, 'educación especial')) {

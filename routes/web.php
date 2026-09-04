@@ -267,8 +267,20 @@ Route::post('/pagos/{pago}/rechazar', [\App\Http\Controllers\PagoEmpresaControll
 // ==========================================
 Route::get('/api/notificaciones', [\App\Http\Controllers\NotificacionController::class, 'getNotificaciones'])->name('notificaciones.get');
 Route::post('/api/notificaciones/{id}/leer', [\App\Http\Controllers\NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar_leida');
-Route::post('/api/notificaciones/leer-todas', [\App\Http\Controllers\NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.leer_todas');
+// ==========================================
+// MÓDULOS DE TELEMEDICINA, LIQUIDACIONES, DERIVACIONES & WHATSAPP
+// ==========================================
+Route::get('/app-afiliado/telemedicina', [\App\Http\Controllers\TelemedicinaController::class, 'indexDemo'])->name('afiliado.telemedicina.demo');
+Route::post('/telemedicina/receta/emitir', [\App\Http\Controllers\TelemedicinaController::class, 'emitirRecetaDigital'])->name('telemedicina.receta.emitir');
 
+Route::get('/owner/liquidaciones', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'indexDemo'])->name('owner.liquidaciones');
+Route::post('/liquidacion/procesar-cierre', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'procesarCierreLiquidacion'])->name('liquidacion.procesar_cierre');
+
+Route::get('/app-afiliado/derivaciones', [\App\Http\Controllers\DerivacionViaticosController::class, 'indexDemo'])->name('afiliado.derivaciones.demo');
+Route::post('/derivaciones/emitir-voucher', [\App\Http\Controllers\DerivacionViaticosController::class, 'emitirVoucherTransito'])->name('derivaciones.emitir_voucher');
+
+Route::get('/simulador/whatsapp', [\App\Http\Controllers\WhatsAppBotSimulatorController::class, 'indexDemo'])->name('whatsapp.simulador.demo');
+Route::post('/whatsapp/simulador/procesar', [\App\Http\Controllers\WhatsAppBotSimulatorController::class, 'procesarMensajeWhatsapp'])->name('whatsapp.simulador.procesar');
 
 /**
  * 3. SISTEMA DE AUTENTICACIÓN (Breeze/Jetstream)
