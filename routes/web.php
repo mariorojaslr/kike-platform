@@ -282,6 +282,18 @@ Route::post('/derivaciones/emitir-voucher', [\App\Http\Controllers\DerivacionVia
 Route::get('/simulador/whatsapp', [\App\Http\Controllers\WhatsAppBotSimulatorController::class, 'indexDemo'])->name('whatsapp.simulador.demo');
 Route::post('/whatsapp/simulador/procesar', [\App\Http\Controllers\WhatsAppBotSimulatorController::class, 'procesarMensajeWhatsapp'])->name('whatsapp.simulador.procesar');
 
+// ==========================================
+// AUDITORÍA CENTRAL, PROYECCIÓN BI, SYNC OFFLINE & CERTIFICADOS ARCA
+// ==========================================
+Route::get('/auditoria/central', [\App\Http\Controllers\AuditoriaCentralController::class, 'indexDemo'])->name('auditoria.central.demo');
+Route::post('/auditoria/central/procesar', [\App\Http\Controllers\AuditoriaCentralController::class, 'procesarAuditoria'])->name('auditoria.central.procesar');
+
+Route::get('/owner/proyeccion-presupuesto', [\App\Http\Controllers\ProyeccionPresupuestariaController::class, 'indexDemo'])->name('owner.proyeccion_presupuesto');
+
+Route::post('/api/pwa/offline-sync', [\App\Http\Controllers\PwaOfflineSyncController::class, 'sincronizarLote'])->name('api.pwa.offline_sync');
+
+Route::get('/app-afiliado/certificado-anual', [\App\Http\Controllers\CertificadosAnualesController::class, 'indexDemo'])->name('afiliado.certificado_anual.demo');
+
 /**
  * 3. SISTEMA DE AUTENTICACIÓN (Breeze/Jetstream)
  */
