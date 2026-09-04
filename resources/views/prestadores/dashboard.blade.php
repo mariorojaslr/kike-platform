@@ -76,23 +76,23 @@
                                 <tr>
                                     <td class="ps-4">
                                         <div class="fw-bold text-white"><i class="fas fa-user me-1 text-primary"></i> {{ $ord->afiliado_nombre }}</div>
-                                        <small class="text-muted font-monospace">{{ $ord->afiliado_nro }}</small>
+                                        <small class="font-monospace" style="color: #94a3b8;">{{ $ord->afiliado_nro }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-info bg-opacity-20 text-info border border-info px-2 py-1">
-                                            {{ $ord->tipo }}
+                                        <span class="badge px-3 py-1.5 rounded-pill fw-bold" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); font-size: 0.8rem;">
+                                            <i class="fas fa-notes-medical me-1"></i> {{ $ord->tipo }}
                                         </span>
                                     </td>
                                     <td>
                                         <div class="small fw-bold text-white">{{ $ord->practica_codigo }}</div>
-                                        <small class="text-muted">Solicitado: {{ $ord->fecha_solicitud }}</small>
+                                        <small style="color: #94a3b8;">Solicitado: {{ $ord->fecha_solicitud }}</small>
                                     </td>
                                     <td class="fw-bold text-success">${{ number_format($ord->monto, 2, ',', '.') }}</td>
                                     <td class="text-center">
                                         @if($ord->estado == 'aprobado')
-                                            <span class="badge bg-success px-3 py-1"><i class="fas fa-check-circle me-1"></i> AUTORIZADO</span>
+                                            <span class="badge bg-success px-3 py-1.5 rounded-pill"><i class="fas fa-check-circle me-1"></i> AUTORIZADO</span>
                                         @else
-                                            <span class="badge bg-warning text-dark px-3 py-1"><i class="fas fa-hourglass-half me-1"></i> EN AUDITORÍA MÉRICA</span>
+                                            <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold"><i class="fas fa-hourglass-half me-1"></i> EN AUDITORÍA MÉDICA</span>
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
