@@ -15,7 +15,7 @@
                 <h2 class="fw-bold mt-2 mb-1 text-white">
                     <i class="fas fa-signature text-info me-2"></i> Certificación Digital de Asistencias Docentes
                 </h2>
-                <p class="text-muted mb-0"><i class="fas fa-building me-1 text-primary"></i> <strong>{{ $escuelaNombre }}</strong> | {{ $directoraNombre }}</p>
+                <p class="text-white-50 mb-0"><i class="fas fa-building me-1 text-info"></i> <strong class="text-warning">{{ $escuelaNombre }}</strong> <span class="text-white mx-1">|</span> <span class="text-white">{{ $directoraNombre }}</span></p>
             </div>
             <div>
                 <span class="badge bg-success bg-opacity-20 text-success border border-success px-3 py-2 rounded-pill">
@@ -41,7 +41,7 @@
                     <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
                     <div>
                         <h6 class="fw-bold mb-1 text-warning">Normativa de Certificación de Asistencia por Resolución</h6>
-                        <p class="small text-muted mb-0">
+                        <p class="small text-light mb-0">
                             Por disposición oficial, el límite máximo permitido por estudiante es de <b>3 horas diarias</b>. 
                             Al presionar <b>"Avalar Asistencia Oficial"</b>, usted confirma formalmente que la docente concurrió en los días y horarios declarados a atender al alumno en la institución.
                         </p>
@@ -70,9 +70,9 @@
                                 <p class="small text-info mb-3"><i class="fas fa-user-md me-1"></i> {{ $item->docente_nombre }}</p>
 
                                 <div class="bg-dark p-3 rounded-3 mb-3 border border-secondary border-opacity-25">
-                                    <div class="small text-muted mb-1"><strong>Días Declarados:</strong> {{ $item->dias_asistencia }}</div>
-                                    <div class="small text-muted mb-1"><strong>Horario Diario:</strong> {{ $item->horario }}</div>
-                                    <div class="small text-muted"><strong>Total Horas Mes:</strong> <span class="badge bg-primary">{{ $item->horas_mes }} hs</span></div>
+                                    <div class="small text-white-50 mb-1"><strong class="text-light">Días Declarados:</strong> <span class="text-white">{{ $item->dias_asistencia }}</span></div>
+                                    <div class="small text-white-50 mb-1"><strong class="text-light">Horario Diario:</strong> <span class="text-white">{{ $item->horario }}</span></div>
+                                    <div class="small text-white-50"><strong class="text-light">Total Horas Mes:</strong> <span class="badge bg-primary fs-6">{{ $item->horas_mes }} hs</span></div>
                                 </div>
                             </div>
 
