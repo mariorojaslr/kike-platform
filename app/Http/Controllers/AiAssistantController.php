@@ -32,8 +32,14 @@ class AiAssistantController extends Controller
 
         // 1. Intentar responder vía API Gemini 1.5 Flash si está disponible
         $systemContext = "Eres INTEGRA Bot, el Asistente Virtual Inteligente y Manual Interactivo Oficial de la plataforma INTEGRA (Obra Social / Mutual con 130.000 abonados).\n" .
-                         "El usuario está en la pantalla: {$path} ({$contexto}).\n" .
-                         "Guíalo paso a paso como un manual de uso amable, claro, amigable y profesional. Usa viñetas y negritas.";
+                         "El usuario está en la pantalla: {$path} ({$contexto}).\n\n" .
+                         "CONOCIMIENTO CLAVE DEL SISTEMA Y EXPEDIENTES:\n" .
+                         "- Para INICIAR UN EXPEDIENTE DE DOCENTE/TERAPEUTA: Ir a /app-docente/demo -> Mis Alumnos -> + Nuevo Alumno/Legajo, subir Factura ARCA y enviar firma a la Directora por WhatsApp.\n" .
+                         "- Para INICIAR UN EXPEDIENTE DE REINTEGRO (PADRE): Ir a /app-padre/demo -> Solicitar Reintegro, subir Factura + Resolución OSP y firmar conformidad.\n" .
+                         "- Para INICIAR UN EXPEDIENTE MÉDICO / INTERNACIÓN (PRESTADOR): Ir a /prestadores/demo -> Nueva Solicitud de Autorización Médica / Internación, ingresar código nomenclador y CIE-10.\n" .
+                         "- Para DISPENSA EN FARMACIA: Ir a /farmacia/demo, validar DNI/QR, aplicar Vademécum (40%, 70%, 100%) y emitir Bono Digital con Hash MD5.\n" .
+                         "- Para VER TOTALIZADORES Y SUCURSALES: Ir a /owner/mutual-dashboard, filtrar por Chilecito, Córdoba, La Rioja o BsAs.\n\n" .
+                         "Responde la duda del usuario paso a paso de forma clara, directa, amable y estructurada con viñetas y negritas.";
 
         $geminiResult = $this->geminiService->ask($prompt, $systemContext);
 
@@ -61,6 +67,27 @@ class AiAssistantController extends Controller
     protected function obtenerRespuestaManual(string $prompt, string $path, string $contexto): string
     {
         $promptLower = mb_strtolower($prompt);
+
+        // --- CONSULTA ESPECÍFICA: INICIO DE EXPEDIENTE / TRÁMITE / LEGAJO ---
+        if (str_contains($promptLower, 'expediente') || str_contains($promptLower, 'tramite') || str_contains($promptLower, 'trámite') || str_contains($promptLower, 'inici') || str_contains($promptLower, 'ingres') || str_contains($promptLower, 'abrir') || str_contains($promptLower, 'crear') || str_contains($promptLower, 'solicitud')) {
+            return "📋 **Manual Oficial: Cómo Iniciar un Expediente o Trámite en INTEGRA**\n\n" .
+                   "El inicio de un **Expediente Digital** depende de tu rol en la plataforma:\n\n" .
+                   "1. 👨‍🏫 **Si eres Docente / Terapeuta (Educación Especial):**\n" .
+                   "   - Ve a la **App del Docente** (`/app-docente/demo`).\n" .
+                   "   - Ingresa a **Mis Alumnos** ➔ Presiona **+ Nuevo Alumno / Cargar Legajo**.\n" .
+                   "   - Sube la **Factura ARCA** y envía la solicitud de aval por WhatsApp a la **Directora de Escuela**.\n" .
+                   "   - Se generará automáticamente el número de expediente (`EXP-2026-XXXX`) con firma digital y **Hash MD5**.\n\n" .
+                   "2. 👨‍👩‍👦 **Si eres Padre / Titular (Reintegros de Obra Social):**\n" .
+                   "   - Ingresa a la **App del Titular** (`/app-padre/demo`).\n" .
+                   "   - Toca en **Solicitar Reintegro**.\n" .
+                   "   - Adjunta la foto de la factura abonada + **Resolución OSP** y firma la conformidad del servicio.\n\n" .
+                   "3. 🏥 **Si eres Clínica / Prestador Médico (Autorizaciones / Internaciones):**\n" .
+                   "   - Ve a la **Red de Prestadores** (`/prestadores/demo`).\n" .
+                   "   - Presiona el botón verde **Nueva Solicitud de Autorización Médica / Internación**.\n" .
+                   "   - Ingresa el código nomenclador, diagnóstico CIE-10 y adjunta la orden médica para que pase a **Auditoría Médica Central**.\n\n" .
+                   "4. 💊 **Si eres Farmacia Convenida (Validador de Medicamentos):**\n" .
+                   "   - Ve a `/farmacia/demo`, ingresa el DNI o escanea el QR del afiliado y presiona **Validar Receta** para emitir el Bono Digital.";
+        }
 
         // --- ROL: AFILIADO (Credencial y Turnos) ---
         if (str_contains($path, 'afiliado') || str_contains($promptLower, 'credencial') || str_contains($promptLower, 'token') || str_contains($promptLower, 'turno')) {
@@ -153,13 +180,14 @@ class AiAssistantController extends Controller
 
         // --- RESPUESTA GENÉRICA POR DEFECTO ---
         return "🤖 **Asistente Virtual e Instrucciones de la Plataforma INTEGRA**\n\n" .
-               "¡Hola! Puedo orientarte en el uso de cualquier pantalla del sistema:\n\n" .
+               "Puedo orientarte paso a paso para cualquier trámite o función:\n\n" .
+               "- 📋 **Expedientes y Trámites:** Cómo iniciar y dar seguimiento a legajos y expedientes digitales.\n" .
                "- 💳 **Afiliados:** Credencial digital QR y reserva de turnos.\n" .
                "- 👨‍🏫 **Docentes:** Carga de facturas, modo parlante y legajos.\n" .
                "- 🏫 **Directoras:** Certificación digital de asistencias.\n" .
                "- 💊 **Farmacias:** Validador online de vademécum y dispensa.\n" .
                "- 🏥 **Prestadores:** Emisión e impresión de bonos digitales.\n" .
                "- 👑 **Ejecutivo:** Totalizadores por sucursal y patologías.\n\n" .
-               "Escribe tu consulta o selecciona uno de los botones sugeridos.";
+               "Escribe tu pregunta o habla al micrófono diciéndome qué trámite deseas realizar.";
     }
 }

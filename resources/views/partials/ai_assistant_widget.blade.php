@@ -442,8 +442,8 @@ document.addEventListener("DOMContentLoaded", function () {
             ];
         } else {
             sugerencias = [
+                "📋 ¿Cómo inicio un expediente?",
                 "🚀 ¿Qué funciones tiene esta pantalla?",
-                "📋 ¿Cómo ingresar un trámite?",
                 "❓ Guía de uso rápido"
             ];
         }
