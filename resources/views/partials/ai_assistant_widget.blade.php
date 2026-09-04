@@ -33,6 +33,9 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
+                <button id="integra-ai-tts-btn" type="button" style="background: transparent; border: none; color: #a855f7; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color 0.2s;" title="Activar/Desactivar Respuesta Hablada por Voz">
+                    <i class="fa-solid fa-volume-high" id="integra-ai-tts-icon"></i>
+                </button>
                 <button id="integra-ai-minimize-btn" type="button" style="background: transparent; border: none; color: #9ca3af; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'" title="Minimizar">
                     <i class="fa-solid fa-minus"></i>
                 </button>
@@ -48,7 +51,7 @@
                     <i class="fa-solid fa-sparkles"></i>
                 </div>
                 <div style="background: rgba(255, 255, 255, 0.08); color: #f4f4f5; padding: 12px 15px; border-radius: 16px; border-top-left-radius: 4px; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    ¡Hola! 👋 Soy tu **Asistente e Instrucciones IA**. ¿Qué necesitas consultar o realizar en esta pantalla?
+                    ¡Hola! 👋 Soy tu **Asistente e Instrucciones IA**. Puedes escribirme o **tocar el micrófono 🎙️ y hablarme en voz alta** para consultar lo que necesites sobre esta pantalla.
                 </div>
             </div>
 
@@ -69,13 +72,19 @@
             <span>El Asistente Virtual está consultando el manual...</span>
         </div>
 
-        <!-- Footer / Input Form -->
+        <!-- Footer / Input Form con Micrófono de Voz -->
         <form id="integra-ai-form" style="padding: 12px 14px; background: rgba(0, 0, 0, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
-            <input type="text" id="integra-ai-input" placeholder="Pregunta cómo usar esta pantalla..." autocomplete="off"
+            <button type="button" id="integra-ai-mic-btn"
+                    style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: all 0.2s;"
+                    title="Toca para hablar por micrófono (Dictado por Voz)">
+                <i class="fa-solid fa-microphone" id="integra-ai-mic-icon"></i>
+            </button>
+            <input type="text" id="integra-ai-input" placeholder="Pregunta o habla al micrófono..." autocomplete="off"
                    style="flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 10px 14px; color: #ffffff; font-size: 13px; outline: none; transition: border-color 0.2s;"
                    onfocus="this.style.borderColor='#a855f7'" onblur="this.style.borderColor='rgba(255, 255, 255, 0.15)'">
             <button type="submit" id="integra-ai-send-btn" 
-                    style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; transition: transform 0.2s;">
+                    style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; transition: transform 0.2s;"
+                    title="Enviar consulta">
                 <i class="fa-solid fa-paper-plane"></i>
             </button>
         </form>
@@ -129,9 +138,110 @@ document.addEventListener("DOMContentLoaded", function () {
     const typingIndicator = document.getElementById("integra-ai-typing");
     const sendBtn = document.getElementById("integra-ai-send-btn");
     const suggestionsContainer = document.getElementById("integra-ai-suggestions");
+    const micBtn = document.getElementById("integra-ai-mic-btn");
+    const micIcon = document.getElementById("integra-ai-mic-icon");
+    const ttsBtn = document.getElementById("integra-ai-tts-btn");
+    const ttsIcon = document.getElementById("integra-ai-tts-icon");
 
     const endpointUrl = "{{ route('ai.assistant.query') }}";
     const csrfToken = "{{ csrf_token() }}";
+
+    let ttsEnabled = true;
+    let recognition = null;
+    let isListening = false;
+
+    // --- RECONOCIMIENTO DE VOZ (MICROFONO / DICTADO) ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'es-AR';
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onstart = function() {
+            isListening = true;
+            micBtn.style.background = "#ef4444";
+            micBtn.style.boxShadow = "0 0 12px rgba(239, 68, 68, 0.6)";
+            micIcon.className = "fa-solid fa-microphone-lines fa-bounce";
+            input.placeholder = "Escuchando tu voz... habla ahora...";
+        };
+
+        recognition.onresult = function(event) {
+            let transcript = "";
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            input.value = transcript;
+        };
+
+        recognition.onerror = function(event) {
+            console.warn("Error micrófono:", event.error);
+            stopListening();
+            if (event.error === 'not-allowed') {
+                alert("⚠️ Permiso de micrófono denegado en el navegador.");
+            }
+        };
+
+        recognition.onend = function() {
+            stopListening();
+            if (input.value.trim().length > 2) {
+                form.dispatchEvent(new Event("submit"));
+            }
+        };
+
+        function stopListening() {
+            isListening = false;
+            micBtn.style.background = "rgba(255, 255, 255, 0.1)";
+            micBtn.style.boxShadow = "none";
+            micIcon.className = "fa-solid fa-microphone";
+            input.placeholder = "Pregunta o habla al micrófono...";
+        }
+
+        micBtn.addEventListener("click", function() {
+            if (isListening) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch (err) {
+                    console.error("Error al iniciar mic:", err);
+                }
+            }
+        });
+    } else {
+        micBtn.addEventListener("click", function() {
+            alert("⚠️ Tu navegador no admite entrada directa de voz (Web Speech API). Utiliza Chrome, Edge o Safari.");
+        });
+    }
+
+    // --- SÍNTESIS DE VOZ (RESPUESTA HABLADA) ---
+    if (ttsBtn) {
+        ttsBtn.addEventListener("click", function() {
+            ttsEnabled = !ttsEnabled;
+            if (ttsEnabled) {
+                ttsBtn.style.color = "#a855f7";
+                ttsIcon.className = "fa-solid fa-volume-high";
+            } else {
+                ttsBtn.style.color = "#6b7280";
+                ttsIcon.className = "fa-solid fa-volume-xmark";
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
+        });
+    }
+
+    function speakText(text) {
+        if (!ttsEnabled || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        
+        let cleanText = text.replace(/[*#_`]/g, '').replace(/https?:\/\/\S+/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'es-AR';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        window.speechSynthesis.speak(utterance);
+    }
 
     // --- ARRASTRE DEL BOTÓN FLOTANTE (MOUSE Y TOUCH) ---
     (function initButtonDrag() {
@@ -358,6 +468,7 @@ document.addEventListener("DOMContentLoaded", function () {
             iconOpen.style.display = "block";
             iconClose.style.display = "none";
             toggleBtn.style.transform = "scale(1)";
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         } else {
             chatWindow.style.display = "flex";
             iconOpen.style.display = "none";
@@ -426,6 +537,11 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         messagesContainer.appendChild(msgDiv);
         scrollToBottom();
+
+        // Hablar la respuesta si está activada la lectura en voz alta
+        if (!isError) {
+            speakText(text);
+        }
     }
 
     function scrollToBottom() {
