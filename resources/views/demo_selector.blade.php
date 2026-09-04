@@ -206,5 +206,6 @@
         </div>
     </div>
 
+    @include('partials.ai_assistant_widget')
 </body>
 </html>

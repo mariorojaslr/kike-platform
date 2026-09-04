@@ -1,30 +1,31 @@
-<!-- WIDGET FLOTANTE ASISTENTE IA GEMINI 1.5 FLASH -->
+<!-- WIDGET FLOTANTE ASISTENTE IA & MANUAL INTERACTIVO INTEGRA -->
 <div id="integra-ai-widget-container" style="position: fixed; bottom: 25px; right: 25px; z-index: 999999; font-family: 'Poppins', sans-serif;">
     
-    <!-- Botón Flotante Principal -->
+    <!-- Botón Flotante Principal Mágico -->
     <button id="integra-ai-toggle-btn" type="button" 
-            style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); border: none; color: #ffffff; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; position: relative;">
+            style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); border: none; color: #ffffff; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; position: relative;"
+            title="Manual Interactivo & Asistente IA">
         <i class="fa-solid fa-wand-magic-sparkles" id="integra-ai-icon-open"></i>
         <i class="fa-solid fa-xmark" id="integra-ai-icon-close" style="display: none;"></i>
         <!-- Glowing Pulse Effect -->
         <span style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; opacity: 0.5; z-index: -1; animation: integra-pulse 2s infinite;"></span>
     </button>
 
-    <!-- Ventana de Chat Inteligente -->
+    <!-- Ventana de Chat e Instrucciones Interactivas -->
     <div id="integra-ai-chat-window" 
-         style="display: none; position: absolute; bottom: 75px; right: 0; width: 380px; max-width: calc(100vw - 30px); height: 530px; max-height: calc(100vh - 110px); background: rgba(17, 24, 39, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); flex-direction: column; overflow: hidden; transform-origin: bottom right; animation: integra-pop-in 0.3s ease-out;">
+         style="display: none; position: absolute; bottom: 75px; right: 0; width: 390px; max-width: calc(100vw - 30px); height: 550px; max-height: calc(100vh - 110px); background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); flex-direction: column; overflow: hidden; transform-origin: bottom right; animation: integra-pop-in 0.3s ease-out;">
         
         <!-- Header con Degradado -->
-        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%); padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between;">
+        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%); padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">
                     <i class="fa-solid fa-robot"></i>
                 </div>
                 <div>
-                    <h6 style="margin: 0; color: #ffffff; font-weight: 600; font-size: 15px; letter-spacing: 0.3px;">Asistente Virtual IA</h6>
-                    <span style="font-size: 11px; color: #a1a1aa; display: flex; align-items: center; gap: 5px;">
+                    <h6 style="margin: 0; color: #ffffff; font-weight: 700; font-size: 15px; letter-spacing: 0.3px;">Asistente Virtual & Manual IA</h6>
+                    <span style="font-size: 11px; color: #a1a1aa; display: flex; align-items: center; gap: 5px;" id="integra-ai-context-lbl">
                         <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #22c55e; display: inline-block;"></span>
-                        Gemini 1.5 Flash Activo
+                        Manual Interactivo Activo
                     </span>
                 </div>
             </div>
@@ -37,27 +38,18 @@
         <div id="integra-ai-messages" style="flex: 1; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;">
             
             <!-- Mensaje de Bienvenida -->
-            <div style="display: flex; gap: 10px; align-items: flex-start; max-width: 88%;">
+            <div style="display: flex; gap: 10px; align-items: flex-start; max-width: 90%;">
                 <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(168, 85, 247, 0.2); color: #c084fc; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px;">
                     <i class="fa-solid fa-sparkles"></i>
                 </div>
-                <div style="background: rgba(255, 255, 255, 0.07); color: #e4e4e7; padding: 12px 15px; border-radius: 16px; border-top-left-radius: 4px; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255, 255, 255, 0.05);">
-                    ¡Hola! 👋 Soy tu **Asistente Virtual IA**. ¿En qué puedo ayudarte hoy sobre la plataforma, la carga de alumnos, escuelas o la documentación?
+                <div style="background: rgba(255, 255, 255, 0.08); color: #f4f4f5; padding: 12px 15px; border-radius: 16px; border-top-left-radius: 4px; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    ¡Hola! 👋 Soy tu **Asistente e Instrucciones IA**. ¿Qué necesitas consultar o realizar en esta pantalla?
                 </div>
             </div>
 
-            <!-- Sugerencias Rápidas -->
+            <!-- Sugerencias Rápidas Dinámicas por Pantalla -->
             <div id="integra-ai-suggestions" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px;">
-                <button type="button" onclick="integraAiUsarSugerencia('¿Cómo importo un listado de alumnos en Excel?')" 
-                        style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc; border-radius: 20px; padding: 6px 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;"
-                        onmouseover="this.style.background='rgba(99, 102, 241, 0.3)'" onmouseout="this.style.background='rgba(99, 102, 241, 0.15)'">
-                    💡 Importar Alumnos
-                </button>
-                <button type="button" onclick="integraAiUsarSugerencia('¿Qué documentos deben entregar los docentes?')" 
-                        style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #d8b4fe; border-radius: 20px; padding: 6px 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;"
-                        onmouseover="this.style.background='rgba(168, 85, 247, 0.3)'" onmouseout="this.style.background='rgba(168, 85, 247, 0.15)'">
-                    📄 Requisitos Documentación
-                </button>
+                <!-- Se cargan por JavaScript según el rol / pantalla -->
             </div>
 
         </div>
@@ -69,16 +61,16 @@
                 <span class="integra-dot" style="width: 6px; height: 6px; background: #a855f7; border-radius: 50%; animation: integra-bounce 1.4s infinite ease-in-out both 0.2s;"></span>
                 <span class="integra-dot" style="width: 6px; height: 6px; background: #a855f7; border-radius: 50%; animation: integra-bounce 1.4s infinite ease-in-out both 0.4s;"></span>
             </div>
-            <span>El Asistente Virtual está pensando...</span>
+            <span>El Asistente Virtual está consultando el manual...</span>
         </div>
 
         <!-- Footer / Input Form -->
-        <form id="integra-ai-form" style="padding: 12px 14px; background: rgba(0, 0, 0, 0.3); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 8px; align-items: center;">
-            <input type="text" id="integra-ai-input" placeholder="Escribe tu consulta aquí..." autocomplete="off"
-                   style="flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px 14px; color: #ffffff; font-size: 13px; outline: none; transition: border-color 0.2s;"
-                   onfocus="this.style.borderColor='#a855f7'" onblur="this.style.borderColor='rgba(255, 255, 255, 0.1)'">
+        <form id="integra-ai-form" style="padding: 12px 14px; background: rgba(0, 0, 0, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="integra-ai-input" placeholder="Pregunta cómo usar esta pantalla..." autocomplete="off"
+                   style="flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 10px 14px; color: #ffffff; font-size: 13px; outline: none; transition: border-color 0.2s;"
+                   onfocus="this.style.borderColor='#a855f7'" onblur="this.style.borderColor='rgba(255, 255, 255, 0.15)'">
             <button type="submit" id="integra-ai-send-btn" 
-                    style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: transform 0.2s, opacity 0.2s;">
+                    style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; transition: transform 0.2s;">
                 <i class="fa-solid fa-paper-plane"></i>
             </button>
         </form>
@@ -115,9 +107,78 @@ document.addEventListener("DOMContentLoaded", function () {
     const messagesContainer = document.getElementById("integra-ai-messages");
     const typingIndicator = document.getElementById("integra-ai-typing");
     const sendBtn = document.getElementById("integra-ai-send-btn");
+    const suggestionsContainer = document.getElementById("integra-ai-suggestions");
 
     const endpointUrl = "{{ route('ai.assistant.query') }}";
     const csrfToken = "{{ csrf_token() }}";
+
+    // Cargar sugerencias dinámicas según la ruta actual
+    function cargarSugerenciasPantalla() {
+        const path = window.location.pathname;
+        let sugerencias = [];
+
+        if (path.includes('afiliado')) {
+            sugerencias = [
+                "💳 ¿Cómo ver mi Credencial Digital QR?",
+                "🩺 ¿Cómo reservar un Turno o Cartilla?",
+                "🔑 ¿Cómo funciona el Token de Seguridad?"
+            ];
+        } else if (path.includes('docente')) {
+            sugerencias = [
+                "🎙️ ¿Cómo usar el Modo Parlante / Voz?",
+                "📄 ¿Cómo subir la Factura ARCA?",
+                "🏫 ¿Cómo enviar la firma a la Directora?"
+            ];
+        } else if (path.includes('directora')) {
+            sugerencias = [
+                "✍️ ¿Cómo certificar las asistencias?",
+                "⏱️ ¿Cuál es el límite de 3hs/día?",
+                "📲 ¿Cómo pedir firma por WhatsApp?"
+            ];
+        } else if (path.includes('padre')) {
+            sugerencias = [
+                "💵 ¿Cómo solicitar un Reintegro?",
+                "📄 ¿Cómo subir la Resolución OSP?",
+                "✍️ ¿Cómo dar la conformidad diaria?"
+            ];
+        } else if (path.includes('farmacia')) {
+            sugerencias = [
+                "💊 ¿Cómo validar una receta con QR?",
+                "📊 ¿Cómo funciona el Vademécum (40%, 70%, 100%)?",
+                "🖨️ ¿Cómo emitir el Bono de Dispensa?"
+            ];
+        } else if (path.includes('prestadores')) {
+            sugerencias = [
+                "🖨️ ¿Cómo ver e imprimir el Bono Digital?",
+                "🏥 ¿Cómo pedir una internación?",
+                "📊 ¿Dónde veo la liquidación del mes?"
+            ];
+        } else if (path.includes('owner') || path.includes('dashboard')) {
+            sugerencias = [
+                "🗺️ ¿Cómo filtrar por Sucursal (Chilecito, Córdoba, etc.)?",
+                "🔬 ¿Dónde ver el costo por Patología?",
+                "🛡️ ¿Cuánto ahorró la auditoría con IA?"
+            ];
+        } else {
+            sugerencias = [
+                "🚀 ¿Qué funciones tiene esta pantalla?",
+                "📋 ¿Cómo ingresar un trámite?",
+                "❓ Guía de uso rápido"
+            ];
+        }
+
+        if (suggestionsContainer) {
+            suggestionsContainer.innerHTML = sugerencias.map(s => `
+                <button type="button" onclick="integraAiUsarSugerencia('${s.replace(/'/g, "\\'")}')" 
+                        style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc; border-radius: 20px; padding: 6px 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='rgba(99, 102, 241, 0.3)'" onmouseout="this.style.background='rgba(99, 102, 241, 0.15)'">
+                    ${s}
+                </button>
+            `).join('');
+        }
+    }
+
+    cargarSugerenciasPantalla();
 
     function toggleChat() {
         const isOpen = chatWindow.style.display === "flex";
@@ -141,8 +202,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.integraAiUsarSugerencia = function(texto) {
         input.value = texto;
         form.dispatchEvent(new Event("submit"));
-        const suggestions = document.getElementById("integra-ai-suggestions");
-        if (suggestions) suggestions.style.display = "none";
     };
 
     function appendUserMessage(text) {
@@ -159,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function appendBotMessage(text, isError = false) {
         const msgDiv = document.createElement("div");
-        msgDiv.style.cssText = "display: flex; gap: 10px; align-items: flex-start; max-width: 88%;";
+        msgDiv.style.cssText = "display: flex; gap: 10px; align-items: flex-start; max-width: 90%;";
         
         const iconColor = isError ? "#ef4444" : "#c084fc";
         const iconBg = isError ? "rgba(239, 68, 68, 0.2)" : "rgba(168, 85, 247, 0.2)";
@@ -169,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div style="width: 28px; height: 28px; border-radius: 8px; background: ${iconBg}; color: ${iconColor}; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px;">
                 <i class="fa-solid ${iconClass}"></i>
             </div>
-            <div style="background: rgba(255, 255, 255, 0.07); color: #e4e4e7; padding: 12px 15px; border-radius: 16px; border-top-left-radius: 4px; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255, 255, 255, 0.05); word-break: break-word;">
+            <div style="background: rgba(255, 255, 255, 0.08); color: #f4f4f5; padding: 12px 15px; border-radius: 16px; border-top-left-radius: 4px; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255, 255, 255, 0.08); word-break: break-word;">
                 ${formatMarkdown(text)}
             </div>
         `;
@@ -203,13 +262,11 @@ document.addEventListener("DOMContentLoaded", function () {
         appendUserMessage(text);
         input.value = "";
         
-        // Deshabilitar input y mostrar typing
         input.disabled = true;
         sendBtn.disabled = true;
         typingIndicator.style.display = "flex";
         scrollToBottom();
 
-        // Obtener contexto de la página actual
         const contextPage = document.title || window.location.pathname;
 
         fetch(endpointUrl, {
@@ -221,7 +278,8 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify({
                 prompt: text,
-                contexto: contextPage
+                contexto: contextPage,
+                path: window.location.pathname
             })
         })
         .then(res => res.json())
@@ -242,7 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
             input.disabled = false;
             sendBtn.disabled = false;
             input.focus();
-            appendBotMessage("Ocurrió un error de conexión con la IA de Gemini.", true);
+            appendBotMessage("Ocurrió un error de conexión con el Asistente Virtual.", true);
         });
     });
 });
