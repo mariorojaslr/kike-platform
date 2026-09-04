@@ -246,9 +246,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
 // ==========================================
-// MÓDULO PWA Docentes / Terapeutas (Demo)
+// MÓDULO PWA Docentes / Terapeutas (Demo) & DIRECTORIO DE ACCESOS
 // ==========================================
 Route::get('/demo', function() { return view('demo_selector'); })->name('demo.selector');
+Route::get('/panel-accesos', function() { return view('demo_selector'); })->name('panel.accesos');
+Route::get('/links-oficiales', function() { return view('demo_selector'); });
 Route::get('/app-docente/demo', [\App\Http\Controllers\PwaDocenteController::class , 'demo'])->name('pwa.docente.demo');
 Route::get('/app-directora/demo', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);
 Route::get('/directora/asistencia', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);

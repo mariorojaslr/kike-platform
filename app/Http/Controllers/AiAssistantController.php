@@ -115,6 +115,13 @@ class AiAssistantController extends Controller
     {
         $promptLower = mb_strtolower($prompt);
 
+        // --- DIRECTORIO DE ENLACES Y ACCESOS OFICIALES ---
+        if (str_contains($promptLower, 'link') || str_contains($promptLower, 'enlace') || str_contains($promptLower, 'directorio') || str_contains($promptLower, 'accesos') || str_contains($promptLower, 'compartir')) {
+            return "¡Con gusto! Podés consultar y copiar todos los enlaces organizados por sector (Maestras, Directoras, Padres, Afiliados, Sanatorios y Farmacias) desde aquí:\n\n" .
+                   "👉 [🌐 Abrir Directorio de Enlaces Oficiales](/demo)\n\n" .
+                   "¿Querés que te pase el enlace directo de algún sector en particular?";
+        }
+
         // --- TELEMEDICINA / VIDEOCONSULTA EN VIVO ---
         if (str_contains($promptLower, 'telemedicina') || str_contains($promptLower, 'video') || str_contains($promptLower, 'virtual') || str_contains($promptLower, 'videoconsulta')) {
             return "¡Por supuesto! Podés acceder a la **Sala de Videoconsulta Médica en Vivo (WebRTC)** desde aquí:\n\n" .
