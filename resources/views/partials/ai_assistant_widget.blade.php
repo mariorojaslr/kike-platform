@@ -1,37 +1,42 @@
 <!-- WIDGET FLOTANTE ASISTENTE IA & MANUAL INTERACTIVO INTEGRA -->
 <div id="integra-ai-widget-container" style="position: fixed; bottom: 25px; right: 25px; z-index: 999999; font-family: 'Poppins', sans-serif;">
     
-    <!-- Botón Flotante Principal Mágico -->
+    <!-- Botón Flotante Principal Mágico (Desplazable) -->
     <button id="integra-ai-toggle-btn" type="button" 
-            style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); border: none; color: #ffffff; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; position: relative;"
-            title="Manual Interactivo & Asistente IA">
+            style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); border: none; color: #ffffff; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); cursor: grab; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.2s ease, box-shadow 0.3s ease; position: relative; user-select: none; touch-action: none;"
+            title="Manual Interactivo & Asistente IA (Mantén presionado y arrastra para mover)">
         <i class="fa-solid fa-wand-magic-sparkles" id="integra-ai-icon-open"></i>
         <i class="fa-solid fa-xmark" id="integra-ai-icon-close" style="display: none;"></i>
         <!-- Glowing Pulse Effect -->
         <span style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; opacity: 0.5; z-index: -1; animation: integra-pulse 2s infinite;"></span>
     </button>
 
-    <!-- Ventana de Chat e Instrucciones Interactivas -->
+    <!-- Ventana de Chat e Instrucciones Interactivas (Desplazable y Redimensionable) -->
     <div id="integra-ai-chat-window" 
-         style="display: none; position: absolute; bottom: 75px; right: 0; width: 390px; max-width: calc(100vw - 30px); height: 550px; max-height: calc(100vh - 110px); background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); flex-direction: column; overflow: hidden; transform-origin: bottom right; animation: integra-pop-in 0.3s ease-out;">
+         style="display: none; position: fixed; bottom: 95px; right: 25px; width: 390px; height: 550px; min-width: 290px; min-height: 320px; max-width: calc(100vw - 20px); max-height: calc(100vh - 40px); background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); flex-direction: column; overflow: hidden; resize: both; z-index: 999999; animation: integra-pop-in 0.3s ease-out;">
         
-        <!-- Header con Degradado -->
-        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%); padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">
+        <!-- Header con Degradado (Handle de Arrastre) -->
+        <div id="integra-ai-chat-header" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(168, 85, 247, 0.35) 100%); padding: 14px 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; cursor: move; user-select: none; touch-action: none; flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="color: rgba(255, 255, 255, 0.4); font-size: 14px; margin-right: 2px;" title="Mantén presionado para mover la ventana">
+                    <i class="fa-solid fa-grip-vertical"></i>
+                </div>
+                <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">
                     <i class="fa-solid fa-robot"></i>
                 </div>
                 <div>
-                    <h6 style="margin: 0; color: #ffffff; font-weight: 700; font-size: 15px; letter-spacing: 0.3px;">Asistente Virtual & Manual IA</h6>
+                    <h6 style="margin: 0; color: #ffffff; font-weight: 700; font-size: 14px; letter-spacing: 0.3px;">Asistente Virtual & Manual IA</h6>
                     <span style="font-size: 11px; color: #a1a1aa; display: flex; align-items: center; gap: 5px;" id="integra-ai-context-lbl">
                         <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #22c55e; display: inline-block;"></span>
                         Manual Interactivo Activo
                     </span>
                 </div>
             </div>
-            <button id="integra-ai-minimize-btn" style="background: transparent; border: none; color: #9ca3af; font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">
-                <i class="fa-solid fa-minus"></i>
-            </button>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <button id="integra-ai-minimize-btn" type="button" style="background: transparent; border: none; color: #9ca3af; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'" title="Minimizar">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Área de Mensajes del Chat -->
@@ -55,7 +60,7 @@
         </div>
 
         <!-- Indicador de Carga / Escribiendo -->
-        <div id="integra-ai-typing" style="display: none; padding: 8px 18px; align-items: center; gap: 8px; color: #a1a1aa; font-size: 12px;">
+        <div id="integra-ai-typing" style="display: none; padding: 8px 18px; align-items: center; gap: 8px; color: #a1a1aa; font-size: 12px; flex-shrink: 0;">
             <div style="display: flex; gap: 4px;">
                 <span class="integra-dot" style="width: 6px; height: 6px; background: #a855f7; border-radius: 50%; animation: integra-bounce 1.4s infinite ease-in-out both;"></span>
                 <span class="integra-dot" style="width: 6px; height: 6px; background: #a855f7; border-radius: 50%; animation: integra-bounce 1.4s infinite ease-in-out both 0.2s;"></span>
@@ -65,7 +70,7 @@
         </div>
 
         <!-- Footer / Input Form -->
-        <form id="integra-ai-form" style="padding: 12px 14px; background: rgba(0, 0, 0, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 8px; align-items: center;">
+        <form id="integra-ai-form" style="padding: 12px 14px; background: rgba(0, 0, 0, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
             <input type="text" id="integra-ai-input" placeholder="Pregunta cómo usar esta pantalla..." autocomplete="off"
                    style="flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 10px 14px; color: #ffffff; font-size: 13px; outline: none; transition: border-color 0.2s;"
                    onfocus="this.style.borderColor='#a855f7'" onblur="this.style.borderColor='rgba(255, 255, 255, 0.15)'">
@@ -93,12 +98,28 @@
     }
     #integra-ai-messages::-webkit-scrollbar { width: 4px; }
     #integra-ai-messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+    
+    /* Indicador visual de redimensionamiento en esquina inferior derecha */
+    #integra-ai-chat-window::after {
+        content: '';
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        width: 10px;
+        height: 10px;
+        border-right: 2px solid rgba(255, 255, 255, 0.4);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+        pointer-events: none;
+        border-bottom-right-radius: 4px;
+    }
 </style>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("integra-ai-widget-container");
     const toggleBtn = document.getElementById("integra-ai-toggle-btn");
     const chatWindow = document.getElementById("integra-ai-chat-window");
+    const chatHeader = document.getElementById("integra-ai-chat-header");
     const minimizeBtn = document.getElementById("integra-ai-minimize-btn");
     const iconOpen = document.getElementById("integra-ai-icon-open");
     const iconClose = document.getElementById("integra-ai-icon-close");
@@ -111,6 +132,156 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const endpointUrl = "{{ route('ai.assistant.query') }}";
     const csrfToken = "{{ csrf_token() }}";
+
+    // --- ARRASTRE DEL BOTÓN FLOTANTE (MOUSE Y TOUCH) ---
+    (function initButtonDrag() {
+        let isDragging = false;
+        let hasDragged = false;
+        let startX, startY, origLeft, origTop;
+
+        function onPointerDown(e) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            isDragging = true;
+            hasDragged = false;
+            startX = clientX;
+            startY = clientY;
+
+            const rect = container.getBoundingClientRect();
+            origLeft = rect.left;
+            origTop = rect.top;
+
+            toggleBtn.style.cursor = "grabbing";
+
+            document.addEventListener("mousemove", onPointerMove);
+            document.addEventListener("mouseup", onPointerUp);
+            document.addEventListener("touchmove", onPointerMove, { passive: false });
+            document.addEventListener("touchend", onPointerUp);
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+
+            if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
+                hasDragged = true;
+            }
+
+            if (hasDragged) {
+                if (e.cancelable) e.preventDefault();
+
+                let newLeft = origLeft + deltaX;
+                let newTop = origTop + deltaY;
+
+                const maxLeft = window.innerWidth - container.offsetWidth - 10;
+                const maxTop = window.innerHeight - container.offsetHeight - 10;
+                newLeft = Math.max(10, Math.min(newLeft, maxLeft));
+                newTop = Math.max(10, Math.min(newTop, maxTop));
+
+                container.style.bottom = "auto";
+                container.style.right = "auto";
+                container.style.left = newLeft + "px";
+                container.style.top = newTop + "px";
+            }
+        }
+
+        function onPointerUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            toggleBtn.style.cursor = "grab";
+
+            document.removeEventListener("mousemove", onPointerMove);
+            document.removeEventListener("mouseup", onPointerUp);
+            document.removeEventListener("touchmove", onPointerMove);
+            document.removeEventListener("touchend", onPointerUp);
+        }
+
+        toggleBtn.addEventListener("mousedown", onPointerDown);
+        toggleBtn.addEventListener("touchstart", onPointerDown, { passive: false });
+
+        toggleBtn.addEventListener("click", function(e) {
+            if (hasDragged) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                hasDragged = false;
+            } else {
+                toggleChat();
+            }
+        });
+    })();
+
+    // --- ARRASTRE DE LA VENTANA DE CHAT (MOUSE Y TOUCH) ---
+    (function initWindowDrag() {
+        let isDragging = false;
+        let startX, startY, origLeft, origTop;
+
+        function onPointerDown(e) {
+            if (e.target.closest("button")) return; // Ignorar si toca botones en el header
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            isDragging = true;
+            startX = clientX;
+            startY = clientY;
+
+            const rect = chatWindow.getBoundingClientRect();
+            origLeft = rect.left;
+            origTop = rect.top;
+
+            chatHeader.style.cursor = "grabbing";
+
+            document.addEventListener("mousemove", onPointerMove);
+            document.addEventListener("mouseup", onPointerUp);
+            document.addEventListener("touchmove", onPointerMove, { passive: false });
+            document.addEventListener("touchend", onPointerUp);
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            if (e.cancelable) e.preventDefault();
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+
+            let newLeft = origLeft + deltaX;
+            let newTop = origTop + deltaY;
+
+            const maxLeft = window.innerWidth - chatWindow.offsetWidth - 10;
+            const maxTop = window.innerHeight - chatWindow.offsetHeight - 10;
+            newLeft = Math.max(10, Math.min(newLeft, maxLeft));
+            newTop = Math.max(10, Math.min(newTop, maxTop));
+
+            chatWindow.style.bottom = "auto";
+            chatWindow.style.right = "auto";
+            chatWindow.style.left = newLeft + "px";
+            chatWindow.style.top = newTop + "px";
+            chatWindow.dataset.userMoved = "true";
+        }
+
+        function onPointerUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            chatHeader.style.cursor = "move";
+
+            document.removeEventListener("mousemove", onPointerMove);
+            document.removeEventListener("mouseup", onPointerUp);
+            document.removeEventListener("touchmove", onPointerMove);
+            document.removeEventListener("touchend", onPointerUp);
+        }
+
+        chatHeader.addEventListener("mousedown", onPointerDown);
+        chatHeader.addEventListener("touchstart", onPointerDown, { passive: false });
+    })();
 
     // Cargar sugerencias dinámicas según la ruta actual
     function cargarSugerenciasPantalla() {
@@ -192,11 +363,32 @@ document.addEventListener("DOMContentLoaded", function () {
             iconOpen.style.display = "none";
             iconClose.style.display = "block";
             toggleBtn.style.transform = "scale(0.95)";
+
+            // Posicionar ventana inteligentemente cerca del botón si no se ha movido manualmente
+            if (!chatWindow.dataset.userMoved) {
+                const containerRect = container.getBoundingClientRect();
+                const windowWidth = Math.min(390, window.innerWidth - 30);
+                let winLeft = containerRect.right - windowWidth;
+                let winTop = containerRect.top - 565;
+
+                if (window.innerWidth < 450) {
+                    winLeft = 15;
+                    winTop = 20;
+                } else {
+                    if (winLeft < 15) winLeft = 15;
+                    if (winTop < 15) winTop = 15;
+                }
+
+                chatWindow.style.left = winLeft + "px";
+                chatWindow.style.top = winTop + "px";
+                chatWindow.style.bottom = "auto";
+                chatWindow.style.right = "auto";
+            }
+
             setTimeout(() => input.focus(), 150);
         }
     }
 
-    toggleBtn.addEventListener("click", toggleChat);
     minimizeBtn.addEventListener("click", toggleChat);
 
     window.integraAiUsarSugerencia = function(texto) {
@@ -305,3 +497,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
