@@ -32,7 +32,7 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
-            user-select: none; /* Prevenir selecciones accidenciales */
+            user-select: none; /* Prevenir selecciones accidentales */
             padding-bottom: 90px;
         }
 
@@ -183,7 +183,7 @@
         /* Encendidas */
         .barra.activa { opacity: 1; box-shadow: 0 0 10px inherit; }
 
-        /* ----- LISTADO DE ALUMNOS A CARGO (EL JUEGO) ----- */
+        /* ----- LISTADO DE ALUMNOS A CARGO ----- */
         .seccion-titulo {
             font-size: 1.1rem;
             font-weight: 700;
@@ -217,8 +217,8 @@
         /* Estados (Semáforo de validación) */
         .estado { display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; }
         .estado.sin_informar { background: rgba(51, 65, 85, 0.5); color: #94a3b8; border: 2px dashed #475569; cursor: pointer; }
-        .estado.pendiente { background: rgba(245, 158, 11, 0.15); color: var(--dinero-espera); border: 2px solid var(--dinero-espera); } /* Padre ya firmó */
-        .estado.aprobado { background: rgba(16, 185, 129, 0.15); color: var(--dinero-ok); border: 2px solid var(--dinero-ok); } /* Auditoría firmó -> Plata al bolsillo */
+        .estado.pendiente { background: rgba(245, 158, 11, 0.15); color: var(--dinero-espera); border: 2px solid var(--dinero-espera); }
+        .estado.aprobado { background: rgba(16, 185, 129, 0.15); color: var(--dinero-ok); border: 2px solid var(--dinero-ok); }
 
         /* ----- BARRA INFERIOR (TAB BAR PWA) ----- */
         .bottom-nav {
@@ -230,7 +230,7 @@
             border-top: 1px solid var(--tarjeta-borde);
             display: flex;
             justify-content: space-around;
-            padding: 12px 0 25px 0; /* Padding inferior mayor para iPhone con Home Bar */
+            padding: 12px 0 25px 0;
             z-index: 1000;
         }
 
@@ -245,7 +245,7 @@
         }
 
         .nav-item.active {
-            color: #3b82f6; /* Azul brillante si está activo */
+            color: #3b82f6;
         }
         
         .nav-item i { font-size: 1.3rem; }
@@ -281,11 +281,11 @@
             font-size: 1.5rem;
         }
 
-        /* ----- BOTTOM SHEET MODAL (PSEUDO-APP) ----- */
+        /* ----- BOTTOM SHEET MODAL (PWA MOBILE) ----- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.75);
             z-index: 2000;
             opacity: 0;
             pointer-events: none;
@@ -299,11 +299,14 @@
             left: 0; right: 0;
             background: var(--tarjeta-bg);
             border-radius: 24px 24px 0 0;
-            padding: 25px 20px 40px 20px;
+            padding: 20px 20px 30px 20px;
             z-index: 2001;
             transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
             border-top: 1px solid var(--tarjeta-borde);
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+            max-height: 88vh;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
         .bottom-sheet.active { bottom: 0; }
 
@@ -311,24 +314,24 @@
             width: 40px; height: 5px;
             background: #475569;
             border-radius: 5px;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 15px auto;
         }
 
         .sheet-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .sheet-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
-        .sheet-close { background: none; border: none; color: var(--gris-texto); font-size: 1.5rem; }
+        .sheet-close { background: none; border: none; color: var(--gris-texto); font-size: 1.5rem; cursor: pointer; }
 
         /* Input y Micrófono 100% Responsive */
         .input-group-voice {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 100%;
             box-sizing: border-box;
         }
@@ -378,23 +381,24 @@
         .scan-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 15px;
         }
         .scan-btn {
             background: #0f172a;
             border: 1px solid var(--tarjeta-borde);
             border-radius: 16px;
-            padding: 20px 10px;
+            padding: 16px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: white;
             text-align: center;
             cursor: pointer;
+            box-sizing: border-box;
         }
-        .scan-btn i { font-size: 2rem; color: #3b82f6; }
+        .scan-btn i { font-size: 1.8rem; color: #3b82f6; }
         .scan-btn span { font-size: 0.8rem; font-weight: 600; color: var(--gris-texto); }
         .scan-btn:active { background: #1e293b; border-color: #3b82f6; }
 
@@ -403,17 +407,18 @@
             color: #064e3b;
             font-weight: 700;
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             border-radius: 12px;
             border: none;
             font-size: 1rem;
             margin-top: 10px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- CABECERA -->
+    <!-- CABECERA PRINCIPAL PWA -->
     <header class="header-pwa">
         <div class="docente-perfil">
             <div class="avatar">
@@ -457,7 +462,7 @@
                 <span class="ok-text">75% Óptimo</span>
             </div>
             <div class="ecualizador" id="ecualizadorPuas">
-                <!-- Se crearán por JS para darles el efecto exacto descrito: Puas bajas en los extremos, grandes al centro (Fuego/Rojo a la derecha) o secuencial -->
+                <!-- Se crean dinámicamente por JS -->
             </div>
         </div>
 
@@ -517,46 +522,10 @@
         </a>
     </nav>
 
-    <script>
-        // --- SCRIPT GENERADOR DEL VÚMETRO MUSICAL (ECUALIZADOR) ---
-        // Generaremos 18 barritas visuales simulando sonido, el % de progreso activará/iluminará de izquierda a derecha.
-        const ecualizadorContenedor = document.getElementById('ecualizadorPuas');
-        const totalBarras = 18;
-        const rendimientoActivo = Math.floor(totalBarras * 0.75); // 75% activado
-
-        // Creamos un patrón de vúmetro: Empezando bajo, cresta al centro/der
-        const alturasPattern = [20, 30, 45, 60, 80, 50, 40, 65, 90, 100, 85, 75, 55, 65, 80, 95, 85, 75];
-
-        for (let i = 0; i < totalBarras; i++) {
-            const barra = document.createElement('div');
-            barra.classList.add('barra');
-            
-            // Asignamos su altura en base al patrón vúmetro (%)
-            barra.style.height = alturasPattern[i] + '%';
-            
-            // Asignamos color de acuerdo a su posición (Niveles del vúmetro)
-            if (i < 8) {
-                barra.classList.add('lvl-bajo'); // Verdes
-            } else if (i < 13) {
-                barra.classList.add('lvl-medio'); // Amarillas
-            } else {
-                barra.classList.add('lvl-alto');  // Rojas
-            }
-
-            // Encendemos (Activamos) las barras hasta donde llegó su rendimiento (75% en el demo)
-            if (i < rendimientoActivo) {
-                // Pequeño delay para que "suban" o se enciendan fluidamente cuando se carga la app
-                setTimeout(() => {
-                    barra.classList.add('activa');
-                }, i * 50); // Cascada de luz
-            }
-
-            ecualizadorContenedor.appendChild(barra);
-        }
-    </script>
+    <!-- OVERLAY ÚNICO PARA MODALES -->
+    <div class="modal-overlay" id="overlayNuevo"></div>
 
     <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (NUEVO ALUMNO) -->
-    <div class="modal-overlay" id="overlayNuevo" onclick="cerrarModalNuevo()"></div>
     <div class="bottom-sheet" id="sheetNuevo">
         <div class="sheet-pill"></div>
         <div class="sheet-header">
@@ -565,7 +534,7 @@
         </div>
 
         <!-- Selector de Métodos -->
-        <div style="display: flex; gap: 10px; margin: -10px auto 20px auto; max-width: 90%;">
+        <div style="display: flex; gap: 10px; margin: -5px auto 15px auto; width: 100%;">
             <div id="tabModoComun" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1);" onclick="cambiarMetodo('comun')">
                 <i class="fas fa-list-ul" style="font-size: 1.2rem; color: #3b82f6;"></i>
                 <span style="font-size: 0.8rem; color: white;">Método Común</span>
@@ -576,227 +545,31 @@
             </div>
         </div>
 
-        <p id="subtextoInteraccion" style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+        <p id="subtextoInteraccion" style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 15px;">
             Inicie la búsqueda seleccionando Escuela y Alumno manualmente.
         </p>
 
-        <!-- === VISTA MÁTODO COMÚN (TRADICIONAL) === -->
+        <!-- === VISTA MÉTODO COMÚN (TRADICIONAL) === -->
         <div id="seccionModoComun">
             <!-- Buscador de Titular -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
                 <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Titular / Padre..." oninput="filtrarTitularComun()">
             </div>
-            <div id="listaTitularesComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
+            <div id="listaTitularesComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
 
             <!-- Buscador de Alumno (Dependiente) -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
                 <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()">
             </div>
-            <div id="listaAlumnosComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
+            <div id="listaAlumnosComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
 
             <!-- Buscador de Escuela -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
                 <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Institución / Escuela..." oninput="filtrarEscuelaComun()">
             </div>
-            <div id="listaEscuelasComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
-                <!-- Opciones que se cargaran por JS -->
-            </div>
-
-            <!-- Formulario Datos del Alumno -->
-            <div id="formDatosAlumno" style="display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px;">
-                <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #3b82f6;"><i class="fas fa-pen"></i> Completar Datos del Estudiante</h4>
-                
-                <input type="text" id="alumnoDni" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DNI del Alumno">
-                <input type="number" id="alumnoEdad" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Edad">
-                <input type="text" id="alumnoPatologia" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Diagnóstico / Patología">
-                <input type="text" id="alumnoCUD" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Nro de CUD (Opcional)">
-
-                <div class="mt-2" style="font-size: 0.8rem; background: #0f172a; padding: 12px; border-radius: 8px; border-left: 3px solid var(--dinero-espera);">
-                    <div class="text-warning mb-1" style="font-weight: 600;"><i class="fas fa-clipboard-check"></i> Requerimientos Pendientes:</div>
-                <p>Hola, Terapeuta</p>
-                <h1>{{ trim(str_replace('(Demo)', '', $docenteNombre)) }}</h1>
-            </div>
-        </div>
-        <div>
-            <i class="fas fa-bell text-white" style="font-size: 1.3rem; position: relative;">
-                <span style="position:absolute; top:-4px; right:-2px; background:var(--dinero-espera); width:10px; height:10px; border-radius:50%; border:2px solid var(--bg-oscuro);"></span>
-            </i>
-        </div>
-    </header>
-
-    <div class="container">
-        
-        <!-- BILLETERAS GEMELAS -->
-        <div class="billeteras-grid">
-            <!-- Izquierda: Lo que ya es suyo, aprobado 100% por Auditoría -->
-            <div class="billetera-card billetera-ok">
-                <div class="billetera-titulo ok-text">Lo que vas a cobrar</div>
-                <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoCobrado, 0, ',', '.') }}</div>
-                <div class="billetera-subtexto"><i class="fas fa-check-double me-1"></i>100% Aprobado por Auditoría</div>
-            </div>
-
-            <!-- Derecha: Lo que proyecta si completa expedientes y facturas -->
-            <div class="billetera-card billetera-pretendido">
-                <div class="billetera-titulo espera-text">Lo que deberías cobrar</div>
-                <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoPretendido, 0, ',', '.') }}</div>
-                <div class="billetera-subtexto"><i class="fas fa-hourglass-half me-1"></i>Potencial Total del Mes</div>
-            </div>
-        </div>
-
-        <!-- EL VÚMETRO (ECUALIZADOR DE RENDIMIENTO) -->
-        <div class="vumetro-container">
-            <div class="vumetro-header">
-                <span>Rendimiento Mensual</span>
-                <span class="ok-text">75% Óptimo</span>
-            </div>
-            <div class="ecualizador" id="ecualizadorPuas">
-                <!-- Se crearán por JS para darles el efecto exacto descrito: Puas bajas en los extremos, grandes al centro (Fuego/Rojo a la derecha) o secuencial -->
-            </div>
-        </div>
-
-        <!-- SECTOR: ALUMNO NUEVO / ACCIÓN RÁPIDA -->
-        <div class="accion-rapida" onclick="abrirModalNuevo()">
-            <div class="accion-rapida-info">
-                <h3>Alumno Nuevo</h3>
-                <p>Escanear o buscar por comando de voz</p>
-            </div>
-            <div class="accion-rapida-icon">
-                <i class="fas fa-user-plus"></i>
-            </div>
-        </div>
-
-        <!-- SECTOR: MIS ALUMNOS / ACCIÓN RÁPIDA -->
-        <div class="accion-rapida" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="abrirModalMisAlumnos()">
-            <div class="accion-rapida-info">
-                <h3>Mis Alumnos</h3>
-                <p>Buscar paciente para cargar novedad</p>
-            </div>
-            <div class="accion-rapida-icon">
-                <i class="fas fa-users"></i>
-            </div>
-        </div>
-
-        <!-- SECTOR: MIS REQUISITOS (DOCUMENTACIÓN) -->
-        <div class="accion-rapida" style="background: linear-gradient(135deg, #f59e0b, #d97706); margin-top: 15px;" onclick="abrirModalRequisitos()">
-            <div class="accion-rapida-info">
-                @php $pendientesCount = isset($tiposDocumentos) ? $tiposDocumentos->whereIn('estado_subida', ['sin_entregar', 'rechazado', 'observado'])->count() : 0; @endphp
-                <h3>Mis Requisitos <span class="badge bg-danger rounded-pill ms-2" style="font-size:0.7rem;">{{ $pendientesCount }} Pendientes</span></h3>
-                <p>Sube tu documentación obligatoria (Ej: Seguro Méd., DNI)</p>
-            </div>
-            <div class="accion-rapida-icon">
-                <i class="fas fa-file-invoice"></i>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- NAVEGACIÓN INFERIOR (TAB NAV) -->
-    <nav class="bottom-nav">
-        <a href="#" class="nav-link nav-item active">
-            <i class="fas fa-home"></i>
-            <span>Hoy</span>
-        </a>
-        <a href="#" class="nav-link nav-item">
-            <i class="fas fa-history"></i>
-            <span>Historial</span>
-        </a>
-        <a href="#" class="nav-link nav-item">
-            <i class="fas fa-file-invoice-dollar"></i>
-            <span>Mi Billetera</span>
-        </a>
-        <a href="#" class="nav-link nav-item">
-            <i class="fas fa-user-circle"></i>
-            <span>Perfil</span>
-        </a>
-    </nav>
-
-    <script>
-        // --- SCRIPT GENERADOR DEL VÚMETRO MUSICAL (ECUALIZADOR) ---
-        // Generaremos 18 barritas visuales simulando sonido, el % de progreso activará/iluminará de izquierda a derecha.
-        const ecualizadorContenedor = document.getElementById('ecualizadorPuas');
-        const totalBarras = 18;
-        const rendimientoActivo = Math.floor(totalBarras * 0.75); // 75% activado
-
-        // Creamos un patrón de vúmetro: Empezando bajo, cresta al centro/der
-        const alturasPattern = [20, 30, 45, 60, 80, 50, 40, 65, 90, 100, 85, 75, 55, 65, 80, 95, 85, 75];
-
-        for (let i = 0; i < totalBarras; i++) {
-            const barra = document.createElement('div');
-            barra.classList.add('barra');
-            
-            // Asignamos su altura en base al patrón vúmetro (%)
-            barra.style.height = alturasPattern[i] + '%';
-            
-            // Asignamos color de acuerdo a su posición (Niveles del vúmetro)
-            if (i < 8) {
-                barra.classList.add('lvl-bajo'); // Verdes
-            } else if (i < 13) {
-                barra.classList.add('lvl-medio'); // Amarillas
-            } else {
-                barra.classList.add('lvl-alto');  // Rojas
-            }
-
-            // Encendemos (Activamos) las barras hasta donde llegó su rendimiento (75% en el demo)
-            if (i < rendimientoActivo) {
-                // Pequeño delay para que "suban" o se enciendan fluidamente cuando se carga la app
-                setTimeout(() => {
-                    barra.classList.add('activa');
-                }, i * 50); // Cascada de luz
-            }
-
-            ecualizadorContenedor.appendChild(barra);
-        }
-    </script>
-
-    <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (NUEVO ALUMNO) -->
-    <div class="modal-overlay" id="overlayNuevo" onclick="cerrarModalNuevo()"></div>
-    <div class="bottom-sheet" id="sheetNuevo">
-        <div class="sheet-pill"></div>
-        <div class="sheet-header">
-            <h3>Nuevo Alumno / Ingreso</h3>
-            <button class="sheet-close" onclick="cerrarModalNuevo()"><i class="fas fa-times-circle"></i></button>
-        </div>
-
-        <!-- Selector de Métodos -->
-        <div style="display: flex; gap: 10px; margin: -10px auto 20px auto; max-width: 90%;">
-            <div id="tabModoComun" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1);" onclick="cambiarMetodo('comun')">
-                <i class="fas fa-list-ul" style="font-size: 1.2rem; color: #3b82f6;"></i>
-                <span style="font-size: 0.8rem; color: white;">Método Común</span>
-            </div>
-            <div id="tabModoParlante" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid var(--tarjeta-borde); background: var(--bg-oscuro);" onclick="cambiarMetodo('parlante')">
-                <i class="fas fa-microphone" style="font-size: 1.2rem; color: #8b5cf6;"></i>
-                <span style="font-size: 0.8rem; color: var(--gris-texto);">Modo Parlante</span>
-            </div>
-        </div>
-
-        <p id="subtextoInteraccion" style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
-            Inicie la búsqueda seleccionando Escuela y Alumno manualmente.
-        </p>
-
-        <!-- === VISTA MÁTODO COMÚN (TRADICIONAL) === -->
-        <div id="seccionModoComun">
-            <!-- Buscador de Titular -->
-            <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Titular / Padre..." oninput="filtrarTitularComun()">
-            </div>
-            <div id="listaTitularesComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
-            </div>
-
-            <!-- Buscador de Alumno (Dependiente) -->
-            <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()">
-            </div>
-            <div id="listaAlumnosComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
-            </div>
-
-            <!-- Buscador de Escuela -->
-            <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Institución / Escuela..." oninput="filtrarEscuelaComun()">
-            </div>
-            <div id="listaEscuelasComun" style="display: none; max-height: 280px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
-                <!-- Opciones que se cargaran por JS -->
+            <div id="listaEscuelasComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
 
             <!-- Formulario Datos del Alumno -->
@@ -819,17 +592,16 @@
             </div>
         </div>
 
-        <!-- === VISTA MÁTODO PARLANTE (DICTADO) === -->
+        <!-- === VISTA MÉTODO PARLANTE (DICTADO) === -->
         <div id="seccionModoParlante" style="display: none;">
-            <!-- Ingreso / Dictado de Voz Adaptado 100% Mobile -->
             <div class="input-group-voice" style="margin-bottom: 15px; width: 100%; box-sizing: border-box;">
-                <input type="text" id="alumnoSearchInput" class="input-dark" style="min-width: 0; flex: 1;" placeholder="Ej: Dicta o escribe el nombre...">
+                <input type="text" id="alumnoSearchInput" class="input-dark" style="min-width: 0; flex: 1;" placeholder="Ej: Dicta o escribe el nombre (ej: Abayay)...">
                 <button class="btn-mic" id="btnMicSearch" onclick="iniciarDictadoVoz()" title="Búsqueda por Voz">
                     <i class="fas fa-microphone"></i>
                 </button>
             </div>
             
-            <button type="button" onclick="iniciarDictadoVoz()" class="btn w-100 py-3 rounded-3 fw-bold mb-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);">
+            <button type="button" onclick="iniciarDictadoVoz()" class="btn w-100 py-3 rounded-3 fw-bold mb-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); cursor: pointer;">
                 <i class="fas fa-microphone fa-lg me-1"></i> Tocar para Hablar / Activar Micrófono
             </button>
         </div>
@@ -852,54 +624,19 @@
         <!-- Escáneres Especiales con Subida de Archivos -->
         <form id="formSubidaDoc" style="display: none;">
             @csrf
-            <!-- Input para Cámara Directa (Trasera) -->
             <input type="file" id="cameraPicker" name="documento" accept="image/*" capture="environment" onchange="manejarSubidaArchivo('cameraPicker')">
-            <!-- Input para Galería / PDFs / Archivos Libres -->
             <input type="file" id="galleryPicker" name="documento" accept="image/*,.pdf" onchange="manejarSubidaArchivo('galleryPicker')">
         </form>
 
         <div class="scan-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-            <!-- Opción 1: Cámara Directa -->
             <div class="scan-btn" id="btnScanCamera" onclick="abrirCamaraUpload('DNI / Documento Frontal', 'cameraPicker')">
                 <i class="fas fa-camera text-success"></i>
                 <span id="spanScanCamera" style="font-size: 0.75rem;">Tomar Foto Directa</span>
             </div>
-            <!-- Opción 2: Subir de la Galería/PDF -->
             <div class="scan-btn" id="btnScanGallery" onclick="abrirCamaraUpload('Archivo Adjunto / PDF', 'galleryPicker')">
                 <i class="fas fa-file-upload text-primary"></i>
                 <span id="spanScanGallery" style="font-size: 0.75rem;">Subir de Galería/PDF</span>
             </div>
-            
-            <!-- Opción 3: Lector QR Nativo -->
-            <div class="scan-btn" onclick="abrirCamaraUpload('Código QR / Factura', 'cameraPicker')" style="grid-column: span 2;">
-                <i class="fas fa-qrcode text-warning"></i>
-                <span style="font-size: 0.8rem;">Escanear Código QR en Vivo</span>
-            </div>
-        </div>
-
-        <button class="btn-primary-dark mt-3" onclick="cerrarYCrear()">
-        <!-- Escáneres Especiales con Subida de Archivos -->
-        <form id="formSubidaDoc" style="display: none;">
-            @csrf
-            <!-- Input para Cámara Directa (Trasera) -->
-            <input type="file" id="cameraPicker" name="documento" accept="image/*" capture="environment" onchange="manejarSubidaArchivo('cameraPicker')">
-            <!-- Input para Galería / PDFs / Archivos Libres -->
-            <input type="file" id="galleryPicker" name="documento" accept="image/*,.pdf" onchange="manejarSubidaArchivo('galleryPicker')">
-        </form>
-
-        <div class="scan-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-            <!-- Opción 1: Cámara Directa -->
-            <div class="scan-btn" id="btnScanCamera" onclick="abrirCamaraUpload('DNI / Documento Frontal', 'cameraPicker')">
-                <i class="fas fa-camera text-success"></i>
-                <span id="spanScanCamera" style="font-size: 0.75rem;">Tomar Foto Directa</span>
-            </div>
-            <!-- Opción 2: Subir de la Galería/PDF -->
-            <div class="scan-btn" id="btnScanGallery" onclick="abrirCamaraUpload('Archivo Adjunto / PDF', 'galleryPicker')">
-                <i class="fas fa-file-upload text-primary"></i>
-                <span id="spanScanGallery" style="font-size: 0.75rem;">Subir de Galería/PDF</span>
-            </div>
-            
-            <!-- Opción 3: Lector QR Nativo -->
             <div class="scan-btn" onclick="abrirCamaraUpload('Código QR / Factura', 'cameraPicker')" style="grid-column: span 2;">
                 <i class="fas fa-qrcode text-warning"></i>
                 <span style="font-size: 0.8rem;">Escanear Código QR en Vivo</span>
@@ -912,19 +649,19 @@
     </div>
 
     <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (MIS ALUMNOS) -->
-    <div class="bottom-sheet" id="sheetMisAlumnos" style="height: 85vh; overflow-y: auto;">
+    <div class="bottom-sheet" id="sheetMisAlumnos">
         <div class="sheet-pill"></div>
         <div class="sheet-header">
             <h3><i class="fas fa-users text-primary me-2"></i> Mis Alumnos Recurrentes</h3>
             <button class="sheet-close" onclick="cerrarModalMisAlumnos()"><i class="fas fa-times-circle"></i></button>
         </div>
 
-        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 15px;">
             Alumnos asignados en el mes activo. Verifique el cumplimiento de <b>Factura ARCA</b> y <b>Certificación Digital de Directora</b>.
         </p>
 
         <!-- Barra de búsqueda rápida -->
-        <div class="input-group-voice" style="margin-bottom: 20px;">
+        <div class="input-group-voice" style="margin-bottom: 15px;">
             <input type="text" id="misAlumnosSearchInput" class="input-dark shadow-sm" placeholder="🔍 Buscar por nombre de alumno o escuela..." oninput="filtrarAlumnosActivos()">
         </div>
 
@@ -986,7 +723,7 @@
                     </div>
                 </div>
             @endforeach
-            <div id="noResultsMsg" style="display: none; text-align: center; color: var(--gris-texto); margin-top: 30px;">
+            <div id="noResultsMsg" style="display: none; text-align: center; color: var(--gris-texto); margin-top: 20px;">
                 <i class="fas fa-search mb-2" style="font-size: 2rem; opacity: 0.5;"></i>
                 <p>No se encontraron alumnos con ese criterio.</p>
             </div>
@@ -994,14 +731,14 @@
     </div>
 
     <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (MIS REQUISITOS) -->
-    <div class="bottom-sheet" id="sheetRequisitos" style="height: 85vh; overflow-y: auto;">
+    <div class="bottom-sheet" id="sheetRequisitos">
         <div class="sheet-pill"></div>
         <div class="sheet-header">
             <h3>Documentación Docente</h3>
             <button class="sheet-close" onclick="cerrarModalRequisitos()"><i class="fas fa-times-circle"></i></button>
         </div>
 
-        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
+        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 15px;">
             Tu perfil requiere adjuntar la siguiente documentación (exigido por Auditoría)
         </p>
 
@@ -1040,7 +777,7 @@
                     </div>
                 </div>
             @empty
-                <div style="text-align: center; color: var(--gris-texto); margin-top: 30px;">
+                <div style="text-align: center; color: var(--gris-texto); margin-top: 20px;">
                     <i class="fas fa-check-circle mb-2 text-success" style="font-size: 2rem;"></i>
                     <p>No tienes requisitos pendientes por entregar.</p>
                 </div>
@@ -1048,25 +785,64 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE LÓGICA DE VOZ, SÍNTESIS Y MODALES -->
+    <!-- SCRIPTS INTEGRADOS -->
     <script>
+        // 1. ECUALIZADOR / VÚMETRO DE RENDIMIENTO
+        const ecualizadorContenedor = document.getElementById('ecualizadorPuas');
+        if (ecualizadorContenedor) {
+            const totalBarras = 18;
+            const rendimientoActivo = Math.floor(totalBarras * 0.75);
+            const alturasPattern = [20, 30, 45, 60, 80, 50, 40, 65, 90, 100, 85, 75, 55, 65, 80, 95, 85, 75];
+
+            for (let i = 0; i < totalBarras; i++) {
+                const barra = document.createElement('div');
+                barra.classList.add('barra');
+                barra.style.height = alturasPattern[i] + '%';
+                
+                if (i < 8) {
+                    barra.classList.add('lvl-bajo');
+                } else if (i < 13) {
+                    barra.classList.add('lvl-medio');
+                } else {
+                    barra.classList.add('lvl-alto');
+                }
+
+                if (i < rendimientoActivo) {
+                    setTimeout(() => {
+                        barra.classList.add('activa');
+                    }, i * 50);
+                }
+
+                ecualizadorContenedor.appendChild(barra);
+            }
+        }
+
+        // 2. ELEMENTOS Y ESTADOS GLOBALES DE MODALES
         const overlay = document.getElementById('overlayNuevo');
         const sheet = document.getElementById('sheetNuevo');
         const sheetMis = document.getElementById('sheetMisAlumnos');
         const sheetReq = document.getElementById('sheetRequisitos');
-        const btnMic = document.getElementById('btnMicSearch');
-        const inputSearch = document.getElementById('alumnoSearchInput');
 
         let pasoActual = 0;
         let datosAsistidos = {};
         let timeoutComun = null;
+        let metodoActual = 'comun';
+
+        function abrirModalNuevo() {
+            cerrarTodosLosModales();
+            overlay.classList.add('active');
+            sheet.classList.add('active');
+            cambiarMetodo('comun');
+            datosAsistidos = {};
+            pasoActual = 1;
+        }
 
         function cerrarModalNuevo() {
-            overlay.classList.remove('active');
             sheet.classList.remove('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
+            evaluarOverlay();
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
             pasoActual = 0;
-            if(document.getElementById('btnScanCamera')) {
+            if (document.getElementById('btnScanCamera')) {
                 document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
                 document.getElementById('btnScanCamera').style.boxShadow = "none";
                 document.getElementById('spanScanCamera').innerText = "Tomar Foto Directa";
@@ -1074,40 +850,51 @@
         }
 
         function abrirModalMisAlumnos() {
-            sheet.classList.remove('active');
-            if(document.getElementById('sheetRequisitos')) document.getElementById('sheetRequisitos').classList.remove('active');
+            cerrarTodosLosModales();
             overlay.classList.add('active');
             sheetMis.classList.add('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
         }
 
         function cerrarModalMisAlumnos() {
-            overlay.classList.remove('active');
             sheetMis.classList.remove('active');
+            evaluarOverlay();
         }
 
         function abrirModalRequisitos() {
-            sheet.classList.remove('active');
-            sheetMis.classList.remove('active');
+            cerrarTodosLosModales();
             overlay.classList.add('active');
-            const sheetReq = document.getElementById('sheetRequisitos');
-            if(sheetReq) sheetReq.classList.add('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
+            if (sheetReq) sheetReq.classList.add('active');
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
         }
 
         function cerrarModalRequisitos() {
-            overlay.classList.remove('active');
-            const sheetReq = document.getElementById('sheetRequisitos');
-            if(sheetReq) sheetReq.classList.remove('active');
+            if (sheetReq) sheetReq.classList.remove('active');
+            evaluarOverlay();
         }
 
-        let metodoActual = 'comun'; // Por defecto
+        function cerrarTodosLosModales() {
+            if (sheet) sheet.classList.remove('active');
+            if (sheetMis) sheetMis.classList.remove('active');
+            if (sheetReq) sheetReq.classList.remove('active');
+            overlay.classList.remove('active');
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        }
 
-        // Datos Simulación Tradicional (Modo Común)
-        const titularesDemo = ["Osvaldo García (OSDE)", "Mariana López (IOMA)", "Carlos Ruiz (PAMI)"];
-        const alumnosGlobalesDemo = ["Mateo Giménez", "Sofía Cortez", "Lucas Benítez", "Juan Pérez", "Mía Rodríguez", "Facundo Gómez"];
-        const escuelasDemo = ["Escuela 101 - Belgrano", "Instituto San José", "Colegio Santa Ana", "Escuela Especial Nro 5"];
+        function evaluarOverlay() {
+            const ningunActivo = !sheet.classList.contains('active') && 
+                                !sheetMis.classList.contains('active') && 
+                                (!sheetReq || !sheetReq.classList.contains('active'));
+            if (ningunActivo) {
+                overlay.classList.remove('active');
+            }
+        }
 
+        if (overlay) {
+            overlay.addEventListener('click', cerrarTodosLosModales);
+        }
+
+        // 3. CAMBIO ENTRE MÉTODO COMÚN Y MODO PARLANTE
         function cambiarMetodo(modo) {
             metodoActual = modo;
             const tabComun = document.getElementById('tabModoComun');
@@ -1133,7 +920,7 @@
                 secComun.style.display = 'block';
                 secParlante.style.display = 'none';
                 subtexto.innerText = "Inicie la búsqueda seleccionando Escuela y Alumno manualmente.";
-                if(window.speechSynthesis) window.speechSynthesis.cancel();
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
             }
         }
 
@@ -1165,6 +952,7 @@
             asistenteHabla(`¡Registro verificado en base de datos! Encontrado ${alumno}, hijo de ${titular}.`);
         }
 
+        // 4. BÚSQUEDAS FILTRABLES (MÉTODO COMÚN)
         function filtrarTitularComun() {
             clearTimeout(timeoutComun);
             const term = document.getElementById('comunTitularInput').value.trim();
@@ -1341,65 +1129,6 @@
             }, 150);
         }
 
-        function abrirModalNuevo() {
-            sheetMis.classList.remove('active');
-            if(document.getElementById('sheetRequisitos')) document.getElementById('sheetRequisitos').classList.remove('active');
-            overlay.classList.add('active');
-            sheet.classList.add('active');
-            cambiarMetodo('comun');
-            datosAsistidos = {};
-            pasoActual = 1;
-        }
-
-        function cerrarModalNuevo() {
-            overlay.classList.remove('active');
-            sheet.classList.remove('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
-            pasoActual = 0;
-            
-            if(document.getElementById('btnScanCamera')) {
-                document.getElementById('btnScanCamera').style.border = "1px solid var(--tarjeta-borde)";
-                document.getElementById('btnScanCamera').style.boxShadow = "none";
-                document.getElementById('spanScanCamera').innerText = "Tomar Foto Directa";
-            }
-        }
-
-        function abrirModalMisAlumnos() {
-            sheet.classList.remove('active');
-            if(document.getElementById('sheetRequisitos')) document.getElementById('sheetRequisitos').classList.remove('active');
-            overlay.classList.add('active');
-            sheetMis.classList.add('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
-        }
-
-        function cerrarModalMisAlumnos() {
-            overlay.classList.remove('active');
-            sheetMis.classList.remove('active');
-        }
-
-        function abrirModalRequisitos() {
-            sheet.classList.remove('active');
-            sheetMis.classList.remove('active');
-            overlay.classList.add('active');
-            const sheetReq = document.getElementById('sheetRequisitos');
-            if(sheetReq) sheetReq.classList.add('active');
-            if(window.speechSynthesis) window.speechSynthesis.cancel();
-        }
-
-        function cerrarModalRequisitos() {
-            overlay.classList.remove('active');
-            const sheetReq = document.getElementById('sheetRequisitos');
-            if(sheetReq) sheetReq.classList.remove('active');
-        }
-
-        // --- CERRAR MODALES CLICKANDO EN EL OVERLAY NEGRO ---
-        document.getElementById('overlayNuevo').addEventListener('click', function() {
-            cerrarModalNuevo();
-            cerrarModalMisAlumnos();
-            cerrarModalRequisitos();
-        });
-
-        // --- FILTRO LIVE SEARCH (MIS ALUMNOS) ---
         function filtrarAlumnosActivos() {
             const term = document.getElementById('misAlumnosSearchInput').value.toLowerCase();
             const cards = document.querySelectorAll('.item-alumno-filtrable');
@@ -1423,12 +1152,11 @@
         }
 
         function cerrarYCrear() {
-            alert("Procesando información...");
+            alert("Procesando información de alta de alumno...");
             cerrarModalNuevo();
         }
 
-        // --- SISTEMA INTELIGENTE DE HABLA Y ESCUCHA ---
-
+        // 5. SISTEMA INTELIGENTE DE HABLA Y ESCUCHA POR VOZ
         function asistenteHabla(texto, callback) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -1523,7 +1251,6 @@
                             mostrarRegistroVerificado(padreNombre, a.nombre, escNombre);
                             habilitarFormularioDatos();
                         } else {
-                            // Fallback: Búsqueda directa por Titulares (Ej: Abayay Ramón Martín)
                             fetch(`{{ route('pwa.docente.search') }}?type=titulares&q=${encodeURIComponent(comando)}`)
                                 .then(res => res.json())
                                 .then(dataT => {
@@ -1558,6 +1285,7 @@
             });
         }
 
+        // 6. GESTIÓN DE ARCHIVOS Y COMPRESIÓN DE IMÁGENES CLIENT-SIDE
         function abrirCamaraUpload(tipo, inputId) {
             const input = document.getElementById(inputId);
             if(input) {
@@ -1569,7 +1297,7 @@
         function comprimirImagen(file, maxWidth = 1600, maxHeight = 1600, quality = 0.8) {
             return new Promise((resolve) => {
                 if (!file || !file.type.startsWith('image/')) {
-                    resolve(file); // Si es PDF o no es imagen, se envía original
+                    resolve(file);
                     return;
                 }
 
@@ -1632,7 +1360,6 @@
             if(document.getElementById(spanId)) document.getElementById(spanId).innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizando y Subiendo...';
             if(btnEle) btnEle.style.opacity = "0.7";
 
-            // Compresión automática client-side para reducir 10MB a ~300KB
             const file = await comprimirImagen(fileOriginal);
 
             const formData = new FormData();
@@ -1672,6 +1399,7 @@
             if(input) input.value = "";
         }
     </script>
+
     @include('partials.ai_assistant_widget')
 </body>
 </html>
