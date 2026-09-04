@@ -115,25 +115,50 @@ class AiAssistantController extends Controller
     {
         $promptLower = mb_strtolower($prompt);
 
+        // --- CONSULTA ESPECÍFICA: BALANCE / RENTABILIDAD / FINANZAS ---
+        if (str_contains($promptLower, 'balance') || str_contains($promptLower, 'rentabilid') || str_contains($promptLower, 'grafic') || str_contains($promptLower, 'gráfic') || str_contains($promptLower, 'ingreso') || str_contains($promptLower, 'gasto') || str_contains($promptLower, 'costo')) {
+            return "📊 **Informe Comercial & Balance Financiero de la Mutual (Mes en Curso)**\n\n" .
+                   "¡Con gusto! Aquí tienes el reporte consolidado de rendimiento financiero y siniestralidad:\n\n" .
+                   "- 💰 **Ingresos por Cápitas (130.000 Abonados):** **$485.200.000,00**\n" .
+                   "- 🏥 **Costo Directo de Salud & Prestaciones:** **$181.000.000,00** *(Siniestralidad Salud: 37,3%)*\n" .
+                   "- 🏢 **Costos Fijos Operativos & Estructura:** **$64.500.000,00**\n" .
+                   "- 🛡️ **Ahorro Acumulado por Auditoría Médica con IA:** **+$92.500.000,00** *(Fraudes bloqueados & tope 3hs/día)*\n" .
+                   "- 📈 **Superávit / Rentabilidad Neta:** **+$332.200.000,00** *(Margen Operativo Neto: +68.4%)*\n\n" .
+                   "👉 [📊 Ver Cuadro de Mando Ejecutivo en Vivo](/owner/mutual-dashboard)";
+        }
+
+        // --- CONSULTA ESPECÍFICA: CONSUMO DE PAPEL POR ÁREA ---
+        if (str_contains($promptLower, 'papel') || str_contains($promptLower, 'resma') || str_contains($promptLower, 'ecolog') || str_contains($promptLower, 'ecológ')) {
+            return "🌿 **Informe de Auditoría Ecológica & Consumo de Papel por Área**\n\n" .
+                   "Gracias a la implementación del **Bono Digital QR** y la **Credencial Digital**, el consumo de papelería se redujo un **84,7%**:\n\n" .
+                   "- 📍 **Sucursal Chilecito:** 12 resmas ($45.200) ➔ *Ahorro digital: 88%*\n" .
+                   "- 📍 **Sucursal La Rioja Central:** 18 resmas ($68.100) ➔ *Ahorro digital: 85%*\n" .
+                   "- 📍 **Sucursal Córdoba:** 24 resmas ($89.400) ➔ *Ahorro digital: 82%*\n" .
+                   "- 📍 **Sucursal Buenos Aires:** 30 resmas ($112.000) ➔ *Ahorro digital: 84%*\n\n" .
+                   "💵 **Ahorro Neto en Papelería:** **-$1.450.000 / mes** (84 resmas actuales vs 550 resmas del periodo anterior en papel).\n\n" .
+                   "👉 [📊 Abrir Panel de Control por Sucursal](/owner/mutual-dashboard)";
+        }
+
         // --- CONSULTA ESPECÍFICA: INICIO DE EXPEDIENTE / TRÁMITE / LEGAJO ---
         if (str_contains($promptLower, 'expediente') || str_contains($promptLower, 'tramite') || str_contains($promptLower, 'trámite') || str_contains($promptLower, 'inici') || str_contains($promptLower, 'ingres') || str_contains($promptLower, 'abrir') || str_contains($promptLower, 'crear') || str_contains($promptLower, 'solicitud')) {
             return "📋 **Manual Oficial: Cómo Iniciar un Expediente o Trámite en INTEGRA**\n\n" .
                    "El inicio de un **Expediente Digital** depende de tu rol en la plataforma:\n\n" .
                    "1. 👨‍🏫 **Si eres Docente / Terapeuta (Educación Especial):**\n" .
-                   "   - Ve a la **App del Docente** (`/app-docente/demo`).\n" .
+                   "   - Ve a la **App del Docente**.\n" .
                    "   - Ingresa a **Mis Alumnos** ➔ Presiona **+ Nuevo Alumno / Cargar Legajo**.\n" .
                    "   - Sube la **Factura ARCA** y envía la solicitud de aval por WhatsApp a la **Directora de Escuela**.\n" .
-                   "   - Se generará automáticamente el número de expediente (`EXP-2026-XXXX`) con firma digital y **Hash MD5**.\n\n" .
+                   "   - 👉 [👨‍🏫 Ir a la App del Docente para iniciar Expediente](/app-docente/demo)\n\n" .
                    "2. 👨‍👩‍👦 **Si eres Padre / Titular (Reintegros de Obra Social):**\n" .
-                   "   - Ingresa a la **App del Titular** (`/app-padre/demo`).\n" .
-                   "   - Toca en **Solicitar Reintegro**.\n" .
-                   "   - Adjunta la foto de la factura abonada + **Resolución OSP** y firma la conformidad del servicio.\n\n" .
+                   "   - Ingresa a la **App del Titular** ➔ Toca en **Solicitar Reintegro**.\n" .
+                   "   - Adjunta la factura abonada + **Resolución OSP** y firma la conformidad.\n" .
+                   "   - 👉 [👨‍👩‍👦 Ir a la App del Titular para Solicitar Reintegro](/app-padre/demo)\n\n" .
                    "3. 🏥 **Si eres Clínica / Prestador Médico (Autorizaciones / Internaciones):**\n" .
-                   "   - Ve a la **Red de Prestadores** (`/prestadores/demo`).\n" .
-                   "   - Presiona el botón verde **Nueva Solicitud de Autorización Médica / Internación**.\n" .
-                   "   - Ingresa el código nomenclador, diagnóstico CIE-10 y adjunta la orden médica para que pase a **Auditoría Médica Central**.\n\n" .
+                   "   - Ve a la **Red de Prestadores** ➔ Presiona **Nueva Solicitud de Autorización Médica / Internación**.\n" .
+                   "   - Ingresa el código nomenclador, diagnóstico CIE-10 y adjunta la orden escaneada.\n" .
+                   "   - 👉 [🏥 Ir a la Red de Prestadores para Autorización Médica](/prestadores/demo)\n\n" .
                    "4. 💊 **Si eres Farmacia Convenida (Validador de Medicamentos):**\n" .
-                   "   - Ve a `/farmacia/demo`, ingresa el DNI o escanea el QR del afiliado y presiona **Validar Receta** para emitir el Bono Digital.";
+                   "   - Valida el DNI o QR del afiliado y presiona **Validar Receta** para emitir el Bono Digital.\n" .
+                   "   - 👉 [💊 Ir al Validador de Farmacias Convenidas](/farmacia/demo)";
         }
 
         // --- ROL: AFILIADO (Credencial y Turnos) ---

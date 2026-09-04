@@ -33,6 +33,9 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
+                <button id="integra-ai-voice-gender-btn" type="button" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; font-size: 11px; cursor: pointer; padding: 2px 8px; border-radius: 12px; font-weight: 600; transition: all 0.2s;" title="Alternar entre Voz Femenina y Voz Masculina">
+                    👩 Femenina
+                </button>
                 <button id="integra-ai-tts-btn" type="button" style="background: transparent; border: none; color: #a855f7; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color 0.2s;" title="Activar/Desactivar Respuesta Hablada por Voz">
                     <i class="fa-solid fa-volume-high" id="integra-ai-tts-icon"></i>
                 </button>
@@ -215,7 +218,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // --- SÍNTESIS DE VOZ (RESPUESTA HABLADA) ---
+    // --- SÍNTESIS DE VOZ (RESPUESTA HABLADA CON ELECCIÓN FEMENINA / MASCULINA) ---
+    let voiceGender = 'female';
+    const voiceGenderBtn = document.getElementById("integra-ai-voice-gender-btn");
+
+    if (voiceGenderBtn) {
+        voiceGenderBtn.addEventListener("click", function() {
+            if (voiceGender === 'female') {
+                voiceGender = 'male';
+                voiceGenderBtn.innerHTML = '👨 Voz Masculina';
+            } else {
+                voiceGender = 'female';
+                voiceGenderBtn.innerHTML = '👩 Voz Femenina';
+            }
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        });
+    }
+
     if (ttsBtn) {
         ttsBtn.addEventListener("click", function() {
             ttsEnabled = !ttsEnabled;
@@ -234,11 +253,27 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!ttsEnabled || !('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel();
         
-        let cleanText = text.replace(/[*#_`]/g, '').replace(/https?:\/\/\S+/g, '');
+        let cleanText = text.replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+                            .replace(/[*#_`]/g, '')
+                            .replace(/https?:\/\/\S+/g, '');
+
         const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.lang = 'es-AR';
         utterance.rate = 1.0;
-        utterance.pitch = 1.0;
+        utterance.pitch = (voiceGender === 'female') ? 1.15 : 0.85;
+
+        // Selección inteligente de la mejor voz en español del dispositivo
+        const voices = window.speechSynthesis.getVoices();
+        const esVoices = voices.filter(v => v.lang.startsWith('es'));
+        if (esVoices.length > 0) {
+            let match = null;
+            if (voiceGender === 'female') {
+                match = esVoices.find(v => /female|sabina|elena|monica|victoria|marta|paulina|laura|google/i.test(v.name)) || esVoices[0];
+            } else {
+                match = esVoices.find(v => /male|jorge|raul|pablo|dieg|carlos|mateo/i.test(v.name)) || esVoices[esVoices.length - 1];
+            }
+            if (match) utterance.voice = match;
+        }
 
         window.speechSynthesis.speak(utterance);
     }
@@ -556,6 +591,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function formatMarkdown(text) {
         let formatted = escapeHtml(text);
+
+        // Convertir enlaces Markdown [Texto](URL) en botones interactivos de navegación
+        formatted = formatted.replace(/\[(.*?)\]\((.*?)\)/g, function(match, label, url) {
+            return `<a href="${url}" class="integra-ai-action-btn" style="display: inline-flex; align-items: center; gap: 6px; margin: 6px 0; background: linear-gradient(135deg, #6366f1, #a855f7); color: #ffffff !important; padding: 7px 15px; border-radius: 20px; text-decoration: none !important; font-weight: 700; font-size: 12px; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"><i class="fa-solid fa-circle-arrow-right"></i> ${label}</a>`;
+        });
+
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
         formatted = formatted.replace(/\n/g, '<br>');
