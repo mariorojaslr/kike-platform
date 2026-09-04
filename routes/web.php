@@ -71,6 +71,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/pwa/expediente/store', [\App\Http\Controllers\ExpedienteAlumnoController::class, 'store'])->name('pwa.expediente.store');
     Route::post('/pwa/factura-arca/store', [\App\Http\Controllers\ExpedienteAlumnoController::class, 'subirFacturaArca'])->name('pwa.factura_arca.store');
 
+    // --- MÓDULO: PORTAL DIRECTORA DE ESCUELA (CERTIFICACIÓN DIGITAL DE ASISTENCIA) ---
+    Route::get('/directora/asistencias', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo'])->name('directora.asistencias.demo');
+    Route::post('/directora/asistencia/firmar', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'firmarAsistencia'])->name('directora.asistencia.firmar');
+
+    // --- MÓDULO: PORTAL PADRE / TITULAR (REINTEGROS Y AVAL) ---
+    Route::get('/app-padre/demo', [\App\Http\Controllers\PadreAsistenciaController::class, 'indexDemo'])->name('padre.dashboard.demo');
+    Route::post('/padre/asistencia/confirmar', [\App\Http\Controllers\PadreAsistenciaController::class, 'confirmarAsistencia'])->name('padre.asistencia.confirmar');
+
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class , 'index'])->name('tenant.dashboard');

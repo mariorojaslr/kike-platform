@@ -83,41 +83,54 @@
         </div>
 
         <div class="d-grid">
-            <!-- 1. Entrar como Administrador -->
-            <a href="{{ route('tenant.dashboard') }}" class="btn-demo-option btn-admin">
-                <div class="d-flex align-items-center">
-                    <div class="icon-circle bg-primary text-white me-3">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold text-primary fs-6 mb-0">Entrar como Administrador</div>
-                        <small class="text-muted d-block" style="font-size: 0.8rem;">Acceso total al Panel de Cliente (Pagos, Configuración, Estadísticas y Empleados)</small>
-                    </div>
-                </div>
-            </a>
-
-            <!-- 2. Entrar como Auditor Interno -->
-            <a href="{{ route('auditor.docentes.legajos') }}" class="btn-demo-option btn-auditor">
-                <div class="d-flex align-items-center">
-                    <div class="icon-circle bg-warning text-dark me-3">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold text-warning fs-6 mb-0" style="color: #d97706 !important;">Entrar como Auditor Interno</div>
-                        <small class="text-muted d-block" style="font-size: 0.8rem;">Herramientas para revisar Vencimientos de Documentos y Reportes</small>
-                    </div>
-                </div>
-            </a>
-
-            <!-- 3. Simular PWA Docente (App Móvil) -->
+            <!-- 1. Simular PWA Docente (App Móvil) -->
             <a href="{{ url('/app-docente/demo') }}" class="btn-demo-option btn-pwa">
                 <div class="d-flex align-items-center">
                     <div class="icon-circle bg-success text-white me-3">
                         <i class="fas fa-mobile-alt"></i>
                     </div>
                     <div>
-                        <div class="fw-bold text-success fs-6 mb-0">Simular PWA Docente (App)</div>
-                        <small class="text-muted d-block" style="font-size: 0.8rem;">Probar la Interfaz Móvil y link seguro que verán los Terapeutas</small>
+                        <div class="fw-bold text-success fs-6 mb-0">1. Simular PWA Docente (App Móvil)</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Carga de facturas, scanner de resolución, dictado por voz y lista de alumnos</small>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 2. Portal Directora de Escuela -->
+            <a href="{{ route('directora.asistencias.demo') }}" class="btn-demo-option btn-admin">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-info text-white me-3">
+                        <i class="fas fa-signature"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-info fs-6 mb-0" style="color: #0284c7 !important;">2. Portal Directora de Escuela</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Certificación digital oficial de asistencia y horarios (Trazabilidad expresa)</small>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 3. App Padre / Titular (Reintegros) -->
+            <a href="{{ route('padre.dashboard.demo') }}" class="btn-demo-option btn-auditor">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-warning text-dark me-3">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-warning fs-6 mb-0" style="color: #d97706 !important;">3. App Padre / Titular (Reintegros)</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Modalidad Reintegro, carga de resolución por el padre y aval de servicio</small>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 4. Entrar como Auditor Interno / Admin -->
+            <a href="{{ route('auditor.docentes.legajos') }}" class="btn-demo-option btn-admin" style="border-color: #6366f1;">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-primary text-white me-3">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-primary fs-6 mb-0">4. Portal Auditoría y Administración</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Control de expediente total, liquidación, salto de billeteras y novedades</small>
                     </div>
                 </div>
             </a>

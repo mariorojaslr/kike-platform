@@ -878,23 +878,6 @@
         </div>
 
         <button class="btn-primary-dark mt-3" onclick="cerrarYCrear()">
-            <i class="fas fa-arrow-right me-2" style="font-size: 0.8rem;"></i> Procesar Datos
-        </button>
-    </div>
-
-    <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (MIS ALUMNOS) -->
-    <div class="bottom-sheet" id="sheetMisAlumnos" style="height: 85vh; overflow-y: auto;">
-        <div class="sheet-pill"></div>
-        <div class="sheet-header">
-            <h3>Mis Alumnos</h3>
-            <button class="sheet-close" onclick="cerrarModalMisAlumnos()"><i class="fas fa-times-circle"></i></button>
-        </div>
-
-        <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
-            Busque o seleccione un paciente recurrente para informar asistencia o novedades.
-        </p>
-
-        <!-- Barra de búsqueda rápida -->
         <!-- Escáneres Especiales con Subida de Archivos -->
         <form id="formSubidaDoc" style="display: none;">
             @csrf
@@ -932,41 +915,72 @@
     <div class="bottom-sheet" id="sheetMisAlumnos" style="height: 85vh; overflow-y: auto;">
         <div class="sheet-pill"></div>
         <div class="sheet-header">
-            <h3>Mis Alumnos</h3>
+            <h3><i class="fas fa-users text-primary me-2"></i> Mis Alumnos Recurrentes</h3>
             <button class="sheet-close" onclick="cerrarModalMisAlumnos()"><i class="fas fa-times-circle"></i></button>
         </div>
 
         <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 20px;">
-            Busque o seleccione un paciente recurrente para informar asistencia o novedades.
+            Alumnos asignados en el mes activo. Verifique el cumplimiento de <b>Factura ARCA</b> y <b>Certificación Digital de Directora</b>.
         </p>
 
         <!-- Barra de búsqueda rápida -->
-        <div class="input-group-voice" style="margin-bottom: 25px;">
-            <input type="text" id="misAlumnosSearchInput" class="input-dark shadow-sm" placeholder="🔍 Escribe un nombre o patología..." oninput="filtrarAlumnosActivos()">
+        <div class="input-group-voice" style="margin-bottom: 20px;">
+            <input type="text" id="misAlumnosSearchInput" class="input-dark shadow-sm" placeholder="🔍 Buscar por nombre de alumno o escuela..." oninput="filtrarAlumnosActivos()">
         </div>
 
-        <!-- Lista Integrada -->
+        <!-- Lista Integrada de Alumnos y Requisitos Mensuales -->
         <div id="listaMisAlumnosContenedor">
             @foreach($alumnosDemo as $alumno)
-                <div class="alumno-card item-alumno-filtrable" data-nombre="{{ strtolower($alumno->nombre) }}" data-curso="{{ strtolower($alumno->curso) }}" onclick="alert('Estado del Expediente de {{ $alumno->nombre }}:\n📌 {{ $alumno->paso_label ?? 'Progreso de Documentación' }}\nProgreso: {{ $alumno->progreso ?? 25 }}% completado.');">
-                    <div class="alumno-info" style="flex: 1; margin-right: 12px;">
-                        <h4 style="font-size: 1rem; margin-bottom: 2px;">{{ $alumno->nombre }}</h4>
-                        <p style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px;"><i class="fas fa-briefcase-medical me-1 text-primary"></i> {{ $alumno->curso }}</p>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="height: 6px; flex: 1; background: #0f172a; border-radius: 6px; overflow: hidden;">
-                                <div style="height: 100%; width: {{ $alumno->progreso ?? 25 }}%; background: {{ ($alumno->progreso ?? 0) == 100 ? '#10b981' : '#f59e0b' }}; border-radius: 6px;"></div>
-                            </div>
-                            <span style="font-size: 0.7rem; font-weight: 700; color: {{ ($alumno->progreso ?? 0) == 100 ? '#10b981' : '#f59e0b' }};">{{ $alumno->progreso ?? 25 }}%</span>
+                <div class="alumno-card item-alumno-filtrable" data-nombre="{{ strtolower($alumno->nombre) }}" data-curso="{{ strtolower($alumno->curso) }}" style="flex-direction: column; align-items: stretch; gap: 10px; padding: 16px; margin-bottom: 14px; background: #1e293b; border-radius: 14px; border: 1px solid var(--tarjeta-borde);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; margin: 0; font-weight: 700; color: white;">
+                                <i class="fas fa-child text-warning me-1"></i> {{ $alumno->nombre }}
+                            </h4>
+                            <p style="font-size: 0.8rem; color: #94a3b8; margin: 2px 0 0 0;"><i class="fas fa-school me-1 text-info"></i> {{ $alumno->curso }}</p>
+                        </div>
+                        <div>
+                            @if(($alumno->progreso ?? 0) == 100)
+                                <span class="badge bg-success" style="font-size: 0.75rem;"><i class="fas fa-check-circle me-1"></i> 100% AL DÍA</span>
+                            @else
+                                <span class="badge bg-warning text-dark" style="font-size: 0.75rem;"><i class="fas fa-clock me-1"></i> EN PROCESO</span>
+                            @endif
                         </div>
                     </div>
-                    
-                    @if($alumno->estado == 'aprobado')
-                        <div class="estado aprobado" style="width: 40px; height: 40px; font-size: 1rem;" title="100% Aprobado por Auditoría"><i class="fas fa-check"></i></div>
-                    @elseif($alumno->estado == 'pendiente')
-                        <div class="estado pendiente" style="width: 40px; height: 40px; font-size: 1rem;" title="En Auditoría"><i class="fas fa-hourglass-half"></i></div>
-                    @else
-                        <div class="estado sin_informar text-center" style="width: 40px; height: 40px; font-size: 1rem;" title="Pendiente de Carga"><i class="fas fa-plus"></i></div>
-                    @endif
+
+                    <!-- Barra de Progreso del Mes -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="height: 6px; flex: 1; background: #0f172a; border-radius: 6px; overflow: hidden;">
+                            <div style="height: 100%; width: {{ $alumno->progreso ?? 25 }}%; background: {{ ($alumno->progreso ?? 0) == 100 ? '#10b981' : '#f59e0b' }}; border-radius: 6px;"></div>
+                        </div>
+                        <span style="font-size: 0.7rem; font-weight: 700; color: {{ ($alumno->progreso ?? 0) == 100 ? '#10b981' : '#f59e0b' }};">{{ $alumno->progreso ?? 25 }}%</span>
+                    </div>
+
+                    <!-- Requisitos Mensuales del Alumno -->
+                    <div style="background: #0f172a; border-radius: 10px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem;">
+                        <!-- Requisito 1: Factura ARCA -->
+                        <div style="border-right: 1px solid #334155; padding-right: 5px;">
+                            <span class="text-muted d-block">1. Factura ARCA:</span>
+                            @if(($alumno->progreso ?? 0) >= 75)
+                                <strong class="text-success"><i class="fas fa-check-circle me-1"></i> Presentada</strong>
+                            @else
+                                <button type="button" class="btn btn-sm btn-outline-warning p-1 py-0 mt-1" style="font-size: 0.7rem;" onclick="abrirCamaraUpload('Factura ARCA - {{ $alumno->nombre }}', 'galleryPicker')">
+                                    <i class="fas fa-file-invoice"></i> Subir Factura
+                                </button>
+                            @endif
+                        </div>
+                        <!-- Requisito 2: Certificación Directora -->
+                        <div>
+                            <span class="text-muted d-block">2. Aval Directora:</span>
+                            @if(($alumno->progreso ?? 0) >= 50)
+                                <strong class="text-success" title="Firmado digitalmente"><i class="fas fa-signature me-1"></i> Certificado</strong>
+                            @else
+                                <a href="{{ route('directora.asistencias.demo') }}" class="btn btn-sm btn-outline-info p-1 py-0 mt-1" style="font-size: 0.7rem;" target="_blank">
+                                    <i class="fas fa-paper-plane me-1"></i> Solicitar Aval
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             @endforeach
             <div id="noResultsMsg" style="display: none; text-align: center; color: var(--gris-texto); margin-top: 30px;">
