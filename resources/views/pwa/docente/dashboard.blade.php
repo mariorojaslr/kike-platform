@@ -975,8 +975,11 @@
                             @if(($alumno->progreso ?? 0) >= 50)
                                 <strong class="text-success" title="Firmado digitalmente"><i class="fas fa-signature me-1"></i> Certificado</strong>
                             @else
-                                <a href="{{ route('directora.asistencias.demo') }}" class="btn btn-sm btn-outline-info p-1 py-0 mt-1" style="font-size: 0.7rem;" target="_blank">
-                                    <i class="fas fa-paper-plane me-1"></i> Solicitar Aval
+                                @php
+                                    $msgWa = urlencode("Hola Directora, le solicito la certificación digital de las asistencias del alumno " . $alumno->nombre . " para el mes activo. Puede certificar digitalmente ingresando aquí: " . route('directora.asistencias.demo'));
+                                @endphp
+                                <a href="https://wa.me/?text={{ $msgWa }}" class="btn btn-sm btn-outline-success p-1 py-0 mt-1" style="font-size: 0.7rem;" target="_blank" title="Enviar enlace de firma por WhatsApp">
+                                    <i class="fab fa-whatsapp me-1"></i> Enviar WhatsApp
                                 </a>
                             @endif
                         </div>

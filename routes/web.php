@@ -79,6 +79,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/app-padre/demo', [\App\Http\Controllers\PadreAsistenciaController::class, 'indexDemo'])->name('padre.dashboard.demo');
     Route::post('/padre/asistencia/confirmar', [\App\Http\Controllers\PadreAsistenciaController::class, 'confirmarAsistencia'])->name('padre.asistencia.confirmar');
 
+    // --- MÓDULO: EXPORTACIÓN DE EXPEDIENTE EN PDF CON QR DE TRAZABILIDAD ---
+    Route::get('/expediente/{id}/pdf', [\App\Http\Controllers\ExpedientePdfController::class, 'descargarPdf'])->name('expediente.pdf');
+
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class , 'index'])->name('tenant.dashboard');

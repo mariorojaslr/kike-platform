@@ -140,11 +140,15 @@
 
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <div class="d-flex gap-1">
+                                        <a href="{{ route('expediente.pdf', $exp->id) }}" target="_blank" class="btn btn-sm btn-outline-dark" title="Ver / Imprimir Certificado PDF con QR">
+                                            <i class="fas fa-file-pdf me-1 text-danger"></i> Rendición PDF (QR)
+                                        </a>
                                         @if($exp->resolucion_url)
                                             <a href="{{ asset('storage/' . $exp->resolucion_url) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver Resolución">
                                                 <i class="fas fa-file-contract me-1"></i> Resolución
                                             </a>
                                         @endif
+                                    </div>
                                         @if($exp->certificado_medico_url)
                                             <a href="{{ asset('storage/' . $exp->certificado_medico_url) }}" target="_blank" class="btn btn-sm btn-outline-info" title="Ver Certificado Médico">
                                                 <i class="fas fa-notes-medical me-1"></i> Certificado
