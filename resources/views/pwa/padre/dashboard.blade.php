@@ -15,7 +15,7 @@
                 <h3 class="fw-bold mt-2 mb-0 text-white">
                     <i class="fas fa-user-shield text-primary me-2"></i> {{ $padreNombre }}
                 </h3>
-                <small class="text-muted"><i class="fas fa-child me-1 text-warning"></i> Atendido: <strong>{{ $hijoNombre }}</strong></small>
+                <small class="text-white-50"><i class="fas fa-child me-1 text-warning"></i> Atendido: <strong class="text-white">{{ $hijoNombre }}</strong></small>
             </div>
             <div class="bg-primary bg-opacity-20 text-primary p-3 rounded-circle text-center" style="width: 50px; height: 50px;">
                 <i class="fas fa-user-tie fa-lg" style="line-height: 20px;"></i>
@@ -39,7 +39,7 @@
                     <i class="fas fa-info-circle fa-2x text-primary"></i>
                     <div>
                         <h6 class="fw-bold mb-1 text-white">¿Cómo funciona la Modalidad Reintegro?</h6>
-                        <p class="small text-muted mb-0">
+                        <p class="small text-light mb-0">
                             El Titular/Padre paga el servicio prestado por el docente y solicita la devolución a la Mutual. 
                             Usted puede <b>subir la Resolución</b> y <b>confirmar la asistencia del docente</b> para agilizar la liquidación.
                         </p>
@@ -62,13 +62,13 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="fw-bold text-white mb-0"><i class="fas fa-calendar-alt text-warning me-2"></i> {{ $r->periodo }}</h5>
                         @if($r->estado_reintegro == 'aprobado_para_pago')
-                            <span class="badge bg-success rounded-pill px-3 py-1"><i class="fas fa-check-circle me-1"></i> LISTO PARA REINTEGRO</span>
+                            <span class="badge bg-success text-white rounded-pill px-3 py-1 fw-bold shadow-sm"><i class="fas fa-check-circle me-1"></i> LISTO PARA REINTEGRO</span>
                         @else
-                            <span class="badge bg-warning text-dark rounded-pill px-3 py-1"><i class="fas fa-hourglass-half me-1"></i> EN AUDITORÍA</span>
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold shadow-sm"><i class="fas fa-hourglass-half me-1"></i> EN AUDITORÍA</span>
                         @endif
                     </div>
 
-                    <p class="small text-muted mb-3"><i class="fas fa-user-md me-1 text-info"></i> Docente: <strong>{{ $r->docente_nombre }}</strong> | Monto: <strong class="text-success">${{ number_format($r->monto_facturado, 0, ',', '.') }}</strong></p>
+                    <p class="small text-white-50 mb-3"><i class="fas fa-user-md me-1 text-info"></i> Docente: <strong class="text-white">{{ $r->docente_nombre }}</strong> | Monto: <strong class="text-success">${{ number_format($r->monto_facturado, 0, ',', '.') }}</strong></p>
 
                     <!-- Triple Trazabilidad (Docente, Directora, Padre) -->
                     <div class="bg-dark p-3 rounded-3 mb-3 border border-secondary border-opacity-25" style="font-size: 0.8rem;">

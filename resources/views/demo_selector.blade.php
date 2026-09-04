@@ -190,10 +190,15 @@
                         </div>
                         <p class="small text-muted mb-3">Carga de legajos de alumnos, facturas ARCA/AFIP, avales por WhatsApp, billetera virtual y dictado por micrófono.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-docente/demo') }}', 'App Maestras Integradoras')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-docente/demo') }}', 'App Maestras Integradoras')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-docente/demo') }}', 'App Maestras Integradoras')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-docente/demo') }}" class="btn btn-success btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -216,10 +221,15 @@
                         </div>
                         <p class="small text-muted mb-3">Certificación digital de asistencia docente en 1-Clic con control del límite máximo regulado de 3hs/día por alumno.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-directora/demo') }}', 'Portal Directora de Escuela')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-directora/demo') }}', 'Portal Directora de Escuela')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-directora/demo') }}', 'Portal Directora de Escuela')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-directora/demo') }}" class="btn btn-info btn-open-link text-white">
                             🚀 Ingresar
                         </a>
@@ -249,10 +259,15 @@
                         </div>
                         <p class="small text-muted mb-3">Solicitudes de reintegro por atención prestada, carga de Resolución OSP y rúbrica de conformidad del servicio.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-padre/demo') }}', 'Portal Titular / Reintegros')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-padre/demo') }}', 'Portal Titular / Reintegros')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-padre/demo') }}', 'Portal Titular / Reintegros')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-padre/demo') }}" class="btn btn-warning btn-open-link text-dark">
                             🚀 Ingresar
                         </a>
@@ -275,10 +290,15 @@
                         </div>
                         <p class="small text-muted mb-3">Credencial de salud con código QR y Token dinámico renovable cada 30 segundos para presentar en farmacias y sanatorios.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/credencial') }}', 'Credencial Digital QR')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/credencial') }}', 'Credencial Digital QR')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-afiliado/credencial') }}', 'Credencial Digital QR')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-afiliado/credencial') }}" class="btn btn-primary btn-open-link" style="background: #8b5cf6; border: none;">
                             🚀 Ingresar
                         </a>
@@ -301,10 +321,15 @@
                         </div>
                         <p class="small text-muted mb-3">Buscador inteligente de profesionales por especialidad, reserva de turnos en 1-Clic y alertas por WhatsApp.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/turnos') }}', 'Cartilla y Turnos')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/turnos') }}', 'Cartilla y Turnos')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-afiliado/turnos') }}', 'Cartilla y Turnos')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-afiliado/turnos') }}" class="btn btn-primary btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -327,10 +352,15 @@
                         </div>
                         <p class="small text-muted mb-3">Sala de atención virtual directa con médicos de cartilla y emisión instantánea de Recetas Digitales firmadas.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/telemedicina') }}', 'Sala de Telemedicina')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/telemedicina') }}', 'Sala de Telemedicina')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-afiliado/telemedicina') }}', 'Sala de Telemedicina')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-afiliado/telemedicina') }}" class="btn btn-danger btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -353,10 +383,15 @@
                         </div>
                         <p class="small text-muted mb-3">Credenciales Provisorias de Tránsito QR (Córdoba / Buenos Aires), vales de hotel y acreditación de viáticos.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/derivaciones') }}', 'Derivaciones y Viáticos')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/derivaciones') }}', 'Derivaciones y Viáticos')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-afiliado/derivaciones') }}', 'Derivaciones y Viáticos')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-afiliado/derivaciones') }}" class="btn btn-info btn-open-link text-white">
                             🚀 Ingresar
                         </a>
@@ -379,10 +414,15 @@
                         </div>
                         <p class="small text-muted mb-3">Descarga oficial del certificado de aportes y cobertura mutual para deducción de ganancias e impuestos.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/certificado-anual') }}', 'Certificado Anual ARCA')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/app-afiliado/certificado-anual') }}', 'Certificado Anual ARCA')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/app-afiliado/certificado-anual') }}', 'Certificado Anual ARCA')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/app-afiliado/certificado-anual') }}" class="btn btn-success btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -412,10 +452,15 @@
                         </div>
                         <p class="small text-muted mb-3">Validador online en vivo de Vademécum Mutual (40%, 70%, 100%) e emisión de tickets POS 80mm u A4 Troquelado.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/farmacia/demo') }}', 'Validador de Farmacias')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/farmacia/demo') }}', 'Validador de Farmacias')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/farmacia/demo') }}', 'Validador de Farmacias')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/farmacia/demo') }}" class="btn btn-success btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -438,10 +483,15 @@
                         </div>
                         <p class="small text-muted mb-3">Solicitud de autorizaciones de internación y emisión e impresión limpia de Bonos Digitales con Hash MD5.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/prestadores/demo') }}', 'Red de Prestadores Médicos')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/prestadores/demo') }}', 'Red de Prestadores Médicos')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/prestadores/demo') }}', 'Red de Prestadores Médicos')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/prestadores/demo') }}" class="btn btn-info btn-open-link text-white">
                             🚀 Ingresar
                         </a>
@@ -471,10 +521,15 @@
                         </div>
                         <p class="small text-muted mb-3">Filtro por sucursales (Chilecito, La Rioja, Cba, BsAs), superávit ($332.2M) e informe de auditoría ecológica de papel.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/mutual-dashboard') }}', 'Cuadro de Mando Ejecutivo')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/mutual-dashboard') }}', 'Cuadro de Mando Ejecutivo')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/owner/mutual-dashboard') }}', 'Cuadro de Mando Ejecutivo')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/owner/mutual-dashboard') }}" class="btn btn-warning btn-open-link text-dark">
                             🚀 Ingresar
                         </a>
@@ -497,10 +552,15 @@
                         </div>
                         <p class="small text-muted mb-3">Acreditación masiva de honorarios a cuentas bancarias CBU/Alias de sanatorios, farmacias y docentes auditados.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/liquidaciones') }}', 'Cierre de Liquidaciones CBU')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/liquidaciones') }}', 'Cierre de Liquidaciones CBU')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/owner/liquidaciones') }}', 'Cierre de Liquidaciones CBU')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/owner/liquidaciones') }}" class="btn btn-success btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -523,10 +583,15 @@
                         </div>
                         <p class="small text-muted mb-3">Aprobación en 1-Clic de cirugías, prótesis e internaciones con sello criptográfico Hash MD5 inalterable.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/auditoria/central') }}', 'Auditoría Médica Central')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/auditoria/central') }}', 'Auditoría Médica Central')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/auditoria/central') }}', 'Auditoría Médica Central')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/auditoria/central') }}" class="btn btn-danger btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -549,10 +614,15 @@
                         </div>
                         <p class="small text-muted mb-3">Modelado predictivo de costos por patologías prevalentes, simulación de inflación médica y variación de cápitas.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/proyeccion-presupuesto') }}', 'Proyección Presupuestaria BI')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/proyeccion-presupuesto') }}', 'Proyección Presupuestaria BI')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/owner/proyeccion-presupuesto') }}', 'Proyección Presupuestaria BI')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/owner/proyeccion-presupuesto') }}" class="btn btn-primary btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -575,10 +645,15 @@
                         </div>
                         <p class="small text-muted mb-3">Réplica del bot de WhatsApp para prueba de validación por foto de receta, consulta de token QR y turnos.</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
-                        <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/simulador/whatsapp') }}', 'Simulador Bot WhatsApp')">
-                            <i class="fas fa-copy me-1"></i> Copiar Link
-                        </button>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/simulador/whatsapp') }}', 'Simulador Bot WhatsApp')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/simulador/whatsapp') }}', 'Simulador Bot WhatsApp')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
                         <a href="{{ url('/simulador/whatsapp') }}" class="btn btn-success btn-open-link">
                             🚀 Ingresar
                         </a>
@@ -618,6 +693,11 @@
     function cerrarBannerPwa() {
         const banner = document.getElementById('pwa-install-banner');
         if (banner) banner.style.display = 'none';
+    }
+
+    function compartirWhatsapp(url, modulo) {
+        const texto = encodeURIComponent("👋 Hola! Te comparto el acceso al portal de *" + modulo + "* en la plataforma INTEGRA:\n\n🌐 " + url + "\n\n📱 Podés abrir el link en tu celular y guardarlo como acceso directo en tu pantalla de inicio.");
+        window.open("https://wa.me/?text=" + texto, "_blank");
     }
 
     function copiarEnlace(url, nombreModulo) {
