@@ -134,6 +134,32 @@
                     </div>
                 </div>
             </a>
+
+            <!-- 5. Red de Prestadores Médicos y Sanatorios -->
+            <a href="{{ route('prestadores.demo') }}" class="btn-demo-option btn-pwa" style="border-color: #0284c7;">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-info text-white me-3">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-info fs-6 mb-0" style="color: #0284c7 !important;">5. Red de Prestadores Médicos y Clínicas</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Médicos particulares y sanatorios (Órdenes, internaciones para 130.000 abonados)</small>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 6. Auditoría Médica Central Mutual -->
+            <a href="{{ route('auditor.prestaciones.demo') }}" class="btn-demo-option btn-auditor" style="border-color: #ef4444;">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle bg-danger text-white me-3">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-danger fs-6 mb-0">6. Auditoría Médica Central Mutual</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Aprobación de quirófano, días de cama, resonancias y prácticas en 1-Clic</small>
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="text-center mt-3 pt-3 border-top">

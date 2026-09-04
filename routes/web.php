@@ -82,6 +82,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- MÓDULO: EXPORTACIÓN DE EXPEDIENTE EN PDF CON QR DE TRAZABILIDAD ---
     Route::get('/expediente/{id}/pdf', [\App\Http\Controllers\ExpedientePdfController::class, 'descargarPdf'])->name('expediente.pdf');
 
+    // --- MÓDULO: FASE 3 - PRESTADORES MÉDICOS, CLÍNICAS Y AUDITORÍA MÉDICA MUTUAL ---
+    Route::get('/prestadores/demo', [\App\Http\Controllers\PrestadorMedicoController::class, 'indexDemo'])->name('prestadores.demo');
+    Route::get('/auditor/prestaciones', [\App\Http\Controllers\PrestadorMedicoController::class, 'auditoriaIndex'])->name('auditor.prestaciones.demo');
+    Route::post('/auditor/practica/{id}/autorizar', [\App\Http\Controllers\PrestadorMedicoController::class, 'autorizarPractica'])->name('auditor.practica.autorizar');
+
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class , 'index'])->name('tenant.dashboard');
