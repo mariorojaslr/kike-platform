@@ -21,7 +21,7 @@ class AiAssistantController extends Controller
     public function query(Request $request): JsonResponse
     {
         $request->validate([
-            'prompt' => 'required|string|min:2|max:1500',
+            'prompt' => 'required|string|min:1|max:1500',
             'contexto' => 'nullable|string|max:500',
             'path' => 'nullable|string|max:255'
         ]);
@@ -29,17 +29,47 @@ class AiAssistantController extends Controller
         $prompt = trim($request->input('prompt'));
         $contexto = $request->input('contexto', '');
         $path = $request->input('path', '');
+        $promptLower = mb_strtolower($prompt);
+
+        // 0. INTERCEPTOR CONVERSACIONAL DE SALUDOS Y CORTESÍA (Máxima prioridad para respuestas humanas y empáticas)
+        if (preg_match('/^(hola|hola\s+c[oó]mo\s+est[aá]s|c[oó]mo\s+est[aá]s|c[oó]mo\s+est[aá]|c[oó]mo\s+va|que\s+tal|qu[eé]\s+tal|buenos\s+d[ií]as|buenas\s+tardes|buenas\s+noches|buenas|saludos)[\s\?!.]*$/i', $promptLower) || 
+            (str_contains($promptLower, 'hola') && str_contains($promptLower, 'est')) ) {
+            return response()->json([
+                'success' => true,
+                'response' => "¡Hola! 👋 Estoy muy bien, con muchas ganas de ayudarte hoy. 😊 ¿Y vos, cómo estás? ¿Cómo te ha ido en tu día?\n\nCuéntame, ¿en qué te puedo colaborar o guiar hoy en la plataforma INTEGRA? Puedes preguntarme por trámites, expedientes, turnos, credenciales, facturas o lo que necesites.",
+                'source' => 'conversacional_empatico'
+            ]);
+        }
+
+        if (preg_match('/^(gracias|muchas\s+gracias|genial|excelente|buen[íi]simo|crack|capo|perfecto|joya)[\s\?!.]*$/i', $promptLower)) {
+            return response()->json([
+                'success' => true,
+                'response' => "¡De nada! Es un verdadero placer ayudarte. 😊\n\nSi tienes alguna otra consulta o quieres realizar cualquier trámite en el sistema, aquí estaré a tu entera disposición. ¡Que tengas un excelente día! 🌟",
+                'source' => 'conversacional_empatico'
+            ]);
+        }
+
+        if (preg_match('/(qui[eé]n\s+sos|quien\s+eres|qu[eé]\s+sos|c[oó]mo\s+te\s+llam[aá]s|quien\s+te\s+creo)/i', $promptLower)) {
+            return response()->json([
+                'success' => true,
+                'response' => "¡Hola! 👋 Soy **INTEGRA Bot**, tu Asistente Virtual Inteligente y Manual Interactivo Oficial de la plataforma INTEGRA.\n\nEstoy programado con Inteligencia Artificial para acompañarte, resolver tus dudas sobre cualquier expediente o pantalla del sistema y asistirte tanto por escrito como por voz. ¿En qué te puedo ayudar hoy?",
+                'source' => 'conversacional_empatico'
+            ]);
+        }
 
         // 1. Intentar responder vía API Gemini 1.5 Flash si está disponible
         $systemContext = "Eres INTEGRA Bot, el Asistente Virtual Inteligente y Manual Interactivo Oficial de la plataforma INTEGRA (Obra Social / Mutual con 130.000 abonados).\n" .
                          "El usuario está en la pantalla: {$path} ({$contexto}).\n\n" .
+                         "REGLAS CONVERSACIONALES IMPORTANTES:\n" .
+                         "1. Si el usuario te saluda ('hola', 'cómo estás', 'qué tal'), responde siempre con mucha calidez, empatía y humanidad (ej: '¡Hola! 👋 Estoy muy bien, ¿y vos cómo estás? ¿Cómo va tu día? 😊 ¿En qué te puedo ayudar hoy?').\n" .
+                         "2. Si te da las gracias, responde amable y ateto.\n" .
+                         "3. Si pregunta por un trámite o expediente, guíalo paso a paso con viñetas y negritas claras.\n\n" .
                          "CONOCIMIENTO CLAVE DEL SISTEMA Y EXPEDIENTES:\n" .
-                         "- Para INICIAR UN EXPEDIENTE DE DOCENTE/TERAPEUTA: Ir a /app-docente/demo -> Mis Alumnos -> + Nuevo Alumno/Legajo, subir Factura ARCA y enviar firma a la Directora por WhatsApp.\n" .
-                         "- Para INICIAR UN EXPEDIENTE DE REINTEGRO (PADRE): Ir a /app-padre/demo -> Solicitar Reintegro, subir Factura + Resolución OSP y firmar conformidad.\n" .
-                         "- Para INICIAR UN EXPEDIENTE MÉDICO / INTERNACIÓN (PRESTADOR): Ir a /prestadores/demo -> Nueva Solicitud de Autorización Médica / Internación, ingresar código nomenclador y CIE-10.\n" .
-                         "- Para DISPENSA EN FARMACIA: Ir a /farmacia/demo, validar DNI/QR, aplicar Vademécum (40%, 70%, 100%) y emitir Bono Digital con Hash MD5.\n" .
-                         "- Para VER TOTALIZADORES Y SUCURSALES: Ir a /owner/mutual-dashboard, filtrar por Chilecito, Córdoba, La Rioja o BsAs.\n\n" .
-                         "Responde la duda del usuario paso a paso de forma clara, directa, amable y estructurada con viñetas y negritas.";
+                         "- INICIAR EXPEDIENTE DOCENTE: /app-docente/demo -> Mis Alumnos -> + Nuevo Alumno/Legajo, subir Factura ARCA y enviar firma a Directora por WhatsApp.\n" .
+                         "- INICIAR EXPEDIENTE REINTEGRO (PADRE): /app-padre/demo -> Solicitar Reintegro, subir Factura + Resolución OSP y firmar conformidad.\n" .
+                         "- INICIAR EXPEDIENTE MÉDICO / INTERNACIÓN (PRESTADOR): /prestadores/demo -> Nueva Solicitud de Autorización Médica / Internación, ingresar código nomenclador y CIE-10.\n" .
+                         "- DISPENSA EN FARMACIA: /farmacia/demo, validar DNI/QR, aplicar Vademécum (40%, 70%, 100%) y emitir Bono Digital con Hash MD5.\n" .
+                         "- TOTALIZADORES Y SUCURSALES: /owner/mutual-dashboard, filtrar por Chilecito, Córdoba, La Rioja o BsAs.";
 
         $geminiResult = $this->geminiService->ask($prompt, $systemContext);
 
@@ -90,104 +120,81 @@ class AiAssistantController extends Controller
         }
 
         // --- ROL: AFILIADO (Credencial y Turnos) ---
-        if (str_contains($path, 'afiliado') || str_contains($promptLower, 'credencial') || str_contains($promptLower, 'token') || str_contains($promptLower, 'turno')) {
-            if (str_contains($promptLower, 'credencial') || str_contains($promptLower, 'qr') || str_contains($promptLower, 'token')) {
-                return "💳 **Manual del Afiliado: Credencial Digital y Token QR**\n\n" .
-                       "1. **Acceso:** Tu credencial digital está disponible en la pantalla principal `/app-afiliado/credencial`.\n" .
-                       "2. **Código QR Dinámico:** El código QR se actualiza en tiempo real con un token de seguridad para presentar en mostrador de clínicas o farmacias.\n" .
-                       "3. **Grupo Familiar:** Puedes cambiar de pestaña en la credencial para mostrar la tarjeta de tus hijos o cónyuge.\n" .
-                       "4. **Estado Prestacional:** La franja verde indica que tu cápita está **ACTIVA Y AL DÍA**.";
-            }
+        if (str_contains($promptLower, 'credencial') || str_contains($promptLower, 'qr') || str_contains($promptLower, 'token')) {
+            return "💳 **Manual del Afiliado: Credencial Digital y Token QR**\n\n" .
+                   "1. **Acceso:** Tu credencial digital está disponible en `/app-afiliado/credencial`.\n" .
+                   "2. **Código QR Dinámico:** Se actualiza en tiempo real con un token de seguridad para presentar en la clínica o farmacia.\n" .
+                   "3. **Grupo Familiar:** Puedes alternar pestañas para ver las credenciales de tus familiares a cargo.";
+        }
 
-            if (str_contains($promptLower, 'turno') || str_contains($promptLower, 'cartilla') || str_contains($promptLower, 'medico')) {
-                return "🩺 **Manual del Afiliado: Cartilla Médica y Turnos**\n\n" .
-                       "1. **Buscador de Cartilla:** Ingresa a `/app-afiliado/turnos` para buscar por especialidad (ej: Pediatría, Traumatología, Cardiología).\n" .
-                       "2. **Seleccionar Sanatorio:** Elige la clínica o sanatorio en convenio (ej: Sanatorio Central, Instituto de Traumatología).\n" .
-                       "3. **Reserva de Turno:** Presiona **Solicitar Turno** o **Telemedicina** para recibir la confirmación instantánea en tu celular.";
-            }
-
-            return "👤 **Manual de la App del Afiliado**\n\n" .
-                   "Desde esta aplicación puedes:\n" .
-                   "- Presentar tu **Credencial Digital QR** en clínicas y farmacias.\n" .
-                   "- Reservar **Turnos Médicos** y Telemedicina.\n" .
-                   "- Consultar la **Cartilla Médica** oficial de la mutual.";
+        if (str_contains($promptLower, 'turno') || str_contains($promptLower, 'cartilla') || str_contains($promptLower, 'medico')) {
+            return "🩺 **Manual del Afiliado: Cartilla Médica y Turnos**\n\n" .
+                   "1. **Buscador de Cartilla:** Ingresa a `/app-afiliado/turnos` y busca por especialidad.\n" .
+                   "2. **Reserva de Turno:** Elige el sanatorio en convenio y confirma tu turno de manera instantánea.";
         }
 
         // --- ROL: DOCENTE / TERAPEUTA (PWA) ---
-        if (str_contains($path, 'docente') || str_contains($promptLower, 'factura') || str_contains($promptLower, 'parlante') || str_contains($promptLower, 'alumno')) {
-            if (str_contains($promptLower, 'parlante') || str_contains($promptLower, 'voz') || str_contains($promptLower, 'dicta')) {
-                return "🎙️ **Manual Docente: Modo Parlante / Búsqueda por Voz**\n\n" .
-                       "1. **Tocar el Micrófono:** En la pantalla del docente, toca el botón de micrófono o selecciona la pestaña **Modo Parlante**.\n" .
-                       "2. **Dictado:** Dicta el nombre del alumno, del titular o el DNI (ej: *Abayay Ramón Martín*).\n" .
-                       "3. **Verificación Automática:** El asistente verificará la coincidencia en la BD de la Mutual y completará los datos del legajo automáticamente.";
+        if (str_contains($promptLower, 'parlante') || str_contains($promptLower, 'voz') || str_contains($promptLower, 'dicta')) {
+            return "🎙️ **Manual Docente: Modo Parlante / Búsqueda por Voz**\n\n" .
+                   "1. **Micrófono:** En la pantalla del docente, toca el botón de micrófono.\n" .
+                   "2. **Dictado:** Di el nombre o DNI del alumno.\n" .
+                   "3. **Comprobación:** El sistema busca y completa automáticamente los datos del legajo.";
+        }
+
+        if (str_contains($promptLower, 'factura') || str_contains($promptLower, 'arca') || str_contains($promptLower, 'afip')) {
+            return "📄 **Manual Docente: Carga de Factura ARCA**\n\n" .
+                   "1. **Mis Alumnos:** Selecciona al alumno y presiona **Subir Factura ARCA**.\n" .
+                   "2. **Compresión:** El sistema optimiza el PDF/imagen en tu celular.\n" .
+                   "3. **Liquidación:** Una vez aprobada, actualiza el monto en la billetera virtual.";
+        }
+
+        // --- BÚSQUEDAS POR PANTALLA (SOLO SI PREGUNTA POR LA PANTALLA ACTIVA) ---
+        if (str_contains($promptLower, 'pantalla') || str_contains($promptLower, 'funci') || str_contains($promptLower, 'quien') || str_contains($promptLower, 'que hay') || str_contains($promptLower, 'manual') || str_contains($promptLower, 'ayuda')) {
+            if (str_contains($path, 'afiliado')) {
+                return "👤 **Manual de la App del Afiliado**\n\n" .
+                       "En esta pantalla puedes presentar tu **Credencial Digital QR**, consultar la **Cartilla Médica** y reservar **Turnos Médicos**.";
             }
 
-            if (str_contains($promptLower, 'factura') || str_contains($promptLower, 'arca') || str_contains($promptLower, 'afip')) {
-                return "📄 **Manual Docente: Carga de Factura ARCA**\n\n" .
-                       "1. **Acceso:** Ve al botón **Mis Alumnos** o selecciona al estudiante en la lista.\n" .
-                       "2. **Subir Comprobante:** Toca el botón **Subir Factura ARCA**.\n" .
-                       "3. **Compresión Inteligente:** El sistema optimiza la imagen/PDF automáticamente en tu celular de 10MB a 300KB.\n" .
-                       "4. **Validación:** Una vez subida, la billetera actualizará el monto hacia la pestaña **Lo que vas a cobrar**.";
+            if (str_contains($path, 'docente')) {
+                return "👨‍🏫 **Manual del Portal de Terapeutas y Docentes**\n\n" .
+                       "Aquí puedes dar de alta **Legajos de Alumnos**, cargar **Facturas ARCA** y enviar solicitudes de aval a las Directoras.";
             }
 
-            return "👨‍🏫 **Manual del Portal de Terapeutas y Docentes**\n\n" .
-                   "En este portal puedes:\n" .
-                   "- Dar de alta a un **Alumno Nuevo** por voz o método manual.\n" .
-                   "- Subir la **Factura ARCA** y enviar el enlace de firma por WhatsApp a la **Directora de Escuela**.\n" .
-                   "- Consultar tus **Billeteras Gemelas** (*Lo que vas a cobrar* vs *Lo que deberías cobrar*).";
+            if (str_contains($path, 'directora')) {
+                return "🏫 **Manual del Portal de Directora de Escuela**\n\n" .
+                       "Desde aquí certificas digitalmente en 1-Clic la asistencia de los docentes que atienden alumnos en tu colegio.";
+            }
+
+            if (str_contains($path, 'padre')) {
+                return "👨‍👩‍👦 **Manual del Titular: Módulo de Reintegros**\n\n" .
+                       "Carga solicitudes de reintegro adjuntando la Factura abonada y la Resolución OSP.";
+            }
+
+            if (str_contains($path, 'farmacia')) {
+                return "💊 **Manual del Validador de Farmacias Convenidas**\n\n" .
+                       "Valida el DNI/QR del afiliado, aplica el Vademécum Mutual y emite el Bono Digital de Dispensa.";
+            }
+
+            if (str_contains($path, 'prestadores')) {
+                return "🏥 **Manual de la Red de Prestadores Médicos**\n\n" .
+                       "Solicita autorizaciones de internación y visualiza/imprime el Bono Digital Oficial con QR.";
+            }
+
+            if (str_contains($path, 'owner') || str_contains($path, 'dashboard')) {
+                return "👑 **Manual del Cuadro de Mando Ejecutivo (Alta Dirección)**\n\n" .
+                       "Filtra totalizadores por sucursal (**Chilecito, La Rioja, Córdoba, BsAs**) y monitorea costos por patologías prevalentes.";
+            }
         }
 
-        // --- ROL: DIRECTORA DE ESCUELA ---
-        if (str_contains($path, 'directora') || str_contains($promptLower, 'directora') || str_contains($promptLower, 'asistencia')) {
-            return "🏫 **Manual del Portal de Directora de Escuela**\n\n" .
-                   "1. **Revisión de Alumnos:** En `/directora/asistencias` verás a las docentes que atienden alumnos en tu institución.\n" .
-                   "2. **Límite Prestacional:** El sistema controla el tope máximo de 3hs/día por alumno (60hs/mes).\n" .
-                   "3. **Firma Digital 1-Clic:** Presiona **Certificar Asistencias** para firmar digitalmente.\n" .
-                   "4. **Trazabilidad Institucional:** Cada firma registra `[Nombre Directora + Escuela + Fecha + Hora + IP]`.";
-        }
-
-        // --- ROL: PADRE / TITULAR (REINTEGROS) ---
-        if (str_contains($path, 'padre') || str_contains($promptLower, 'padre') || str_contains($promptLower, 'reintegro')) {
-            return "👨‍👩‍👦 **Manual del Titular: Módulo de Reintegros**\n\n" .
-                   "1. **Solicitud:** En `/app-padre/demo`, carga la factura de la docente abonada a cuenta.\n" .
-                   "2. **Resolución OSP:** Adjunta la foto de la Resolución del Instituto/Obra Social.\n" .
-                   "3. **Conformidad:** Firma digitalmente la conformidad del servicio para habilitar el reintegro en tu cbu/billetera.";
-        }
-
-        // --- ROL: FARMACIA CONVENIDA ---
-        if (str_contains($path, 'farmacia') || str_contains($promptLower, 'farmacia') || str_contains($promptLower, 'vademecum') || str_contains($promptLower, 'dispensa')) {
-            return "💊 **Manual del Validador de Farmacias Convenidas**\n\n" .
-                   "1. **Validar Afiliado:** Ingresa el DNI o escanea el QR de la Credencial Digital.\n" .
-                   "2. **Buscador Vademécum:** Selecciona el medicamento para aplicar la cobertura automática (Ambulatorio 40%, Crónicos 70%, Discapacidad/PMI 100%).\n" .
-                   "3. **Bono Digital:** Presiona **Validar Receta** para emitir el bono con código de autorización en tiempo real y QR para la liquidación quincenal.";
-        }
-
-        // --- ROL: PRESTADORES Y CLÍNICAS ---
-        if (str_contains($path, 'prestadores') || str_contains($promptLower, 'bono') || str_contains($promptLower, 'internacion') || str_contains($promptLower, 'orden')) {
-            return "🏥 **Manual de la Red de Prestadores Médicos**\n\n" .
-                   "1. **Solicitar Autorización:** Toca el botón verde **Solicitar Autorización Médica** para pedir internaciones, resonancias o cirugías.\n" .
-                   "2. **Ver e Imprimir Bono:** Toca **Imprimir Bono** en cualquier orden autorizada para desplegar el documento oficial con código QR y sello de Auditoría Médica.\n" .
-                   "3. **Exportación:** Presiona el botón de impresión para guardar el comprobante en PDF.";
-        }
-
-        // --- ROL: DUEÑO / EJECUTIVO ---
-        if (str_contains($path, 'owner') || str_contains($promptLower, 'sucursal') || str_contains($promptLower, 'patologia') || str_contains($promptLower, 'chilecito')) {
-            return "👑 **Manual del Cuadro de Mando Ejecutivo (Alta Dirección)**\n\n" .
-                   "1. **Filtro por Sucursal:** Utiliza el selector en el encabezado para alternar entre la **Visión Global** o las sedes de **Chilecito, La Rioja, Córdoba o Buenos Aires**.\n" .
-                   "2. **Matriz Epidemiológica:** Revisa el ranking de enfermedades prevalentes, casos activos y costo promedio por paciente.\n" .
-                   "3. **Control de Siniestralidad:** Monitorea la siniestralidad de salud (37.3%) y el ahorro acumulado por la auditoría con IA ($92.5M).";
-        }
-
-        // --- RESPUESTA GENÉRICA POR DEFECTO ---
-        return "🤖 **Asistente Virtual e Instrucciones de la Plataforma INTEGRA**\n\n" .
-               "Puedo orientarte paso a paso para cualquier trámite o función:\n\n" .
-               "- 📋 **Expedientes y Trámites:** Cómo iniciar y dar seguimiento a legajos y expedientes digitales.\n" .
-               "- 💳 **Afiliados:** Credencial digital QR y reserva de turnos.\n" .
-               "- 👨‍🏫 **Docentes:** Carga de facturas, modo parlante y legajos.\n" .
-               "- 🏫 **Directoras:** Certificación digital de asistencias.\n" .
-               "- 💊 **Farmacias:** Validador online de vademécum y dispensa.\n" .
-               "- 🏥 **Prestadores:** Emisión e impresión de bonos digitales.\n" .
-               "- 👑 **Ejecutivo:** Totalizadores por sucursal y patologías.\n\n" .
-               "Escribe tu pregunta o habla al micrófono diciéndome qué trámite deseas realizar.";
+        // --- RESPUESTA CONVERSACIONAL DE ORIENTACIÓN GENERAL ---
+        return "😊 **Asistente Virtual INTEGRA**\n\n" .
+               "Entendido. ¿En qué tema te gustaría que te oriente en este momento?\n\n" .
+               "- 📋 **Expedientes y Trámites:** Cómo iniciar y seguir legajos digitales.\n" .
+               "- 💳 **Afiliados:** Credenciales QR, token y turnos.\n" .
+               "- 👨‍🏫 **Docentes:** Facturas ARCA y legajos.\n" .
+               "- 🏥 **Sanatorios y Farmacias:** Autorizaciones y bonos digitales.\n" .
+               "- 👑 **Ejecutivo:** Totalizadores por sucursal (Chilecito, Córdoba, etc.).\n\n" .
+               "Pregúntame libremente o háblame al micrófono con tus palabras.";
     }
 }
+
