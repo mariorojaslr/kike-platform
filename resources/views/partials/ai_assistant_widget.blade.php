@@ -254,13 +254,26 @@ document.addEventListener("DOMContentLoaded", function () {
         window.speechSynthesis.cancel();
         
         let cleanText = text.replace(/\[(.*?)\]\((.*?)\)/g, '$1')
-                            .replace(/[*#_`]/g, '')
-                            .replace(/https?:\/\/\S+/g, '');
+                            .replace(/[*#_`~]/g, '')
+                            .replace(/https?:\/\/\S+/g, '')
+                            .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+                            .replace(/[-•👉👉📋💳👨‍🏫🏫👨‍👩‍👦🩺💊🏥📊👑✍️💰🌿📍💵🛡️📈]/g, '')
+                            .trim();
+
+        // Limitar la lectura hablada a las primeras frases para evitar discursos largos por voz
+        if (cleanText.length > 180) {
+            let periodIndex = cleanText.indexOf('.', 120);
+            if (periodIndex !== -1 && periodIndex < 220) {
+                cleanText = cleanText.substring(0, periodIndex + 1);
+            } else {
+                cleanText = cleanText.substring(0, 180) + "...";
+            }
+        }
 
         const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.lang = 'es-AR';
-        utterance.rate = 1.0;
-        utterance.pitch = (voiceGender === 'female') ? 1.15 : 0.85;
+        utterance.rate = 1.05;
+        utterance.pitch = (voiceGender === 'female') ? 1.1 : 0.9;
 
         // Selección inteligente de la mejor voz en español del dispositivo
         const voices = window.speechSynthesis.getVoices();
@@ -268,9 +281,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (esVoices.length > 0) {
             let match = null;
             if (voiceGender === 'female') {
-                match = esVoices.find(v => /female|sabina|elena|monica|victoria|marta|paulina|laura|google/i.test(v.name)) || esVoices[0];
+                match = esVoices.find(v => /sabina|elena|monica|victoria|marta|paulina|laura|google\s+español|female/i.test(v.name)) || esVoices[0];
             } else {
-                match = esVoices.find(v => /male|jorge|raul|pablo|dieg|carlos|mateo/i.test(v.name)) || esVoices[esVoices.length - 1];
+                match = esVoices.find(v => /jorge|raul|pablo|diego|carlos|mateo|google\s+español|male/i.test(v.name)) || esVoices[esVoices.length - 1];
             }
             if (match) utterance.voice = match;
         }
