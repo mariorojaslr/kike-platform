@@ -233,48 +233,175 @@
 
     <!-- Modal Resultado de Validacion -->
     <div class="modal fade" id="modalResultado" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow-lg">
                 <div class="modal-header bg-success text-white border-0 rounded-top-4 py-3">
                     <h5 class="modal-title fw-bold"><i class="fas fa-check-circle me-2"></i>Receta Validada Exitosamente</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4 text-center">
-                    <div class="mb-3">
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
-                            AUTORIZACIÓN MUTUAL APROBADA
-                        </span>
+                <div class="modal-body p-4 text-center bg-white">
+                    
+                    <!-- Selector de Formato Imprimible -->
+                    <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mb-4 p-2 bg-light rounded-4 border no-print print-options-bar">
+                        <span class="small fw-bold text-muted me-2"><i class="fas fa-print me-1"></i> Formato de Salida:</span>
+                        <button type="button" class="btn btn-success rounded-pill px-3 py-1 btn-sm fw-bold shadow-sm" id="btn_far_fmt_a4" onclick="cambiarFormatoFarmacia('a4')">
+                            <i class="fas fa-file-invoice me-1"></i> Medio A4 / Troquelado (Original y Copia)
+                        </button>
+                        <button type="button" class="btn btn-outline-success rounded-pill px-3 py-1 btn-sm fw-bold shadow-sm" id="btn_far_fmt_80mm" onclick="cambiarFormatoFarmacia('80mm')">
+                            <i class="fas fa-receipt me-1"></i> Ticket Térmico (80mm POS)
+                        </button>
                     </div>
 
-                    <h4 class="fw-bold text-dark mb-1" id="modal_nro_aut">AUT-FAR-000000</h4>
-                    <p class="text-muted small mb-3" id="modal_fecha_hora">Fecha: --/--/---- --:--</p>
+                    <div id="bonoPrintArea">
+                        
+                        <!-- VISTA A4 / TROQUELADO -->
+                        <div id="far_vista_a4">
+                            <!-- ORIGINAL FARMACIA -->
+                            <div class="border rounded-4 p-4 position-relative mb-3 text-start bg-white" style="border: 2px dashed #cbd5e1 !important;">
+                                <span class="position-absolute top-0 end-0 bg-success text-white font-monospace px-3 py-1 rounded-bottom-start small fw-bold">ORIGINAL FARMACIA</span>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                    <div>
+                                        <span class="badge bg-success px-3 py-1 rounded-pill mb-1 fw-bold">MUTUAL INTEGRA | FARMACIA CONVENIDA</span>
+                                        <h5 class="fw-bold text-dark mb-0">COMPROBANTE DE DISPENSA FARMACÉUTICA</h5>
+                                    </div>
+                                    <div class="text-end me-4">
+                                        <h6 class="fw-bold text-success mb-0" id="far_val_nro_aut">AUT-FAR-000000</h6>
+                                        <small class="text-muted d-block" id="far_val_fecha">Fecha: --/--/---- --:--</small>
+                                    </div>
+                                </div>
 
-                    <div class="mb-3">
-                        <img id="modal_qr" src="" alt="Código QR de Autorización" class="img-fluid border rounded-3 p-2 bg-white shadow-sm" style="max-width: 150px;">
-                    </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border">
+                                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Paciente / Afiliado:</small>
+                                            <h6 class="fw-bold text-dark mb-0" id="far_val_paciente">--</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border">
+                                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Resumen de Cobertura:</small>
+                                            <div class="d-flex justify-content-between small"><span class="text-muted">Abonado por Mutual:</span> <strong class="text-success" id="far_val_mutual">$0,00</strong></div>
+                                            <div class="d-flex justify-content-between small"><span class="text-muted">Copago Afiliado:</span> <strong class="text-primary" id="far_val_afiliado">$0,00</strong></div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div class="bg-light p-3 rounded-3 text-start mb-3">
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span class="text-muted">Paciente:</span>
-                            <span class="fw-bold" id="modal_paciente">--</span>
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 text-center mb-2 mb-md-0">
+                                        <img class="img-fluid border rounded-3 p-2 bg-white shadow-sm far_val_qr" src="" alt="QR" style="max-width: 110px;">
+                                        <small class="d-block text-muted mt-1" style="font-size: 0.65rem;">Validado en mostrador</small>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="p-3 bg-light rounded-3 border">
+                                            <small class="fw-bold text-muted text-uppercase d-block mb-1" style="font-size: 0.7rem;"><i class="fas fa-shield-check text-success me-1"></i> Trazabilidad Vademécum Mutual:</small>
+                                            <p class="small text-dark mb-1" style="font-size: 0.8rem;">Descuento aplicado según convenio oficial de medicamentos. Facturación acreditada a la farmacia.</p>
+                                            <small class="text-muted d-block font-monospace" style="font-size: 0.65rem;">HASH VALIDACIÓN MD5: f89a31c498cb38d5f260853678922e09</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- LÍNEA DE TROQUEL -->
+                            <div class="my-3 text-center text-muted small position-relative" style="border-bottom: 2px dashed #94a3b8;">
+                                <span style="position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: #ffffff; padding: 0 15px; font-weight: 600; color: #64748b; font-size: 0.75rem;">
+                                    <i class="fas fa-scissors me-1"></i> TROQUEL / CORTAR AQUÍ (ORIGINAL FARMACIA / COPIA AFILIADO) <i class="fas fa-scissors ms-1"></i>
+                                </span>
+                            </div>
+
+                            <!-- COPIA AFILIADO -->
+                            <div class="border rounded-4 p-4 position-relative text-start bg-white" style="border: 2px dashed #cbd5e1 !important;">
+                                <span class="position-absolute top-0 end-0 bg-secondary text-white font-monospace px-3 py-1 rounded-bottom-start small fw-bold">COPIA AFILIADO</span>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                    <div>
+                                        <span class="badge bg-secondary px-3 py-1 rounded-pill mb-1 fw-bold">MUTUAL INTEGRA | COMPROBANTE PACIENTE</span>
+                                        <h5 class="fw-bold text-dark mb-0">COMPROBANTE DE DISPENSA FARMACÉUTICA</h5>
+                                    </div>
+                                    <div class="text-end me-4">
+                                        <h6 class="fw-bold text-dark mb-0" id="far_val_nro_aut_copia">AUT-FAR-000000</h6>
+                                        <small class="text-muted d-block" id="far_val_fecha_copia">Fecha: --/--/---- --:--</small>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border">
+                                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Paciente / Afiliado:</small>
+                                            <h6 class="fw-bold text-dark mb-0" id="far_val_paciente_copia">--</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border">
+                                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Resumen de Cobertura:</small>
+                                            <div class="d-flex justify-content-between small"><span class="text-muted">Abonado por Mutual:</span> <strong class="text-success" id="far_val_mutual_copia">$0,00</strong></div>
+                                            <div class="d-flex justify-content-between small"><span class="text-muted">Copago Afiliado:</span> <strong class="text-primary" id="far_val_afiliado_copia">$0,00</strong></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 text-center mb-2 mb-md-0">
+                                        <img class="img-fluid border rounded-3 p-2 bg-white shadow-sm far_val_qr" src="" alt="QR" style="max-width: 110px;">
+                                        <small class="d-block text-muted mt-1" style="font-size: 0.65rem;">Validado en mostrador</small>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="p-3 bg-light rounded-3 border">
+                                            <small class="fw-bold text-muted text-uppercase d-block mb-1" style="font-size: 0.7rem;"><i class="fas fa-shield-check text-success me-1"></i> Trazabilidad Vademécum Mutual:</small>
+                                            <p class="small text-dark mb-1" style="font-size: 0.8rem;">Conserve esta copia como comprobante oficial de retiro de medicamentos en farmacia.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span class="text-muted">Liquidado a Mutual:</span>
-                            <span class="fw-bold text-success" id="modal_mutual_total">$0,00</span>
+
+                        <!-- VISTA 80mm TICKET POS -->
+                        <div id="far_vista_80mm" style="display: none; max-width: 320px; margin: 0 auto; background: #ffffff; padding: 15px; border: 1px solid #e2e8f0; font-family: 'Courier New', Courier, monospace; color: #000000; text-align: left;">
+                            <div class="text-center mb-2">
+                                <h6 class="fw-bold mb-0 text-uppercase" style="font-size: 14px;">FARMACIA CONVENIDA</h6>
+                                <p class="mb-0 small fw-bold">MUTUAL INTEGRA - RECETA DISPENSADA</p>
+                                <div class="my-1">================================</div>
+                            </div>
+
+                            <div style="font-size: 11px; line-height: 1.4;">
+                                <div class="d-flex justify-content-between">
+                                    <span>N° AUT:</span>
+                                    <strong id="far_tk_aut">AUT-FAR-000000</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>FECHA:</span>
+                                    <span id="far_tk_fecha">--/--/---- --:--</span>
+                                </div>
+                                <div class="my-1">--------------------------------</div>
+                                <div class="mb-1">
+                                    <div>PACIENTE:</div>
+                                    <strong id="far_tk_paciente" class="text-uppercase">--</strong>
+                                </div>
+                                <div class="my-1">--------------------------------</div>
+                                <div class="d-flex justify-content-between">
+                                    <span>LIQUIDADO MUTUAL:</span>
+                                    <strong class="text-success" id="far_tk_mutual">$0,00</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>COPAGO AFILIADO:</span>
+                                    <strong id="far_tk_afiliado">$0,00</strong>
+                                </div>
+                                <div class="my-1">--------------------------------</div>
+                                <div class="text-center my-2">
+                                    <img class="img-fluid p-1 bg-white border far_val_qr" src="" alt="QR" style="max-width: 120px;">
+                                    <small class="d-block mt-1 font-monospace" style="font-size: 8px;">MD5: f89a31c498cb38d5f260853678922e09</small>
+                                </div>
+                                <div class="my-1 text-center">================================</div>
+                                <div class="text-center small">* COMPROBANTE OFICIAL DE DISPENSA *</div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between small">
-                            <span class="text-muted">Copago Cobrado al Afiliado:</span>
-                            <span class="fw-bold text-primary" id="modal_afiliado_total">$0,00</span>
-                        </div>
+
                     </div>
 
-                    <div class="alert alert-info py-2 small mb-0 text-start">
-                        <i class="fas fa-info-circle me-1"></i> El importe de cobertura de la mutual se ha acreditado a la cuenta de la farmacia para la liquidación quincenal.
-                    </div>
                 </div>
-                <div class="modal-footer border-0 pb-4 px-4">
+                <div class="modal-footer border-0 pb-4 px-4 no-print">
                     <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" onclick="window.print()">
+                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" onclick="window.print()">
                         <i class="fas fa-print me-1"></i> Imprimir Comprobante
                     </button>
                 </div>
@@ -382,6 +509,33 @@
             // Callback al cambiar de integrante
         }
 
+        function cambiarFormatoFarmacia(formato) {
+            const vistaA4 = document.getElementById('far_vista_a4');
+            const vista80mm = document.getElementById('far_vista_80mm');
+            const btnA4 = document.getElementById('btn_far_fmt_a4');
+            const btn80mm = document.getElementById('btn_far_fmt_80mm');
+
+            if (formato === '80mm') {
+                vistaA4.style.display = 'none';
+                vista80mm.style.display = 'block';
+                btnA4.classList.remove('btn-success');
+                btnA4.classList.add('btn-outline-success');
+                btn80mm.classList.remove('btn-outline-success');
+                btn80mm.classList.add('btn-success');
+                document.body.classList.add('print-mode-80mm');
+                document.body.classList.remove('print-mode-a4');
+            } else {
+                vistaA4.style.display = 'block';
+                vista80mm.style.display = 'none';
+                btnA4.classList.remove('btn-outline-success');
+                btnA4.classList.add('btn-success');
+                btn80mm.classList.remove('btn-success');
+                btn80mm.classList.add('btn-outline-success');
+                document.body.classList.add('print-mode-a4');
+                document.body.classList.remove('print-mode-80mm');
+            }
+        }
+
         function validarRecetaOnline() {
             let select = document.getElementById('select_paciente');
             let pacienteNombre = select.options[select.selectedIndex].value;
@@ -403,14 +557,35 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById('modal_nro_aut').innerText = data.nro_autorizacion;
-                    document.getElementById('modal_fecha_hora').innerText = "Fecha: " + data.fecha_hora;
-                    document.getElementById('modal_paciente').innerText = data.paciente_nombre;
-                    document.getElementById('modal_mutual_total').innerText = "$" + data.total_mutual.toLocaleString('es-AR', {minimumFractionDigits: 2});
-                    document.getElementById('modal_afiliado_total').innerText = "$" + data.total_afiliado.toLocaleString('es-AR', {minimumFractionDigits: 2});
+                    const aut = data.nro_autorizacion;
+                    const fecha = data.fecha_hora;
+                    const pac = data.paciente_nombre;
+                    const mutStr = "$" + data.total_mutual.toLocaleString('es-AR', {minimumFractionDigits: 2});
+                    const afilStr = "$" + data.total_afiliado.toLocaleString('es-AR', {minimumFractionDigits: 2});
                     
-                    let qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent("INTEGRA-MUTUAL-RECETA|" + data.nro_autorizacion + "|" + data.paciente_nombre);
-                    document.getElementById('modal_qr').src = qrUrl;
+                    // A4 Original & Copia
+                    if (document.getElementById('far_val_nro_aut')) document.getElementById('far_val_nro_aut').innerText = aut;
+                    if (document.getElementById('far_val_nro_aut_copia')) document.getElementById('far_val_nro_aut_copia').innerText = aut;
+                    if (document.getElementById('far_val_fecha')) document.getElementById('far_val_fecha').innerText = "Fecha: " + fecha;
+                    if (document.getElementById('far_val_fecha_copia')) document.getElementById('far_val_fecha_copia').innerText = "Fecha: " + fecha;
+                    if (document.getElementById('far_val_paciente')) document.getElementById('far_val_paciente').innerText = pac;
+                    if (document.getElementById('far_val_paciente_copia')) document.getElementById('far_val_paciente_copia').innerText = pac;
+                    if (document.getElementById('far_val_mutual')) document.getElementById('far_val_mutual').innerText = mutStr;
+                    if (document.getElementById('far_val_mutual_copia')) document.getElementById('far_val_mutual_copia').innerText = mutStr;
+                    if (document.getElementById('far_val_afiliado')) document.getElementById('far_val_afiliado').innerText = afilStr;
+                    if (document.getElementById('far_val_afiliado_copia')) document.getElementById('far_val_afiliado_copia').innerText = afilStr;
+
+                    // Ticket 80mm
+                    if (document.getElementById('far_tk_aut')) document.getElementById('far_tk_aut').innerText = aut;
+                    if (document.getElementById('far_tk_fecha')) document.getElementById('far_tk_fecha').innerText = fecha;
+                    if (document.getElementById('far_tk_paciente')) document.getElementById('far_tk_paciente').innerText = pac;
+                    if (document.getElementById('far_tk_mutual')) document.getElementById('far_tk_mutual').innerText = mutStr;
+                    if (document.getElementById('far_tk_afiliado')) document.getElementById('far_tk_afiliado').innerText = afilStr;
+                    
+                    let qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent("INTEGRA-MUTUAL-RECETA|" + aut + "|" + pac);
+                    document.querySelectorAll('.far_val_qr').forEach(img => img.src = qrUrl);
+
+                    cambiarFormatoFarmacia('a4');
 
                     let modal = new bootstrap.Modal(document.getElementById('modalResultado'));
                     modal.show();

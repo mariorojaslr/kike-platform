@@ -126,87 +126,260 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             
-            <div class="modal-body p-4 bg-white" id="bonoPrintArea">
-                <div class="border rounded-4 p-4 position-relative" style="background: #fafafa; border: 2px dashed #cbd5e1 !important;">
+            <div class="modal-body p-4 bg-white">
+                
+                <!-- Barra de Selección de Formato de Impresión (No Imprimible) -->
+                <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mb-4 p-2 bg-light rounded-4 border no-print print-options-bar">
+                    <span class="small fw-bold text-muted me-2"><i class="fas fa-print me-1"></i> Formato de Salida:</span>
+                    <button type="button" class="btn btn-primary rounded-pill px-3 py-1 btn-sm fw-bold shadow-sm" id="btn_fmt_a4" onclick="cambiarFormatoImpresion('a4')">
+                        <i class="fas fa-file-invoice me-1"></i> Medio A4 / Troquelado (Original y Copia)
+                    </button>
+                    <button type="button" class="btn btn-outline-primary rounded-pill px-3 py-1 btn-sm fw-bold shadow-sm" id="btn_fmt_80mm" onclick="cambiarFormatoImpresion('80mm')">
+                        <i class="fas fa-receipt me-1"></i> Ticket Térmico (80mm POS)
+                    </button>
+                </div>
+
+                <!-- CONTENEDOR ÁREA DE IMPRESIÓN EXCLUSIVA -->
+                <div id="bonoPrintArea">
                     
-                    <!-- Encabezado de Impresión -->
-                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                        <div>
-                            <span class="badge bg-primary px-3 py-1 rounded-pill mb-2 fw-bold">OBRA SOCIAL & MUTUAL INTEGRA</span>
-                            <h4 class="fw-bold text-dark mb-0">BONO DE PRESTACIÓN MÉDICA</h4>
-                            <small class="text-muted">Sistema Centralizado de Auditoría en Tiempo Real</small>
+                    <!-- VISTA 1: MEDIO A4 / A4 TROQUELADO (ORIGINAL Y COPIA) -->
+                    <div id="bono_vista_a4" style="display: block;">
+                        
+                        <!-- ==================== BLOQUE ORIGINAL ==================== -->
+                        <div class="border rounded-4 p-4 position-relative mb-3 bg-white" style="border: 2px dashed #cbd5e1 !important;">
+                            <span class="position-absolute top-0 end-0 bg-primary text-white font-monospace px-3 py-1 rounded-bottom-start small fw-bold">ORIGINAL PRESTADOR</span>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                <div>
+                                    <span class="badge bg-primary px-3 py-1 rounded-pill mb-1 fw-bold">OBRA SOCIAL & MUTUAL INTEGRA</span>
+                                    <h5 class="fw-bold text-dark mb-0">BONO DE PRESTACIÓN MÉDICA</h5>
+                                    <small class="text-muted">Sistema Centralizado de Auditoría en Tiempo Real</small>
+                                </div>
+                                <div class="text-end me-4">
+                                    <h6 class="fw-bold text-primary mb-1 bono_val_nro_aut">AUT-2026-000000</h6>
+                                    <small class="text-muted d-block bono_val_fecha">Fecha: --/--/----</small>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-bold mt-1 bono_val_estado">
+                                        AUTORIZADO 100%
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Afiliado / Paciente:</small>
+                                        <h6 class="fw-bold text-dark mb-1 bono_val_paciente">--</h6>
+                                        <small class="text-primary fw-semibold bono_val_nro_afiliado">MUT-0000000/00</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Prestador Efector / Sanatorio:</small>
+                                        <h6 class="fw-bold text-dark mb-1">{{ $prestadorNombre }}</h6>
+                                        <small class="text-muted"><i class="fas fa-hospital me-1"></i> Cobertura en Convenio (130.000 Abonados)</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mb-3">
+                                <table class="table table-bordered align-middle text-center mb-0" style="font-size: 0.85rem;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-start">Código Nomenclador / Práctica Médica</th>
+                                            <th>Tipo Prestación</th>
+                                            <th>Cobertura Mutual</th>
+                                            <th>Importe Liquidado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-start fw-bold text-dark bono_val_practica">--</td>
+                                            <td><span class="badge bg-info-subtle text-info border px-2 py-1 bono_val_tipo">Ambulatoria</span></td>
+                                            <td><span class="badge bg-success text-white px-2 py-1">100% Sin Copago</span></td>
+                                            <td class="fw-bold text-success fs-6 bono_val_monto">$0,00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <div class="col-md-3 text-center mb-2 mb-md-0">
+                                    <img class="img-fluid border rounded-3 p-2 bg-white shadow-sm bono_val_qr" src="" alt="Código QR de Validación" style="max-width: 110px;">
+                                    <small class="d-block text-muted mt-1" style="font-size: 0.65rem;">Escaneable en mostrador</small>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small class="fw-bold text-muted text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-signature text-success me-1"></i> Sello y Firma Auditoría Médica Central:</small>
+                                            <small class="text-success fw-bold" style="font-size: 0.7rem;"><i class="fas fa-shield-alt me-1"></i> Firma Digital Verificada</small>
+                                        </div>
+                                        <p class="small text-dark mb-1" style="font-size: 0.8rem;"><strong>Dr. Roberto E. Ferrero</strong> &bull; M.P. 48920 &bull; Jefe de Auditoría Médica Mutual INTEGRA</p>
+                                        <small class="text-muted d-block font-monospace bono_val_hash" style="font-size: 0.65rem;">HASH MD5: e99a18c428cb38d5f260853678922e03</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-end">
-                            <h6 class="fw-bold text-primary mb-1" id="bono_nro_aut">AUT-2026-000000</h6>
-                            <small class="text-muted d-block" id="bono_fecha">Fecha: --/--/----</small>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-bold mt-1" id="bono_estado_badge">
-                                AUTORIZADO 100%
+
+                        <!-- LÍNEA DE TROQUEL / CORTAR AQUÍ -->
+                        <div class="my-4 text-center text-muted small position-relative" style="border-bottom: 2px dashed #94a3b8;">
+                            <span style="position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: #ffffff; padding: 0 15px; font-weight: 600; color: #64748b; font-size: 0.75rem;">
+                                <i class="fas fa-scissors me-1"></i> TROQUEL DE SEPARACIÓN / CORTAR POR AQUÍ (ORIGINAL / COPIA) <i class="fas fa-scissors ms-1"></i>
                             </span>
                         </div>
-                    </div>
 
-                    <!-- Datos del Paciente / Afiliado -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <div class="p-3 bg-white rounded-3 border">
-                                <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Afiliado / Paciente:</small>
-                                <h6 class="fw-bold text-dark mb-1" id="bono_paciente">--</h6>
-                                <small class="text-primary fw-semibold" id="bono_nro_afiliado">MUT-0000000/00</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-3 bg-white rounded-3 border">
-                                <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Prestador Efector / Sanatorio:</small>
-                                <h6 class="fw-bold text-dark mb-1">{{ $prestadorNombre }}</h6>
-                                <small class="text-muted"><i class="fas fa-hospital me-1"></i> Cobertura en Convenio (130.000 Abonados)</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Detalle de la Práctica Autorizada -->
-                    <div class="table-responsive mb-4">
-                        <table class="table table-bordered align-middle text-center mb-0" style="font-size: 0.9rem;">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="text-start">Código Nomenclador / Práctica Médica</th>
-                                    <th>Tipo de Prestación</th>
-                                    <th>Cobertura Mutual</th>
-                                    <th>Importe Liquidado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="text-start fw-bold text-dark" id="bono_practica">--</td>
-                                    <td><span class="badge bg-info-subtle text-info border px-2 py-1" id="bono_tipo">Ambulatoria</span></td>
-                                    <td><span class="badge bg-success text-white px-2 py-1">100% Sin Copago</span></td>
-                                    <td class="fw-bold text-success fs-6" id="bono_monto">$0,00</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Trazabilidad Digital, Firma de Auditoría & QR -->
-                    <div class="row align-items-center pt-2">
-                        <div class="col-md-3 text-center mb-3 mb-md-0">
-                            <img id="bono_qr" src="" alt="Código QR de Validación" class="img-fluid border rounded-3 p-2 bg-white shadow-sm" style="max-width: 130px;">
-                            <small class="d-block text-muted mt-1" style="font-size: 0.7rem;">Escaneable en mostrador</small>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="p-3 bg-white rounded-3 border">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <small class="fw-bold text-muted text-uppercase" style="font-size: 0.75rem;"><i class="fas fa-signature text-success me-1"></i> Sello y Firma Auditoría Médica Central:</small>
-                                    <small class="text-success fw-bold"><i class="fas fa-shield-alt me-1"></i> Firma Digital Verificada</small>
+                        <!-- ==================== BLOQUE COPIA AFILIADO ==================== -->
+                        <div class="border rounded-4 p-4 position-relative bg-white" style="border: 2px dashed #cbd5e1 !important;">
+                            <span class="position-absolute top-0 end-0 bg-secondary text-white font-monospace px-3 py-1 rounded-bottom-start small fw-bold">COPIA AFILIADO</span>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                <div>
+                                    <span class="badge bg-secondary px-3 py-1 rounded-pill mb-1 fw-bold">OBRA SOCIAL & MUTUAL INTEGRA</span>
+                                    <h5 class="fw-bold text-dark mb-0">BONO DE PRESTACIÓN MÉDICA</h5>
+                                    <small class="text-muted">Comprobante de Cobertura para el Paciente</small>
                                 </div>
-                                <p class="small text-dark mb-1"><strong>Dr. Roberto E. Ferrero</strong> &bull; M.P. 48920 &bull; Jefe de Auditoría Médica Mutual INTEGRA</p>
-                                <small class="text-muted d-block font-monospace" style="font-size: 0.7rem;" id="bono_hash">HASH HASH MD5: e99a18c428cb38d5f260853678922e03</small>
+                                <div class="text-end me-4">
+                                    <h6 class="fw-bold text-dark mb-1 bono_val_nro_aut">AUT-2026-000000</h6>
+                                    <small class="text-muted d-block bono_val_fecha">Fecha: --/--/----</small>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-bold mt-1 bono_val_estado">
+                                        AUTORIZADO 100%
+                                    </span>
+                                </div>
                             </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Afiliado / Paciente:</small>
+                                        <h6 class="fw-bold text-dark mb-1 bono_val_paciente">--</h6>
+                                        <small class="text-primary fw-semibold bono_val_nro_afiliado">MUT-0000000/00</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.75rem;">Prestador Efector / Sanatorio:</small>
+                                        <h6 class="fw-bold text-dark mb-1">{{ $prestadorNombre }}</h6>
+                                        <small class="text-muted"><i class="fas fa-hospital me-1"></i> Cobertura en Convenio (130.000 Abonados)</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mb-3">
+                                <table class="table table-bordered align-middle text-center mb-0" style="font-size: 0.85rem;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-start">Código Nomenclador / Práctica Médica</th>
+                                            <th>Tipo Prestación</th>
+                                            <th>Cobertura Mutual</th>
+                                            <th>Importe Liquidado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-start fw-bold text-dark bono_val_practica">--</td>
+                                            <td><span class="badge bg-info-subtle text-info border px-2 py-1 bono_val_tipo">Ambulatoria</span></td>
+                                            <td><span class="badge bg-success text-white px-2 py-1">100% Sin Copago</span></td>
+                                            <td class="fw-bold text-success fs-6 bono_val_monto">$0,00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <div class="col-md-3 text-center mb-2 mb-md-0">
+                                    <img class="img-fluid border rounded-3 p-2 bg-white shadow-sm bono_val_qr" src="" alt="Código QR de Validación" style="max-width: 110px;">
+                                    <small class="d-block text-muted mt-1" style="font-size: 0.65rem;">Escaneable en mostrador</small>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="p-3 bg-light rounded-3 border">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small class="fw-bold text-muted text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-signature text-success me-1"></i> Sello y Firma Auditoría Médica Central:</small>
+                                            <small class="text-success fw-bold" style="font-size: 0.7rem;"><i class="fas fa-shield-alt me-1"></i> Firma Digital Verificada</small>
+                                        </div>
+                                        <p class="small text-dark mb-1" style="font-size: 0.8rem;"><strong>Dr. Roberto E. Ferrero</strong> &bull; M.P. 48920 &bull; Jefe de Auditoría Médica Mutual INTEGRA</p>
+                                        <small class="text-muted d-block font-monospace bono_val_hash" style="font-size: 0.65rem;">HASH MD5: e99a18c428cb38d5f260853678922e03</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- VISTA 2: TICKET TÉRMICO (80mm POS) -->
+                    <div id="bono_vista_80mm" style="display: none; max-width: 320px; margin: 0 auto; background: #ffffff; padding: 15px; border: 1px solid #e2e8f0; font-family: 'Courier New', Courier, monospace; color: #000000;">
+                        <div class="text-center mb-2">
+                            <h6 class="fw-bold mb-0 text-uppercase" style="font-size: 14px;">MUTUAL INTEGRA</h6>
+                            <p class="mb-0 small fw-bold">BONO DIGITAL DE COBERTURA</p>
+                            <small class="d-block" style="font-size: 10px;">Auditoría Médica Sanatorial</small>
+                            <div class="my-1">================================</div>
+                        </div>
+
+                        <div style="font-size: 11px; line-height: 1.4;">
+                            <div class="d-flex justify-content-between">
+                                <span>N° BONO:</span>
+                                <strong class="bono_val_nro_aut">AUT-2026-000000</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>FECHA:</span>
+                                <span class="bono_val_fecha">--/--/----</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>ESTADO:</span>
+                                <strong class="bono_val_estado_tk">[AUTORIZADO 100%]</strong>
+                            </div>
+                            
+                            <div class="my-1">--------------------------------</div>
+                            
+                            <div class="mb-1">
+                                <div>PACIENTE:</div>
+                                <strong class="bono_val_paciente text-uppercase">--</strong>
+                            </div>
+                            <div class="mb-1">
+                                <div>AFILIADO N°:</div>
+                                <strong class="bono_val_nro_afiliado">MUT-000000/00</strong>
+                            </div>
+                            <div class="mb-1">
+                                <div>SANATORIO / EFECTOR:</div>
+                                <span class="fw-bold">{{ $prestadorNombre }}</span>
+                            </div>
+
+                            <div class="my-1">--------------------------------</div>
+
+                            <div class="mb-1">
+                                <div>PRÁCTICA AUTORIZADA:</div>
+                                <strong class="bono_val_practica">--</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>COBERTURA:</span>
+                                <span class="fw-bold">100% SIN COPAGO</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold fs-6 mt-1">
+                                <span>TOTAL LIQUIDADO:</span>
+                                <span class="bono_val_monto">$0,00</span>
+                            </div>
+
+                            <div class="my-1">--------------------------------</div>
+
+                            <div class="text-center my-2">
+                                <img class="img-fluid p-1 bg-white border bono_val_qr" src="" alt="QR" style="max-width: 120px;">
+                                <small class="d-block mt-1 font-monospace bono_val_hash" style="font-size: 8px;">HASH MD5: e99a18c428cb38d5f260853678922e03</small>
+                            </div>
+
+                            <div class="my-1">--------------------------------</div>
+                            <div class="text-center" style="font-size: 9px;">
+                                <div>AUDITORÍA MÉDICA CENTRAL</div>
+                                <div>Dr. Roberto E. Ferrero (M.P. 48920)</div>
+                                <div class="mt-1 fw-bold">* CONSERVE ESTE COMPROBANTE *</div>
+                            </div>
+                            <div class="my-1 text-center">================================</div>
                         </div>
                     </div>
 
                 </div>
+
             </div>
 
-            <div class="modal-footer border-0 pb-4 pe-4">
+            <div class="modal-footer border-0 pb-4 pe-4 no-print">
                 <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" onclick="imprimirBonoContenido()">
                     <i class="fas fa-print me-1"></i> Imprimir / Guardar en PDF
@@ -266,26 +439,69 @@
 </div>
 
 <script>
-    function verBonoDigital(ord) {
-        document.getElementById('bono_nro_aut').innerText = "AUT-2026-" + ord.id;
-        document.getElementById('bono_fecha').innerText = "Fecha: " + ord.fecha_solicitud;
-        document.getElementById('bono_paciente').innerText = ord.afiliado_nombre;
-        document.getElementById('bono_nro_afiliado').innerText = ord.afiliado_nro;
-        document.getElementById('bono_practica').innerText = ord.practica_codigo;
-        document.getElementById('bono_tipo').innerText = ord.tipo;
-        document.getElementById('bono_monto').innerText = "$" + ord.monto.toLocaleString('es-AR', {minimumFractionDigits: 2});
-        
-        let badgeEstado = document.getElementById('bono_estado_badge');
-        if (ord.estado === 'aprobado') {
-            badgeEstado.className = "badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-bold mt-1";
-            badgeEstado.innerText = "AUTORIZADO Y LIQUIDADO";
+    let formatoActualImpresion = 'a4';
+
+    function cambiarFormatoImpresion(formato) {
+        formatoActualImpresion = formato;
+        const vistaA4 = document.getElementById('bono_vista_a4');
+        const vista80mm = document.getElementById('bono_vista_80mm');
+        const btnA4 = document.getElementById('btn_fmt_a4');
+        const btn80mm = document.getElementById('btn_fmt_80mm');
+
+        if (formato === '80mm') {
+            vistaA4.style.display = 'none';
+            vista80mm.style.display = 'block';
+            btnA4.classList.remove('btn-primary');
+            btnA4.classList.add('btn-outline-primary');
+            btn80mm.classList.remove('btn-outline-primary');
+            btn80mm.classList.add('btn-primary');
+            document.body.classList.add('print-mode-80mm');
+            document.body.classList.remove('print-mode-a4');
         } else {
-            badgeEstado.className = "badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1 rounded-pill fw-bold mt-1";
-            badgeEstado.innerText = "EN AUDITORÍA MÉDICA";
+            vistaA4.style.display = 'block';
+            vista80mm.style.display = 'none';
+            btnA4.classList.remove('btn-outline-primary');
+            btnA4.classList.add('btn-primary');
+            btn80mm.classList.remove('btn-primary');
+            btn80mm.classList.add('btn-outline-primary');
+            document.body.classList.add('print-mode-a4');
+            document.body.classList.remove('print-mode-80mm');
         }
+    }
+
+    function verBonoDigital(ord) {
+        // Actualizar todos los campos duplicados en A4 y Ticket 80mm
+        document.querySelectorAll('.bono_val_nro_aut').forEach(el => el.innerText = "AUT-2026-" + ord.id);
+        document.querySelectorAll('.bono_val_fecha').forEach(el => el.innerText = "Fecha: " + ord.fecha_solicitud);
+        document.querySelectorAll('.bono_val_paciente').forEach(el => el.innerText = ord.afiliado_nombre);
+        document.querySelectorAll('.bono_val_nro_afiliado').forEach(el => el.innerText = ord.afiliado_nro);
+        document.querySelectorAll('.bono_val_practica').forEach(el => el.innerText = ord.practica_codigo);
+        document.querySelectorAll('.bono_val_tipo').forEach(el => el.innerText = ord.tipo);
+        document.querySelectorAll('.bono_val_monto').forEach(el => el.innerText = "$" + ord.monto.toLocaleString('es-AR', {minimumFractionDigits: 2}));
+        
+        const hashVal = "HASH MD5: e99a18c428cb38d5f2" + ord.id + "60853678922e03";
+        document.querySelectorAll('.bono_val_hash').forEach(el => el.innerText = hashVal);
+
+        document.querySelectorAll('.bono_val_estado').forEach(el => {
+            if (ord.estado === 'aprobado') {
+                el.className = "badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-bold mt-1 bono_val_estado";
+                el.innerText = "AUTORIZADO Y LIQUIDADO";
+            } else {
+                el.className = "badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1 rounded-pill fw-bold mt-1 bono_val_estado";
+                el.innerText = "EN AUDITORÍA MÉDICA";
+            }
+        });
+
+        document.querySelectorAll('.bono_val_estado_tk').forEach(el => {
+            el.innerText = (ord.estado === 'aprobado') ? "[AUTORIZADO 100%]" : "[EN AUDITORÍA]";
+        });
 
         let qrData = "MUTUAL-INTEGRA-BONO|AUT-2026-" + ord.id + "|" + ord.afiliado_nombre + "|" + ord.monto;
-        document.getElementById('bono_qr').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(qrData);
+        let qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(qrData);
+        document.querySelectorAll('.bono_val_qr').forEach(img => img.src = qrUrl);
+
+        // Asegurar que el formato por defecto sea A4
+        cambiarFormatoImpresion('a4');
 
         let modal = new bootstrap.Modal(document.getElementById('modalBonoDigital'));
         modal.show();
