@@ -173,6 +173,19 @@
                     </div>
                 </div>
             </a>
+
+            <!-- 8. App del Afiliado / Credencial Digital y Cartilla -->
+            <a href="{{ route('afiliado.credencial.demo') }}" class="btn-demo-option btn-pwa" style="border-color: #8b5cf6;">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle text-white me-3" style="background: #8b5cf6;">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-6 mb-0" style="color: #6d28d9 !important;">8. App del Afiliado (Credencial Digital y Turnero)</div>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">Credencial digital QR en tiempo real, grupo familiar, estado de cápita y turnos</small>
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="text-center mt-3 pt-3 border-top">

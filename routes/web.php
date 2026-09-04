@@ -90,6 +90,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- MÓDULO: FASE 4 - CUADRO DE MANDO EJECUTIVO (PANEL DEL DUEÑO DE LA MUTUAL - 130.000 CÁPITAS) ---
     Route::get('/owner/mutual-dashboard', [\App\Http\Controllers\MutualExecutiveController::class, 'indexDashboard'])->name('owner.mutual_dashboard');
 
+    // --- MÓDULO: FASE 5 - APP DEL AFILIADO, CREDENCIAL DIGITAL QR Y CARTILLA MÉDICA ---
+    Route::get('/app-afiliado/credencial', [\App\Http\Controllers\AfiliadoPortalController::class, 'credencialDemo'])->name('afiliado.credencial.demo');
+    Route::get('/app-afiliado/turnos', [\App\Http\Controllers\AfiliadoPortalController::class, 'cartillaTurnos'])->name('afiliado.turnos.demo');
+
 
     // --- MÓDULO: TENANT (CLIENTE/EMPRESA) ---
     Route::get('/tenant', [\App\Http\Controllers\TenantDashboardController::class , 'index'])->name('tenant.dashboard');
