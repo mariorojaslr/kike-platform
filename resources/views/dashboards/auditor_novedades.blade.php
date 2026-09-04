@@ -33,9 +33,24 @@
                                     <small class="text-muted font-monospace">{{ $nov->created_at->diffForHumans() }}</small>
                                 </div>
                                 <p class="mb-1 text-secondary small">{{ $nov->descripcion }}</p>
-                                <span class="badge bg-info bg-opacity-10 text-info border px-2 py-1 font-monospace" style="font-size:0.65rem;">
-                                    {{ strtoupper(str_replace('_', ' ', $nov->tipo_novedad)) }}
-                                </span>
+                                
+                                @if($nov->tipo_novedad == 'aval_directora')
+                                    <span class="badge bg-info bg-opacity-20 text-info border border-info px-2 py-1 font-monospace" style="font-size:0.65rem;">
+                                        <i class="fas fa-signature me-1"></i> AVAL DIRECTORA ESCUELA
+                                    </span>
+                                @elseif($nov->tipo_novedad == 'aval_padre')
+                                    <span class="badge bg-warning bg-opacity-20 text-warning border border-warning px-2 py-1 font-monospace" style="font-size:0.65rem;">
+                                        <i class="fas fa-user-shield me-1"></i> CONFIRMACIÓN DEL PADRE
+                                    </span>
+                                @elseif($nov->tipo_novedad == 'nueva_factura_arca')
+                                    <span class="badge bg-success bg-opacity-20 text-success border border-success px-2 py-1 font-monospace" style="font-size:0.65rem;">
+                                        <i class="fas fa-file-invoice-dollar me-1"></i> FACTURA ARCA SUBIDA
+                                    </span>
+                                @else
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border px-2 py-1 font-monospace" style="font-size:0.65rem;">
+                                        <i class="fas fa-bell me-1"></i> {{ strtoupper(str_replace('_', ' ', $nov->tipo_novedad)) }}
+                                    </span>
+                                @endif
                             </div>
                         @empty
                             <div class="text-center py-5 text-muted small">No hay novedades registradas recientemente.</div>
