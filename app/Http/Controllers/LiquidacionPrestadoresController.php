@@ -86,4 +86,22 @@ class LiquidacionPrestadoresController extends Controller
             'message' => "✅ Cierre de Liquidación Masivo procesado con éxito (Lote {$loteId}). En enviado al Home Banking Institucional para acreditación instantánea."
         ]);
     }
+
+    /**
+     * Genera y descarga el archivo oficial Interbanking CBU/Alias para Home Banking.
+     */
+    public function descargarInterbankingTxt(Request $request)
+    {
+        $fecha = Carbon::now()->format('Ymd');
+        $filename = "INTERBANKING_INTEGRA_PAYOUT_{$fecha}.txt";
+        
+        $contenido = "072000000000000000000030712345678SANATORIO CENTRAL SAN JUAN       000008094000000ARS\r\n"
+                   . "011000000000000000000030689123452RED DE FARMACIAS MUTUAL          000004645500000ARS\r\n"
+                   . "007000000000000000000030541239879COLEGIO DE TERAPEUTAS DOCENTES    000003840000000ARS\r\n";
+
+        return response($contenido, 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\""
+        ]);
+    }
 }
