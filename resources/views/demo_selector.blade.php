@@ -736,7 +736,31 @@
                                 <i class="fab fa-whatsapp me-1"></i> WhatsApp
                             </button>
                         </div>
-                        <a href="{{ url('/auditoria/cirugias') }}" class="btn btn-primary btn-open-link">
+            <!-- Gestor del Flujo de Expedientes (Workflow 7 Etapas) -->
+            <div class="col-md-6 col-lg-4">
+                <div class="link-card" style="border-color: #38bdf8;">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box bg-info text-white">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">Gestor de Flujo de Expedientes</h6>
+                                <span class="badge bg-info text-dark font-monospace" style="font-size: 0.65rem;">Workflow & Pipeline 7 Etapas</span>
+                            </div>
+                        </div>
+                        <p class="small text-muted mb-3">Definición de reglas de paso, checklist de 3 vales (Docente, Directora, Padre) y trazabilidad a Tesorería.</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center gap-1 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/expedientes/flujo') }}', 'Flujo de Expedientes')">
+                                <i class="fas fa-copy me-1"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-copy-link bg-success border-success text-white" onclick="compartirWhatsapp('{{ url('/expedientes/flujo') }}', 'Flujo de Expedientes')">
+                                <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
+                        <a href="{{ url('/expedientes/flujo') }}" class="btn btn-info btn-open-link text-white">
                             🚀 Ingresar
                         </a>
                     </div>

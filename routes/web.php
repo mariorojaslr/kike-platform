@@ -315,6 +315,13 @@ Route::post('/auditoria/cirugias/{id}/autorizar', [\App\Http\Controllers\Cirugia
 Route::get('/app-afiliado/billetera', [\App\Http\Controllers\BilleteraMutualController::class, 'indexDemo'])->name('afiliado.billetera.demo');
 Route::post('/app-afiliado/billetera/credito', [\App\Http\Controllers\BilleteraMutualController::class, 'solicitarCredito'])->name('afiliado.billetera.credito');
 
+// ==========================================
+// MÓDULO DE GESTIÓN Y FLUJO DE EXPEDIENTES (WORKFLOW 7 ETAPAS)
+// ==========================================
+Route::get('/expedientes/flujo', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->name('expedientes.flujo.demo');
+Route::post('/expedientes/flujo/{id}/avanzar', [\App\Http\Controllers\FlujoExpedienteController::class, 'avanzarEstado'])->name('expedientes.flujo.avanzar');
+Route::post('/expedientes/flujo/configurar-etapa', [\App\Http\Controllers\FlujoExpedienteController::class, 'guardarEtapaConfig'])->name('expedientes.flujo.guardar_etapa');
+
 /**
  * 3. SISTEMA DE AUTENTICACIÓN (Breeze/Jetstream)
  */
