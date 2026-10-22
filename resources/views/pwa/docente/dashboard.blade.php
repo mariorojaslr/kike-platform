@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -418,18 +418,19 @@
 </head>
 <body>
 
-    <!-- CABECERA PRINCIPAL PWA -->
+    <!-- CABECERA PRINCIPAL PWA CON LOGO OFICIAL APOS -->
     <header class="header-pwa">
         <div class="docente-perfil">
-            <div class="avatar">
-                <i class="fas fa-user-nurse"></i>
-            </div>
+            <img src="{{ asset('images/apos_logo.svg') }}" alt="APOS La Rioja" style="height: 36px; width: auto; background: #ffffff; padding: 3px 7px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
             <div class="saludo">
-                <p>Hola, Terapeuta</p>
+                <p style="color:#38bdf8; font-weight:700; font-size:0.72rem; letter-spacing:0.5px;">APOS LA RIOJA • DOCENTE</p>
                 <h1>{{ trim(str_replace('(Demo)', '', $docenteNombre)) }}</h1>
             </div>
         </div>
-        <div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <a href="{{ route('auditor.docentes.index') }}" target="_blank" style="background: rgba(56,189,248,0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 5px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-decoration: none;" title="Abrir Bandeja del Auditor en vivo">
+                <i class="fas fa-user-check me-1"></i> Ver Auditor
+            </a>
             <i class="fas fa-bell text-white" style="font-size: 1.3rem; position: relative;">
                 <span style="position:absolute; top:-4px; right:-2px; background:var(--dinero-espera); width:10px; height:10px; border-radius:50%; border:2px solid var(--bg-oscuro);"></span>
             </i>
@@ -572,22 +573,30 @@
             <div id="listaEscuelasComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
 
-            <!-- Formulario Datos del Alumno -->
-            <div id="formDatosAlumno" style="display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px;">
-                <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: #3b82f6;"><i class="fas fa-pen"></i> Completar Datos del Estudiante</h4>
-                
-                <input type="text" id="alumnoDni" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DNI del Alumno">
-                <input type="number" id="alumnoEdad" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Edad">
-                <input type="text" id="alumnoPatologia" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DiagnÃ³stico / PatologÃ­a">
-                <input type="text" id="alumnoCUD" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Nro de CUD (Opcional)">
+            <!-- Formulario Datos del Alumno y Resolución APOS -->
+            <div id="formDatosAlumno" style="display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #38bdf8; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; font-size: 0.92rem; color: #38bdf8;">
+                    <i class="fas fa-file-signature me-1"></i> Resolución APOS, Horarios y Vínculo con Padre
+                </h4>
 
-                <div class="mt-2" style="font-size: 0.8rem; background: #0f172a; padding: 12px; border-radius: 8px; border-left: 3px solid var(--dinero-espera);">
-                    <div class="text-warning mb-1" style="font-weight: 600;"><i class="fas fa-clipboard-check"></i> Requerimientos Pendientes:</div>
-                    <ul style="margin: 5px 0 0 0; padding-left: 20px; color: var(--gris-texto);">
-                        <li>AutorizaciÃ³n de ingreso firmada por directivos de <strong id="lblEscuelaReq" class="text-white">la Escuela</strong></li>
-                        <li>Consentimiento informado de <strong id="lblTitularReq" class="text-white">el Titular</strong></li>
-                        <li>DNI Frontal y Dorso del Alumno.</li>
-                    </ul>
+                <label style="font-size: 0.75rem; color: #fbbf24; font-weight: 700; display: block; margin-bottom: 4px;">
+                    N° de Resolución APOS (si aún no la tiene, dejar vacío para pedir autorización al Auditor):
+                </label>
+                <input type="text" id="alumnoResolucionInput" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; border-color: #f59e0b; font-weight: 700;" placeholder="Ej: 505/25 o RES-APOS-2026 (Opcional)">
+
+                <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">
+                    Días y Horarios de Atención (Tope: Máx. 3 hs por día / 60 hs mes):
+                </label>
+                <input type="text" id="alumnoHorariosInput" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" value="Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)">
+
+                <input type="text" id="alumnoDni" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DNI del Alumno">
+                <input type="number" id="alumnoEdad" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; display: none;" placeholder="Edad">
+                <input type="text" id="alumnoPatologia" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Diagnóstico / Patología CUD">
+                <input type="text" id="alumnoCUD" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; display: none;" placeholder="Nro de CUD (Opcional)">
+
+                <div id="bannerEstadoNotificacionAuditor" class="mt-2" style="font-size: 0.8rem; background: rgba(16, 185, 129, 0.15); padding: 12px; border-radius: 8px; border-left: 3px solid #10b981; color: #d1fae5;">
+                    <div class="text-warning mb-1" style="font-weight: 700;"><i class="fas fa-bell me-1"></i> Notificación Automática al Auditor APOS:</div>
+                    <div>Al señalar a <strong id="lblTitularReq" class="text-white">el Titular</strong> y su hijo en <strong id="lblEscuelaReq" class="text-white">la Escuela</strong>, el Auditor ya recibe en vivo la vinculación <strong>Alumno + Padre + Docente + Resolución</strong>.</div>
                 </div>
             </div>
         </div>
@@ -643,8 +652,8 @@
             </div>
         </div>
 
-        <button class="btn-primary-dark mt-3" onclick="cerrarYCrear()">
-            <i class="fas fa-arrow-right me-2" style="font-size: 0.8rem;"></i> Procesar Datos
+        <button class="btn-primary-dark mt-3" id="btnConfirmarVinculoAuditor" onclick="cerrarYCrear()">
+            <i class="fas fa-bell me-2"></i> Vincular Alumno con Resolución y Notificar al Auditor
         </button>
     </div>
 
@@ -668,13 +677,13 @@
         <!-- Lista Integrada de Alumnos y Requisitos Mensuales -->
         <div id="listaMisAlumnosContenedor">
             @foreach($alumnosDemo as $alumno)
-                <div class="alumno-card item-alumno-filtrable" data-nombre="{{ strtolower($alumno->nombre) }}" data-curso="{{ strtolower($alumno->curso) }}" style="flex-direction: column; align-items: stretch; gap: 10px; padding: 16px; margin-bottom: 14px; background: #1e293b; border-radius: 14px; border: 1px solid var(--tarjeta-borde);">
+                <div class="alumno-card item-alumno-filtrable" data-nombre="{{ strtolower($alumno->nombre) }}" data-curso="{{ strtolower($alumno->curso) }}" data-raw-nombre="{{ $alumno->nombre }}" data-raw-curso="{{ $alumno->curso }}" style="flex-direction: column; align-items: stretch; gap: 10px; padding: 16px; margin-bottom: 14px; background: #1e293b; border-radius: 14px; border: 1px solid var(--tarjeta-borde);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <h4 style="font-size: 1.05rem; margin: 0; font-weight: 700; color: white;">
-                                <i class="fas fa-child text-warning me-1"></i> {{ $alumno->nombre }}
+                                <i class="fas fa-child text-warning me-1"></i> <span class="js-hl-nombre">{{ $alumno->nombre }}</span>
                             </h4>
-                            <p style="font-size: 0.8rem; color: #94a3b8; margin: 2px 0 0 0;"><i class="fas fa-school me-1 text-info"></i> {{ $alumno->curso }}</p>
+                            <p style="font-size: 0.8rem; color: #94a3b8; margin: 2px 0 0 0;"><i class="fas fa-school me-1 text-info"></i> <span class="js-hl-curso">{{ $alumno->curso }}</span></p>
                         </div>
                         <div>
                             @if(($alumno->progreso ?? 0) == 100)
@@ -935,9 +944,104 @@
         }
 
         function resaltarCoincidencia(texto, termino) {
-            if (!texto || !termino) return texto || '';
+            if (!texto) return '';
+            if (!termino) return texto;
             const re = new RegExp(`(${termino.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-            return texto.toString().replace(re, '<mark style="background:#f59e0b; color:#0f172a; font-weight:bold; padding:0 3px; border-radius:3px;">$1</mark>');
+            return texto.toString().replace(re, '<mark style="background:#facc15; color:#0f172a; font-weight:800; padding:0 3px; border-radius:3px;">$1</mark>');
+        }
+
+        function mostrarToastAuditorNotificado(mensaje) {
+            let toast = document.getElementById('toastAuditorLive');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toastAuditorLive';
+                toast.style.cssText = 'position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:99999; width:92%; max-width:440px; background:linear-gradient(135deg, #065f46, #047857); color:white; border:2px solid #34d399; border-radius:14px; padding:12px 16px; box-shadow:0 12px 30px rgba(0,0,0,0.6); font-size:0.82rem;';
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = `
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <div style="font-weight:800; color:#a7f3d0; text-transform:uppercase; font-size:0.74rem; margin-bottom:2px;">
+                            <i class="fas fa-bell me-1"></i> AUDITOR APOS NOTIFICADO EN VIVO
+                        </div>
+                        <div style="line-height:1.35;">${mensaje}</div>
+                    </div>
+                    <a href="{{ route('auditor.docentes.index') }}" target="_blank" style="background:#facc15; color:#0f172a; font-weight:800; padding:5px 10px; border-radius:20px; text-decoration:none; white-space:nowrap; font-size:0.72rem;">
+                        Ver en Auditor <i class="fas fa-external-link-alt ms-1"></i>
+                    </a>
+                </div>
+            `;
+            toast.style.display = 'block';
+            setTimeout(() => { if (toast) toast.style.display = 'none'; }, 7500);
+        }
+
+        function enviarVinculoAlAuditor(cerrarAlFinalizar = false) {
+            const alumnoData = datosAsistidos.alumno_data || {};
+            const nroRes = document.getElementById('alumnoResolucionInput') ? document.getElementById('alumnoResolucionInput').value.trim() : (alumnoData.nro_resolucion || '');
+            const horarios = document.getElementById('alumnoHorariosInput') ? document.getElementById('alumnoHorariosInput').value.trim() : 'Lunes a Viernes (3 hs/día)';
+            const patologia = document.getElementById('alumnoPatologia') ? document.getElementById('alumnoPatologia').value.trim() : '';
+            const escuelaNom = document.getElementById('comunEscuelaInput') ? document.getElementById('comunEscuelaInput').value.trim() : (datosAsistidos.escuela || '');
+            const alumnoNom = document.getElementById('comunAlumnoInput') ? document.getElementById('comunAlumnoInput').value.trim() : (datosAsistidos.alumno || '');
+            const titularNom = document.getElementById('comunTitularInput') ? document.getElementById('comunTitularInput').value.trim() : (datosAsistidos.titular || '');
+
+            if (!alumnoNom && !alumnoData.id) {
+                if (cerrarAlFinalizar) {
+                    alert("Por favor seleccioná primero un Alumno o Titular de la base de datos de APOS.");
+                }
+                return;
+            }
+
+            const btn = document.getElementById('btnConfirmarVinculoAuditor');
+            if (btn && cerrarAlFinalizar) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Notificando al Auditor APOS...';
+            }
+
+            fetch(`{{ route('pwa.docente.vincular_alumno') }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    alumno_id: alumnoData.id || null,
+                    titular_id: datosAsistidos.titular_id || (alumnoData.titular ? alumnoData.titular.id : null),
+                    escuela_id: datosAsistidos.escuela_id || (alumnoData.escuela ? alumnoData.escuela.id : null),
+                    alumno_nombre: alumnoNom,
+                    titular_nombre: titularNom,
+                    escuela_nombre: escuelaNom,
+                    nro_resolucion: nroRes,
+                    horarios_atencion: horarios,
+                    patologia: patologia
+                })
+            })
+            .then(r => r.json())
+            .then(resp => {
+                if (btn && cerrarAlFinalizar) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bell me-2"></i> Vincular Alumno con Resolución y Notificar al Auditor';
+                }
+                if (resp && resp.ok) {
+                    mostrarToastAuditorNotificado(resp.message);
+                    const banner = document.getElementById('bannerEstadoNotificacionAuditor');
+                    if (banner) {
+                        banner.style.background = 'rgba(16, 185, 129, 0.25)';
+                        banner.style.borderColor = '#10b981';
+                        banner.innerHTML = `<div class="text-warning fw-bold"><i class="fas fa-check-circle me-1"></i> ¡AUDITOR NOTIFICADO EN TIEMPO REAL!</div><div>${resp.message}</div>`;
+                    }
+                    if (cerrarAlFinalizar) {
+                        cerrarModalNuevo();
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Error notificando al auditor:', err);
+                if (btn && cerrarAlFinalizar) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bell me-2"></i> Vincular Alumno con Resolución y Notificar al Auditor';
+                }
+            });
         }
 
         function mostrarRegistroVerificado(titular, alumno, escuela) {
@@ -1014,14 +1118,19 @@
                                                 document.getElementById('alumnoDni').value = a.dni || '';
                                                 document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'SÃ­, pero sin especificar' : 'Sano'));
                                                 
+                                                if (document.getElementById('alumnoResolucionInput')) {
+                                                    document.getElementById('alumnoResolucionInput').value = a.nro_resolucion || '';
+                                                }
                                                 const escNombre = a.escuela ? a.escuela.nombre : '';
                                                 if (a.escuela) {
                                                     document.getElementById('comunEscuelaInput').value = escNombre;
                                                     datosAsistidos.escuela = escNombre;
+                                                    datosAsistidos.escuela_id = a.escuela.id;
                                                 }
 
                                                 mostrarRegistroVerificado(e.nombre, a.nombre, escNombre);
                                                 habilitarFormularioDatos();
+                                                enviarVinculoAlAuditor(false);
                                             };
                                             listAlum.appendChild(rowAlum);
                                         });
@@ -1079,20 +1188,25 @@
                                     document.getElementById('alumnoDni').value = a.dni || '';
                                     document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'SÃ­, pero sin especificar' : 'Sano'));
 
+                                    if (document.getElementById('alumnoResolucionInput')) {
+                                        document.getElementById('alumnoResolucionInput').value = a.nro_resolucion || '';
+                                    }
                                     const escNombre = a.escuela ? a.escuela.nombre : '';
                                     if (a.escuela) {
                                         document.getElementById('comunEscuelaInput').value = escNombre;
                                         datosAsistidos.escuela = escNombre;
+                                        datosAsistidos.escuela_id = a.escuela.id;
                                     }
 
                                     mostrarRegistroVerificado(padreNombre, a.nombre, escNombre);
                                     habilitarFormularioDatos();
+                                    enviarVinculoAlAuditor(false);
                                 };
                                 list.appendChild(row);
                             });
                         }
                     });
-            }, 150);
+            }, 80);
         }
 
         function filtrarEscuelaComun() {
@@ -1119,6 +1233,7 @@
                                 row.onclick = () => {
                                     document.getElementById('comunEscuelaInput').value = e.nombre;
                                     datosAsistidos.escuela = e.nombre;
+                                    datosAsistidos.escuela_id = e.id;
                                     list.style.display = 'none';
                                     habilitarFormularioDatos();
                                 };
@@ -1126,21 +1241,28 @@
                             });
                         } else { list.style.display = 'none'; }
                     });
-            }, 150);
+            }, 80);
         }
 
         function filtrarAlumnosActivos() {
-            const term = document.getElementById('misAlumnosSearchInput').value.toLowerCase();
+            const rawTerm = document.getElementById('misAlumnosSearchInput').value.trim();
+            const term = rawTerm.toLowerCase();
             const cards = document.querySelectorAll('.item-alumno-filtrable');
             let encontrados = 0;
 
             cards.forEach(card => {
+                const rawNombre = card.getAttribute('data-raw-nombre') || '';
+                const rawCurso = card.getAttribute('data-raw-curso') || '';
                 const nombre = card.getAttribute('data-nombre') || '';
                 const curso = card.getAttribute('data-curso') || '';
                 
-                if (nombre.toLowerCase().includes(term) || curso.toLowerCase().includes(term)) {
+                if (!term || nombre.toLowerCase().includes(term) || curso.toLowerCase().includes(term)) {
                     card.style.display = 'flex';
                     encontrados++;
+                    const elNom = card.querySelector('.js-hl-nombre');
+                    const elCur = card.querySelector('.js-hl-curso');
+                    if (elNom) elNom.innerHTML = resaltarCoincidencia(rawNombre, rawTerm);
+                    if (elCur) elCur.innerHTML = resaltarCoincidencia(rawCurso, rawTerm);
                 } else {
                     card.style.display = 'none';
                 }
@@ -1152,8 +1274,7 @@
         }
 
         function cerrarYCrear() {
-            alert("Procesando informaciÃ³n de alta de alumno...");
-            cerrarModalNuevo();
+            enviarVinculoAlAuditor(true);
         }
 
         // 5. SISTEMA INTELIGENTE DE HABLA Y ESCUCHA POR VOZ

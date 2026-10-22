@@ -56,6 +56,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- MÓDULO: AUDITORÍA DE DOCENTES & NOVEDADES EN TIEMPO REAL ---
     Route::get('/auditor/docentes-legajos', [\App\Http\Controllers\AuditorDocenteController::class, 'indexLegajos'])->name('auditor.docentes.legajos');
     Route::get('/auditor/novedades', [\App\Http\Controllers\AuditorDocenteController::class, 'novedades'])->name('auditor.novedades');
+    Route::post('/auditor/resolucion/vincular', [\App\Http\Controllers\AuditorDocenteController::class, 'registrarResolucionVinculo'])->name('auditor.resolucion.vincular');
     
     Route::post('/auditor/expedientes/{id}/aprobar', [\App\Http\Controllers\AuditorDocenteController::class, 'aprobarExpediente'])->name('auditor.expedientes.aprobar');
     Route::post('/auditor/expedientes/{id}/rechazar', [\App\Http\Controllers\AuditorDocenteController::class, 'rechazarExpediente'])->name('auditor.expedientes.rechazar');
@@ -255,7 +256,9 @@ Route::get('/app-docente/demo', [\App\Http\Controllers\PwaDocenteController::cla
 Route::get('/app-directora/demo', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);
 Route::get('/directora/asistencia', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);
 Route::post('/app-docente/upload', [\App\Http\Controllers\PwaDocenteController::class , 'uploadDocument'])->name('pwa.docente.upload');
+Route::post('/app-docente/vincular-alumno', [\App\Http\Controllers\PwaDocenteController::class , 'vincularAlumnoResolucion'])->name('pwa.docente.vincular_alumno');
 Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::class, 'search'])->name('pwa.docente.search');
+Route::get('/api/auditor/novedades-live', [\App\Http\Controllers\AuditorDocenteController::class, 'apiNovedadesLive'])->name('api.auditor.novedades_live');
 
 // ==========================================
 // MÓDULO ASISTENTE IA (GEMINI 1.5 FLASH)

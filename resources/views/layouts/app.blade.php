@@ -101,6 +101,123 @@
             </main>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Motor Universal INTEGRA de Búsqueda en Tiempo Real con Resaltado Amarillo (<mark>)
+            window.integraLimpiarResaltado = function(root) {
+                if (!root) return;
+                root.querySelectorAll('mark.integra-hl').forEach(function(mark) {
+                    const parent = mark.parentNode;
+                    if (parent) {
+                        parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                        parent.normalize();
+                    }
+                });
+            };
+
+            window.integraResaltarEnElemento = function(root, rawTerm) {
+                if (!root) return;
+                window.integraLimpiarResaltado(root);
+                if (!rawTerm) return;
+
+                const escaped = rawTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp('(' + escaped + ')', 'gi');
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                    acceptNode: function(node) {
+                        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                        const tag = node.parentNode ? node.parentNode.tagName : '';
+                        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'SELECT', 'OPTION', 'MARK', 'BUTTON'].includes(tag)) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        return regex.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                    }
+                });
+
+                const nodesToReplace = [];
+                let currentNode;
+                while ((currentNode = walker.nextNode())) {
+                    nodesToReplace.push(currentNode);
+                }
+
+                nodesToReplace.forEach(function(textNode) {
+                    const frag = document.createDocumentFragment();
+                    const parts = textNode.nodeValue.split(regex);
+                    parts.forEach(function(part) {
+                        if (part.toLowerCase() === rawTerm.toLowerCase()) {
+                            const mark = document.createElement('mark');
+                            mark.className = 'integra-hl';
+                            mark.style.cssText = 'background:#facc15; color:#0f172a; font-weight:800; padding:0 2px; border-radius:3px;';
+                            mark.textContent = part;
+                            frag.appendChild(mark);
+                        } else if (part) {
+                            frag.appendChild(document.createTextNode(part));
+                        }
+                    });
+                    if (textNode.parentNode) {
+                        textNode.parentNode.replaceChild(frag, textNode);
+                    }
+                });
+            };
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // 1. Buscador de Nómina de Docentes (Panel Auditor)
+                const inputNomina = document.getElementById('buscadorNominaDocentes');
+                const tablaNomina = document.getElementById('tablaNominaDocentesAuditor');
+                if (inputNomina && tablaNomina) {
+                    inputNomina.addEventListener('input', function() {
+                        const raw = this.value.trim();
+                        const q = raw.toLowerCase();
+                        tablaNomina.querySelectorAll('tbody tr').forEach(function(tr) {
+                            window.integraLimpiarResaltado(tr);
+                            const txt = tr.innerText.toLowerCase();
+                            if (!q || txt.includes(q)) {
+                                tr.style.display = '';
+                                if (raw) window.integraResaltarEnElemento(tr, raw);
+                            } else {
+                                tr.style.display = 'none';
+                            }
+                        });
+                    });
+                }
+
+                // 2. Buscador de Bandeja de Vínculos y Resoluciones (Panel Auditor)
+                const inputBandeja = document.getElementById('buscadorBandejaResoluciones');
+                if (inputBandeja) {
+                    inputBandeja.addEventListener('input', function() {
+                        const raw = this.value.trim();
+                        const q = raw.toLowerCase();
+                        document.querySelectorAll('.item-vinculo-auditor').forEach(function(card) {
+                            window.integraLimpiarResaltado(card);
+                            const txt = card.innerText.toLowerCase();
+                            if (!q || txt.includes(q)) {
+                                card.style.display = '';
+                                if (raw) window.integraResaltarEnElemento(card, raw);
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    });
+                }
+
+                // 3. Buscador de Planilla de Liquidación e-SIDIF
+                const inputLiq = document.getElementById('buscadorLiquidacionDocente');
+                if (inputLiq) {
+                    inputLiq.addEventListener('input', function() {
+                        const raw = this.value.trim();
+                        const q = raw.toLowerCase();
+                        document.querySelectorAll('.fila-liquidacion-docente').forEach(function(tr) {
+                            window.integraLimpiarResaltado(tr);
+                            const txt = tr.innerText.toLowerCase();
+                            if (!q || txt.includes(q)) {
+                                tr.style.display = '';
+                                if (raw) window.integraResaltarEnElemento(tr, raw);
+                            } else {
+                                tr.style.display = 'none';
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
         @stack('scripts')
         @include('partials.ai_assistant_widget')
     </body>

@@ -1,72 +1,53 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="border-b" style="background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); border-color: #334155 !important;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="no-underline">
-                        <span class="text-2xl font-black text-blue-700 tracking-tighter">
-                            GESTIÓN<span class="text-gray-400">PRO</span>
-                        </span>
+            <div class="flex items-center">
+                <div class="shrink-0 flex items-center gap-3">
+                    <a href="{{ route('dashboard') }}" class="no-underline d-flex align-items-center gap-2 text-decoration-none">
+                        <img src="{{ asset('images/apos_logo.svg') }}" alt="APOS La Rioja" style="height: 36px; width: auto; background: #ffffff; padding: 3px 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                        <div class="d-flex flex-column">
+                            <span class="text-white fw-bold" style="font-size: 0.95rem; letter-spacing: 0.5px; line-height: 1.1;">
+                                APOS <span style="color: #38bdf8;">LA RIOJA</span>
+                            </span>
+                            <small style="font-size: 0.65rem; color: #94a3b8; letter-spacing: 0.5px;">INTEGRA • GESTIÓN DE INTEGRACIÓN ESCOLAR</small>
+                        </div>
                     </a>
                 </div>
 
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        <i class="fas fa-th-large me-2"></i> {{ __('Dashboard') }}
-                    </x-nav-link>
+                <div class="hidden space-x-6 sm:-my-px sm:ms-8 sm:flex items-center">
+                    <a href="{{ route('dashboard') }}" class="text-decoration-none px-2 py-1 rounded text-sm fw-bold {{ request()->routeIs('dashboard') ? 'text-info border-bottom border-info' : 'text-light opacity-75' }}">
+                        <i class="fas fa-th-large me-1 text-info"></i> Panel Principal
+                    </a>
 
-                    <x-nav-link :href="url('/titulares')" :active="request()->is('titulares*')">
-                        <i class="fas fa-address-card me-2"></i> {{ __('Titulares') }}
-                    </x-nav-link>
+                    <a href="{{ route('auditor.docentes.index') }}" class="text-decoration-none px-2 py-1 rounded text-sm fw-bold {{ request()->is('auditor*') ? 'text-warning border-bottom border-warning' : 'text-light opacity-75' }}">
+                        <i class="fas fa-clipboard-check me-1 text-warning"></i> Auditoría y Resoluciones
+                    </a>
 
-                    <x-nav-link :href="url('/beneficiarios')" :active="request()->is('beneficiarios*')">
-                        <i class="fas fa-users me-2"></i> {{ __('Grupo Familiar') }}
-                    </x-nav-link>
+                    <a href="{{ route('liquidacion.prestadores.index') }}" class="text-decoration-none px-2 py-1 rounded text-sm fw-bold {{ request()->is('liquidacion*') ? 'text-success border-bottom border-success' : 'text-light opacity-75' }}">
+                        <i class="fas fa-file-invoice-dollar me-1 text-success"></i> Liquidación e-SIDIF
+                    </a>
 
-                    <x-nav-link :href="url('/docentes')" :active="request()->is('docentes*')">
-                        <i class="fas fa-chalkboard-teacher me-2"></i> {{ __('Maestras') }}
-                    </x-nav-link>
+                    <a href="{{ route('directora.asistencias.demo') }}" class="text-decoration-none px-2 py-1 rounded text-sm fw-bold {{ request()->is('app-directora*') ? 'text-info border-bottom border-info' : 'text-light opacity-75' }}">
+                        <i class="fas fa-school me-1 text-primary"></i> App Directora
+                    </a>
 
-                    <x-nav-link :href="url('/escuelas')" :active="request()->is('escuelas*')">
-                        <i class="fas fa-school me-2"></i> {{ __('Escuelas') }}
-                    </x-nav-link>
+                    <a href="{{ route('pwa.docente.demo') }}" class="text-decoration-none px-2 py-1 rounded text-sm fw-bold {{ request()->is('app-docente*') ? 'text-info border-bottom border-info' : 'text-light opacity-75' }}">
+                        <i class="fas fa-chalkboard-teacher me-1 text-info"></i> App Docente
+                    </a>
 
-                    <div class="hidden sm:flex sm:items-center sm:ms-6">
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-bold rounded-md text-blue-700 bg-white hover:text-blue-900 focus:outline-none transition ease-in-out duration-150 uppercase">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-cogs me-2"></i> CONFIGURACIÓN
-                                    </div>
-                                    <div class="ms-1">
-                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </button>
-                            </x-slot>
-
-                            <x-slot name="content">
-                                <x-dropdown-link :href="url('/config/localidades')">
-                                    <i class="fas fa-map-marker-alt me-2 text-primary"></i> {{ __('Localidades / Deptos') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link :href="url('/config/titulos')">
-                                    <i class="fas fa-graduation-cap me-2 text-success"></i> {{ __('Títulos Académicos') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link :href="url('/config/diagnosticos')">
-                                    <i class="fas fa-stethoscope me-2 text-danger"></i> {{ __('Diagnósticos Médicos') }}
-                                </x-dropdown-link>
-                            </x-slot>
-                        </x-dropdown>
-                    </div>
+                    <a href="{{ url('/panel-accesos') }}" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-bold" style="font-size: 0.75rem;">
+                        <i class="fas fa-compass me-1"></i> Accesos Rápidos
+                    </a>
                 </div>
             </div>
 
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-3">
+                @include('partials.notificaciones_widget')
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div class="font-bold">HOLA, {{ strtoupper(Auth::user()->name) }}</div>
+                        <button class="inline-flex items-center px-3 py-2 border border-secondary text-sm leading-4 font-bold rounded-pill text-white hover:text-info focus:outline-none transition ease-in-out duration-150" style="background: rgba(255,255,255,0.08);">
+                            <div class="font-bold"><i class="fas fa-user-circle text-info me-1"></i> {{ strtoupper(Auth::user()->name) }}</div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />

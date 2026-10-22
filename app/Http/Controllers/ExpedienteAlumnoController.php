@@ -26,10 +26,10 @@ class ExpedienteAlumnoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'alumno_id' => 'required|exists:familiars,id',
+            'alumno_id' => 'required|exists:familiares,id',
             'escuela_id' => 'nullable|exists:escuelas,id',
             'horarios_atencion' => 'nullable|string|max:255',
-            'horas_mensuales_asignadas' => 'nullable|integer|min:1|max:10',
+            'horas_mensuales_asignadas' => 'nullable|integer|min:1|max:120',
             'resolucion_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'certificado_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
