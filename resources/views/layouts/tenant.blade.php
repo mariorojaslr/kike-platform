@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php
-        $empresaId = Auth::user()->empresa_id ?? session('impersonated_tenant_id');
-        $empresaLayout = \App\Models\Empresa::find($empresaId);
-        $colorPrimario = $empresaLayout?->color_primario ?? '#3b82f6';
-        $colorSecundario = $empresaLayout?->color_secundario ?? '#1e293b';
-        $nombreEmpresa = $empresaLayout?->nombre ?? 'Mi Institución';
+        $empresaId = Auth::user()->empresa_id ?? session('impersonated_tenant_id') ?? 2;
+        $empresaLayout = \App\Models\Empresa::find($empresaId) ?? \App\Models\Empresa::find(2);
+        $colorPrimario = $empresaLayout?->color_primario ?? '#0284c7';
+        $colorSecundario = $empresaLayout?->color_secundario ?? '#0f172a';
+        $nombreEmpresa = $empresaLayout?->nombre ?? 'APOS - Obra Social Provincial';
+        $subagenciaNombre = $empresaLayout?->subagencia_nombre ?? 'Soluciones Digitales MCR (La Rioja)';
+        $capitasAfiliados = $empresaLayout?->capitas_afiliados ?: 160000;
     @endphp
     <title>@yield('title', $nombreEmpresa) | INTEGRA</title>
     <!-- Google Fonts -->
@@ -205,27 +207,36 @@
             <button class="btn btn-sm text-white" id="closeSidebar"><i class="fas fa-times fa-lg"></i></button>
         </div>
         
-        <a href="{{ route('tenant.dashboard') }}" class="sidebar-brand">
-            <div class="tenant-logo">
-                <i class="fas fa-hospital-user"></i>
+        <a href="{{ route('tenant.dashboard') }}" class="sidebar-brand mb-2">
+            <div class="tenant-logo overflow-hidden p-0">
+                @if($empresaLayout && $empresaLayout->logo && str_contains($empresaLayout->logo, 'mcr'))
+                    <img src="{{ asset('images/mcr_logo.svg') }}" alt="Logo MCR" style="width: 100%; height: 100%; object-fit: cover;">
+                @else
+                    <img src="{{ asset('images/apos_logo.svg') }}" alt="Logo APOS La Rioja" style="width: 100%; height: 100%; object-fit: cover;">
+                @endif
             </div>
-            <span style="font-size: 1.1rem; padding: 0 15px;">{{ $nombreEmpresa }}</span>
+            <span style="font-size: 1.05rem; padding: 0 12px; line-height: 1.25;">{{ $nombreEmpresa }}</span>
+            <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50 px-2 py-1" style="font-size: 0.65rem; font-weight: 600;">
+                <i class="fas fa-handshake me-1"></i>{{ $subagenciaNombre }}
+            </span>
         </a>
 
-        <div class="nav flex-column sidebar-nav mt-4">
-            <a href="{{ route('tenant.dashboard') }}" class="nav-link {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}"><i class="fas fa-home"></i> Inicio</a>
-            <a href="{{ route('tenant.familiares.index') }}" class="nav-link {{ request()->routeIs('tenant.familiares.*') ? 'active' : '' }}"><i class="fas fa-child"></i> Alumnos/Pacientes</a>
-            <a href="{{ route('tenant.titulares.index') }}" class="nav-link {{ request()->routeIs('tenant.titulares.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Grupo Familiar (Titulares)</a>
-            <a href="{{ route('tenant.docentes.index') }}" class="nav-link {{ request()->routeIs('tenant.docentes.*') ? 'active' : '' }}"><i class="fas fa-chalkboard-teacher"></i> Docentes/Terapeutas</a>
-            <a href="{{ route('tenant.formaciones.index') }}" class="nav-link {{ request()->routeIs('tenant.formaciones.*') ? 'active' : '' }}"><i class="fas fa-graduation-cap"></i> Especialidades (Roles)</a>
-            <a href="{{ route('tenant.diagnosticos.index') }}" class="nav-link {{ request()->routeIs('tenant.diagnosticos.*') ? 'active' : '' }}"><i class="fas fa-notes-medical"></i> Catálogo de Patologías</a>
-            <a href="{{ route('tenant.escuelas.index') }}" class="nav-link {{ request()->routeIs('tenant.escuelas.*') ? 'active' : '' }}"><i class="fas fa-school"></i> Escuelas Vinculadas</a>
+        <div class="nav flex-column sidebar-nav mt-2" style="overflow-y: auto; max-height: calc(100vh - 190px);">
+            <a href="{{ route('tenant.dashboard') }}" class="nav-link {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}"><i class="fas fa-home"></i> Inicio (Área Docentes)</a>
+            <a href="{{ route('tenant.familiares.index') }}" class="nav-link {{ request()->routeIs('tenant.familiares.*') ? 'active' : '' }}"><i class="fas fa-child"></i> Alumnos / Beneficiarios</a>
+            <a href="{{ route('tenant.titulares.index') }}" class="nav-link {{ request()->routeIs('tenant.titulares.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Padres Titulares (Grupo)</a>
+            <a href="{{ route('tenant.docentes.index') }}" class="nav-link {{ request()->routeIs('tenant.docentes.*') ? 'active' : '' }}"><i class="fas fa-chalkboard-teacher"></i> Docentes Integradores</a>
+            <a href="{{ route('tenant.escuelas.index') }}" class="nav-link {{ request()->routeIs('tenant.escuelas.*') ? 'active' : '' }}"><i class="fas fa-school"></i> Escuelas (La Rioja)</a>
+            <a href="{{ route('tenant.diagnosticos.index') }}" class="nav-link {{ request()->routeIs('tenant.diagnosticos.*') ? 'active' : '' }}"><i class="fas fa-notes-medical"></i> Patologías (CUD)</a>
+            <a href="{{ route('tenant.formaciones.index') }}" class="nav-link {{ request()->routeIs('tenant.formaciones.*') ? 'active' : '' }}"><i class="fas fa-graduation-cap"></i> Especialidades Docentes</a>
             
-            <a href="{{ route('tenant.importador.index') }}" class="nav-link mt-3 text-warning {{ request()->routeIs('tenant.importador.*') ? 'active' : '' }}" style="border: 1px dashed rgba(255,255,255,0.3);"><i class="fas fa-satellite-dish"></i> <b>Importador Masivo</b></a>
+            <a href="{{ route('panel.accesos') }}" class="nav-link mt-2 text-info" style="background: rgba(56,189,248,0.1); border-left: 4px solid #38bdf8;"><i class="fas fa-share-nodes"></i> <b>Links de Acceso (Roles)</b></a>
+            <a href="{{ route('owner.mutual_dashboard') }}" class="nav-link text-warning"><i class="fas fa-crown"></i> <b>Ejecutivo APOS (160k)</b></a>
+            <a href="{{ route('tenant.importador.index') }}" class="nav-link mt-2 text-warning {{ request()->routeIs('tenant.importador.*') ? 'active' : '' }}" style="border: 1px dashed rgba(255,255,255,0.3);"><i class="fas fa-satellite-dish"></i> <b>Importador Padrón</b></a>
 
-            <a href="{{ route('tenant.tipo_documentos.index') }}" class="nav-link mt-3 {{ request()->routeIs('tenant.tipo_documentos.*') ? 'active' : '' }}"><i class="fas fa-file-contract"></i> <b>Reglas Documentales</b></a>
-            <a href="{{ route('auditor.documentos') }}" class="nav-link {{ request()->routeIs('auditor.documentos') ? 'active' : '' }}"><i class="fas fa-balance-scale"></i> Auditoría Documentos</a>
-            <a href="{{ route('auditor.facturas') }}" class="nav-link {{ request()->routeIs('auditor.facturas') ? 'active' : '' }}"><i class="fas fa-file-invoice"></i> Auditoría Facturación</a>
+            <a href="{{ route('tenant.tipo_documentos.index') }}" class="nav-link mt-2 {{ request()->routeIs('tenant.tipo_documentos.*') ? 'active' : '' }}"><i class="fas fa-file-contract"></i> <b>Requisitos de Legajo</b></a>
+            <a href="{{ route('auditor.docentes.legajos') }}" class="nav-link {{ request()->routeIs('auditor.docentes.*') ? 'active' : '' }}"><i class="fas fa-user-check"></i> Auditoría Docentes</a>
+            <a href="{{ route('owner.liquidaciones') }}" class="nav-link {{ request()->routeIs('owner.liquidaciones') ? 'active' : '' }}"><i class="fas fa-file-invoice-dollar"></i> Planilla de Liquidación</a>
             
             @if(request()->routeIs('tenant.dashboard'))
                 <a href="#" class="nav-link mt-4" style="color: var(--brand-primary);" data-bs-toggle="modal" data-bs-target="#setupModal"><i class="fas fa-paint-roller"></i> Personalizar Marca</a>
@@ -245,9 +256,16 @@
             <div class="d-flex align-items-center gap-3">
                 <button class="mobile-toggle" id="openSidebar"><i class="fas fa-bars"></i></button>
                 <div>
-                    <h4 class="mb-0 fw-bold d-none d-sm-block">Panel de {{ $nombreEmpresa }}</h4>
-                    <h5 class="mb-0 fw-bold d-sm-none">Panel Tenant</h5>
-                    <p class="mb-0 small" style="color: var(--text-muted)">Ecosistema activo</p>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h4 class="mb-0 fw-bold d-none d-sm-block">{{ $nombreEmpresa }}</h4>
+                        <h5 class="mb-0 fw-bold d-sm-none">{{ $nombreEmpresa }}</h5>
+                        <span class="badge bg-primary rounded-pill px-3 py-1" style="font-size: 0.72rem;">
+                            <i class="fas fa-users me-1"></i>{{ number_format($capitasAfiliados, 0, ',', '.') }} Afiliados (Provincia de La Rioja)
+                        </span>
+                    </div>
+                    <p class="mb-0 small" style="color: var(--text-muted)">
+                        <i class="fas fa-building-shield text-primary me-1"></i>Subagencia Oficial: <strong>{{ $subagenciaNombre }}</strong> &bull; Sector: <strong>Área Docentes Integradores y Apoyo Terapéutico</strong>
+                    </p>
                 </div>
             </div>
             <div class="topbar-right align-items-center gap-3">

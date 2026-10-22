@@ -17,12 +17,13 @@ class PwaDocenteController extends Controller
         // $token = $request->query('token');
         // $docente = Docente::where('token_acceso', $token)->firstOrFail();
         
-        // --- DATA DE DEMOSTRACIÓN PARA EL OWNER ---
-        $docenteNombre = 'Prof. Andrea V. (Demo)';
-        
-        // LECTURA DE REQUISITOS (Simulando Empresa 1 y Docente Demo 1)
-        $empresaIdDemo = 1;
-        $docenteIdDemo = 1;
+        // --- DATA REAL DE APOS LA RIOJA ---
+        $empresaIdDemo = 2; // APOS - Obra Social Provincial
+        $docenteReal = \App\Models\Docente::where('empresa_id', $empresaIdDemo)
+            ->when($request->query('docente_id'), fn($q, $id) => $q->where('id', $id))
+            ->first();
+        $docenteIdDemo = $docenteReal ? $docenteReal->id : 21;
+        $docenteNombre = $docenteReal ? ('Prof. ' . $docenteReal->nombre . ' (APOS La Rioja)') : 'Prof. María Eugenia López (APOS La Rioja)';
 
         // Carga de Expedientes Reales de la Base de Datos para el Docente
         $expedientesReales = \App\Models\ExpedienteAlumno::with(['alumno', 'escuela', 'facturas'])
@@ -216,25 +217,35 @@ class PwaDocenteController extends Controller
                 ->where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
                       ->orWhere('dni', 'LIKE', "%{$term}%")
-                      ->orWhere('n_afiliado', 'LIKE', "%{$term}%");
+                      ->orWhere('n_afiliado', 'LIKE', "%{$term}%")
+                      ->orWhere('resolucion', 'LIKE', "%{$term}%")
+                      ->orWhereHas('familiares', function($fq) use ($term) {
+                          $fq->where('nombre', 'LIKE', "%{$term}%")
+                             ->orWhere('dni', 'LIKE', "%{$term}%")
+                             ->orWhere('n_afiliado', 'LIKE', "%{$term}%")
+                             ->orWhere('resolucion', 'LIKE', "%{$term}%");
+                      });
                 })
-                ->take(15)
+                ->take(20)
                 ->get();
 
             return response()->json($titulares);
         }
 
         if ($type === 'alumnos') {
-            $query = \App\Models\Familiar::with(['escuela', 'titular', 'diagnostico']);
+            $query = \App\Models\Familiar::with(['escuela', 'titular', 'diagnostico', 'docente']);
 
             if ($term) {
                 $query->where(function($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
                       ->orWhere('dni', 'LIKE', "%{$term}%")
+                      ->orWhere('n_afiliado', 'LIKE', "%{$term}%")
+                      ->orWhere('resolucion', 'LIKE', "%{$term}%")
                       ->orWhereHas('titular', function($tq) use ($term) {
                           $tq->where('nombre', 'LIKE', "%{$term}%")
                              ->orWhere('dni', 'LIKE', "%{$term}%")
-                             ->orWhere('n_afiliado', 'LIKE', "%{$term}%");
+                             ->orWhere('n_afiliado', 'LIKE', "%{$term}%")
+                             ->orWhere('resolucion', 'LIKE', "%{$term}%");
                       });
                 });
             }
@@ -243,7 +254,7 @@ class PwaDocenteController extends Controller
                 $query->where('titular_id', $request->query('titular_id'));
             }
 
-            $alumnos = $query->take(15)->get();
+            $alumnos = $query->take(20)->get();
             return response()->json($alumnos);
         }
         

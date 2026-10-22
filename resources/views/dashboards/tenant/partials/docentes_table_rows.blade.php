@@ -11,7 +11,7 @@
             if (!$search) return $safeText;
             
             $pattern = '/(' . preg_quote($search, '/') . ')/ui';
-            $replaced = preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold"></mark>', $safeText);
+            $replaced = preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', $safeText);
             
             return $replaced !== null ? $replaced : $safeText;
         }

@@ -11,7 +11,7 @@
             if (!$search) return $safeText;
             
             $pattern = '/(' . preg_quote($search, '/') . ')/ui';
-            $replaced = preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold"></mark>', $safeText);
+            $replaced = preg_replace($pattern, '<mark class="bg-warning text-dark px-1 rounded shadow-sm fw-bold">$1</mark>', $safeText);
             
             return $replaced !== null ? $replaced : $safeText;
         }
@@ -33,33 +33,47 @@
                 </div>
                 <div>
                     <h6 class="mb-0 fw-bold" style="color: var(--text-main);">{!! highlightText($familiar->nombre, $search ?? '') !!}</h6>
-                    <span class="badge rounded-pill bg-light text-dark shadow-sm border mt-1" style="font-size: 0.75rem;"><i class="fas fa-id-card me-1 text-muted"></i> DNI: {!! highlightText($familiar->dni ?? 'No especificado', $search ?? '') !!}</span>
+                    <div class="d-flex flex-wrap gap-1 mt-1">
+                        <span class="badge rounded-pill bg-light text-dark shadow-sm border" style="font-size: 0.75rem;"><i class="fas fa-id-card me-1 text-muted"></i> DNI: {!! highlightText($familiar->dni ?? 'No especificado', $search ?? '') !!}</span>
+                        @if($familiar->escuela)
+                            <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle" style="font-size: 0.72rem;"><i class="fas fa-school me-1"></i>{{ $familiar->escuela->nombre }} ({{ $familiar->grado_division ?? '' }})</span>
+                        @endif
+                    </div>
                 </div>
             </div>
         </td>
         <td class="align-middle text-center">
-            <!-- Nro de Afiliado Generado Dinámicamente Obra Social -->
-            <span class="badge px-3 py-2 fs-6 shadow-sm" style="background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.3);">
+            <!-- Nro de Afiliado Oficial APOS -->
+            <span class="badge px-3 py-2 fs-6 shadow-sm" style="background-color: rgba(2, 132, 199, 0.1); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3);">
                 <i class="fas fa-barcode me-2 text-primary"></i>{!! highlightText($familiar->numero_afiliado, $search ?? '') !!}
             </span>
+            @if($familiar->resolucion)
+                <div class="small text-muted mt-1"><i class="fas fa-file-signature text-warning me-1"></i><strong>{!! highlightText($familiar->resolucion, $search ?? '') !!}</strong></div>
+            @endif
         </td>
         <td class="align-middle">
             <div class="d-flex align-items-center gap-2">
-                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 35px; height: 35px; background: #64748b;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 35px; height: 35px; background: #64748b; flex-shrink: 0;">
                     <i class="fas fa-user-shield"></i>
                 </div>
                 <div>
-                    <span class="fw-bold text-dark d-block">{{ $familiar->titular->nombre ?? 'Sin Titular' }}</span>
-                    <span class="small text-muted">Vínculo: {{ $familiar->parentesco ?? 'Desconocido' }}</span>
+                    <span class="fw-bold d-block" style="color: var(--text-main);">{!! highlightText($familiar->titular->nombre ?? 'Sin Titular', $search ?? '') !!}</span>
+                    <span class="small text-muted d-block">Titular APOS: {{ $familiar->titular->n_afiliado ?? $familiar->titular->dni ?? '-' }}</span>
+                    @if($familiar->docente)
+                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1" style="font-size: 0.70rem;"><i class="fas fa-chalkboard-teacher me-1"></i>Docente: {{ $familiar->docente->nombre }}</span>
+                    @endif
                 </div>
             </div>
         </td>
-        <td class="align-middle">
+        <td class="align-middle" style="max-width: 280px;">
             @if($familiar->tiene_patologia && $familiar->diagnostico)
-                <span class="badge bg-warning text-dark"><i class="fas fa-notes-medical me-1"></i>{{ $familiar->diagnostico->nombre }}</span>
-                <br><small class="text-muted">Cod: {{ $familiar->diagnostico->codigo }}</small>
+                <span class="badge bg-warning text-dark text-wrap text-start mb-1" style="line-height: 1.3;"><i class="fas fa-notes-medical me-1"></i>{{ $familiar->diagnostico->nombre }}</span>
+                <div class="small text-muted">Cód: <strong>{{ $familiar->diagnostico->codigo }}</strong></div>
+                @if($familiar->diagnostico_detalle && $familiar->diagnostico_detalle !== $familiar->diagnostico->nombre)
+                    <div class="text-muted mt-1" style="font-size: 0.72rem; line-height: 1.2;">{{ \Illuminate\Support\Str::limit($familiar->diagnostico_detalle, 90) }}</div>
+                @endif
             @else
-                <span class="badge bg-light text-muted border">Paciente regular</span>
+                <span class="badge bg-light text-muted border">Beneficiario Adicional</span>
             @endif
         </td>
         <td class="align-middle text-end">

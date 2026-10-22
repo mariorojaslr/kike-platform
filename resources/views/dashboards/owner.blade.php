@@ -442,12 +442,30 @@
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="bg-light rounded p-2 me-3 text-center" style="width:40px;height:40px;line-height:24px; font-weight:bold; color:var(--primario);">
-                                                    {{ substr($empresa->nombre ?? 'N/A', 0, 1) }}
-                                                </div>
+                                                @if($empresa->logo && str_contains($empresa->logo, 'apos'))
+                                                    <img src="{{ asset('images/apos_logo.svg') }}" class="rounded me-3 shadow-sm" style="width:44px;height:44px;object-fit:cover;">
+                                                @elseif($empresa->logo && str_contains($empresa->logo, 'mcr'))
+                                                    <img src="{{ asset('images/mcr_logo.svg') }}" class="rounded me-3 shadow-sm" style="width:44px;height:44px;object-fit:cover;">
+                                                @else
+                                                    <div class="bg-light rounded p-2 me-3 text-center" style="width:44px;height:44px;line-height:28px; font-weight:bold; color:var(--primario);">
+                                                        {{ substr($empresa->nombre ?? 'N/A', 0, 1) }}
+                                                    </div>
+                                                @endif
                                                 <div>
-                                                    <h6 class="mb-0 fw-bold">{{ $empresa->nombre ?? 'Empresa Genérica' }}</h6>
-                                                    <small class="text-muted">ID: #{{ str_pad($empresa->id, 4, '0', STR_PAD_LEFT) }}</small>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <h6 class="mb-0 fw-bold">{{ $empresa->nombre ?? 'Empresa Genérica' }}</h6>
+                                                        @if(($empresa->tipo_entidad ?? '') === 'subagencia')
+                                                            <span class="badge bg-purple-light text-purple" style="font-size: 0.68rem;">Subagencia Provincial</span>
+                                                        @elseif(($empresa->tipo_entidad ?? '') === 'obra_social')
+                                                            <span class="badge bg-blue-light text-primary" style="font-size: 0.68rem;">Obra Social ({{ number_format($empresa->capitas_afiliados ?: 160000, 0, ',', '.') }} Afiliados)</span>
+                                                        @endif
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        ID: #{{ str_pad($empresa->id, 4, '0', STR_PAD_LEFT) }}
+                                                        @if($empresa->subagencia_nombre)
+                                                            &bull; <i class="fas fa-sitemap text-primary"></i> {{ $empresa->subagencia_nombre }}
+                                                        @endif
+                                                    </small>
                                                 </div>
                                             </div>
                                         </td>

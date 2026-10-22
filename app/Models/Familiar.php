@@ -18,27 +18,35 @@ class Familiar extends Model
         'dni',
         'parentesco',
         'diagnostico_id',
+        'diagnostico_detalle',
         'escuela_id',
+        'docente_id',
+        'resolucion',
         'tiene_patologia',
         'n_afiliado',
         'grado_division',
         'turno',
-        'horario'
+        'horario',
+        'foto_perfil'
     ];
 
     /**
-     * Número de Afiliado / Obra Social generado dinámicamente.
-     * Ejemplo: 1 (Prefijo) + 12345678 (DNI Titular) + 01 (Hijo N°1)
+     * Número de Afiliado / Obra Social (Prioriza el N° oficial de APOS cargado, o lo calcula con extensión).
+     * Ejemplo APOS: 1 (Prefijo) + DNI Titular + 01/02/03 (Extensión Hijo)
      */
     public function getNumeroAfiliadoAttribute()
     {
+        if (!empty($this->n_afiliado)) {
+            return $this->n_afiliado;
+        }
+
         if (!$this->titular) {
             return 'SIN-TITULAR';
         }
 
         // Buscamos secuencialmente el nº de este hijo
         $hijos = self::where('titular_id', $this->titular_id)
-                     ->orderBy('created_at', 'asc')
+                     ->orderBy('id', 'asc')
                      ->get();
 
         $posicion = 1;
@@ -50,7 +58,7 @@ class Familiar extends Model
         }
 
         $posFormateada = str_pad($posicion, 2, '0', STR_PAD_LEFT);
-        return $this->titular->dni . "/" . $posFormateada;
+        return '1' . $this->titular->dni . $posFormateada;
     }
 
     /**
@@ -66,8 +74,18 @@ class Familiar extends Model
         return $this->belongsTo(Diagnostico::class, 'diagnostico_id');
     }
 
+    public function diagnosticoRel()
+    {
+        return $this->belongsTo(Diagnostico::class, 'diagnostico_id');
+    }
+
     public function escuela()
     {
         return $this->belongsTo(Escuela::class, 'escuela_id');
+    }
+
+    public function docente()
+    {
+        return $this->belongsTo(Docente::class, 'docente_id');
     }
 }

@@ -46,8 +46,14 @@ class TitularController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
                   ->orWhere('dni', 'like', "%{$search}%")
+                  ->orWhere('cuil', 'like', "%{$search}%")
                   ->orWhere('n_afiliado', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('resolucion', 'like', "%{$search}%")
+                  ->orWhereHas('familiares', function($qf) use ($search) {
+                      $qf->where('nombre', 'like', "%{$search}%")
+                         ->orWhere('dni', 'like', "%{$search}%")
+                         ->orWhere('n_afiliado', 'like', "%{$search}%");
+                  });
 
                 // Lógica de descompresión del Número de Afiliado/Obra Social
                 // Formato: 1 + DNI(7/8) + DigitoHijo(2) = Ej: 12233344401

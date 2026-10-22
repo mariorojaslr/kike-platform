@@ -31,27 +31,31 @@ class FamiliarController extends Controller
         $perPage = $request->input('per_page', 10);
 
         // Cargamos relaciones para el listado global
-        $query = Familiar::with(['titular', 'diagnostico'])->where('empresa_id', $empresaId);
+        $query = Familiar::with(['titular', 'diagnostico', 'escuela', 'docente'])->where('empresa_id', $empresaId);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                // Nombre o DNI del Paciente
+                // Nombre, DNI, N° Afiliado o Resolución del Paciente
                 $q->where('nombre', 'like', "%{$search}%")
-                    ->orWhere('dni', 'like', "%{$search}%");
+                    ->orWhere('dni', 'like', "%{$search}%")
+                    ->orWhere('n_afiliado', 'like', "%{$search}%")
+                    ->orWhere('resolucion', 'like', "%{$search}%")
+                    ->orWhereHas('titular', function ($qTit) use ($search) {
+                        $qTit->where('nombre', 'like', "%{$search}%")
+                             ->orWhere('dni', 'like', "%{$search}%")
+                             ->orWhere('n_afiliado', 'like', "%{$search}%");
+                    });
 
                 // Búsqueda por Número Obra Social Completo (Ej: 13344455502)
                 if (preg_match('/^1(\d{7,8})\d{2}$/', $search, $matches)) {
                     $dniTitular = $matches[1];
-                    // Envolvemos en un query para aplacar alertas Linter en algunos IDs de PHP
                     $q->orWhere(function ($subQ) use ($dniTitular) {
-                                $subQ->whereHas('titular', function ($qTit) use ($dniTitular) {
-                                        $qTit->where('dni', $dniTitular);
-                                    }
-                                    );
-                                }
-                                );
-                            }
+                        $subQ->whereHas('titular', function ($qTit) use ($dniTitular) {
+                            $qTit->where('dni', $dniTitular);
                         });
+                    });
+                }
+            });
         }
 
         $familiares = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(request()->query());
@@ -74,7 +78,7 @@ class FamiliarController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'titular_id' => 'required|exists:titulares,id',
+            'titular_id' => 'required|exists:titulars,id',
             'nombre' => 'required|string|max:255',
             'dni' => 'nullable|string|max:20',
             'parentesco' => 'nullable|string',
@@ -110,7 +114,7 @@ class FamiliarController extends Controller
         $familiar = Familiar::where('empresa_id', $this->getEmpresaId())->findOrFail($id);
 
         $request->validate([
-            'titular_id' => 'required|exists:titulares,id',
+            'titular_id' => 'required|exists:titulars,id',
             'nombre' => 'required|string|max:255',
             'dni' => 'nullable|string|max:20',
             'diagnostico_id' => 'nullable|exists:diagnosticos,id',

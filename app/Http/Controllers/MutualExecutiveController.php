@@ -12,51 +12,51 @@ class MutualExecutiveController extends Controller
      */
     public function indexDashboard(Request $request)
     {
-        $periodo = "Septiembre 2026";
-        $capitasTotal = 130000;
+        $periodo = "Octubre 2026";
+        $capitasTotal = 160000;
         $sucursalSeleccionada = $request->input('sucursal', 'todas');
         
         $matrizAuditoria = MedicalAuditAntiFraudService::obtenerMatrizAhorroAuditoria();
 
         $sucursales = [
             'todas' => (object)[
-                'nombre' => 'Todas las Sedes (Visión Global Mutual)',
-                'capitas' => 130000,
-                'recaudacion' => 1820000000,
-                'gasto' => 680000000,
-                'gasto_discapacidad' => 145000000,
+                'nombre' => 'Todas las Delegaciones APOS (Provincia de La Rioja - 160.000 Afiliados)',
+                'capitas' => 160000,
+                'recaudacion' => 2240000000,
+                'gasto' => 810000000,
+                'gasto_discapacidad' => 165000000,
                 'ahorro_ia' => $matrizAuditoria['total_ahorro_acumulado'],
                 'fraudes_bloqueados' => $matrizAuditoria['fraudes_bloqueados_count'],
-                'siniestralidad' => 37.3,
-                'prestadores' => 840,
-                'sanatorios' => 14
+                'siniestralidad' => 36.1,
+                'prestadores' => 980,
+                'sanatorios' => 18
             ],
             'chilecito' => (object)[
-                'nombre' => 'Sede Chilecito',
-                'capitas' => 32500,
-                'recaudacion' => 455000000,
-                'gasto' => 162000000,
+                'nombre' => 'Delegación APOS Chilecito y Oeste Riojano',
+                'capitas' => 38500,
+                'recaudacion' => 539000000,
+                'gasto' => 192000000,
                 'gasto_discapacidad' => 68000000,
                 'ahorro_ia' => $matrizAuditoria['sucursales']['chilecito']['ahorro_ars'],
                 'fraudes_bloqueados' => $matrizAuditoria['sucursales']['chilecito']['solapamientos_bloqueados'],
                 'siniestralidad' => 35.6,
-                'prestadores' => 210,
-                'sanatorios' => 3
+                'prestadores' => 240,
+                'sanatorios' => 4
             ],
             'la_rioja' => (object)[
-                'nombre' => 'Sede La Rioja Capital',
-                'capitas' => 58000,
-                'recaudacion' => 812000000,
-                'gasto' => 310000000,
-                'gasto_discapacidad' => 52000000,
+                'nombre' => 'Sede Central APOS La Rioja Capital',
+                'capitas' => 82000,
+                'recaudacion' => 1148000000,
+                'gasto' => 410000000,
+                'gasto_discapacidad' => 72000000,
                 'ahorro_ia' => $matrizAuditoria['sucursales']['la_rioja']['ahorro_ars'],
                 'fraudes_bloqueados' => $matrizAuditoria['sucursales']['la_rioja']['solapamientos_bloqueados'],
-                'siniestralidad' => 38.1,
-                'prestadores' => 420,
-                'sanatorios' => 6
+                'siniestralidad' => 35.7,
+                'prestadores' => 530,
+                'sanatorios' => 9
             ],
             'cordoba' => (object)[
-                'nombre' => 'Sede Córdoba (Alta Complejidad)',
+                'nombre' => 'Delegación Chamical / Llanos Riojanos & Derivaciones Cba',
                 'capitas' => 24000,
                 'recaudacion' => 336000000,
                 'gasto' => 142000000,
@@ -68,7 +68,7 @@ class MutualExecutiveController extends Controller
                 'sanatorios' => 3
             ],
             'buenos_aires' => (object)[
-                'nombre' => 'Sede Buenos Aires (Derivaciones)',
+                'nombre' => 'Delegación Aimogasta / Norte & Derivaciones Bs. As.',
                 'capitas' => 15500,
                 'recaudacion' => 217000000,
                 'gasto' => 66000000,

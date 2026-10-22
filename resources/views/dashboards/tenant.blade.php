@@ -3,43 +3,100 @@
 @section('title', 'Inicio')
 
 @section('content')
-    <!-- Ecosistema Metrics -->
-    <div class="row">
-        <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-icon"><i class="fas fa-users"></i></div>
-                <div class="stats-info">
-                    <p>Titulares/Referentes</p>
-                    <h3>{{ $totalAfiliados ?? 0 }}</h3>
+    <!-- Cabecera Institucional APOS La Rioja & Soluciones Digitales MCR -->
+    <div class="content-card mb-4 border-0 text-white shadow" style="background: linear-gradient(135deg, #0f172a 0%, #0369a1 60%, #0284c7 100%); border-radius: 18px;">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('images/apos_logo.svg') }}" alt="APOS La Rioja" class="rounded-4 shadow" style="width: 72px; height: 72px; background: #fff; padding: 3px;">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                        <span class="badge bg-info text-dark fw-bold px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            <i class="fas fa-landmark me-1"></i>OBRA SOCIAL PROVINCIAL - LA RIOJA
+                        </span>
+                        <span class="badge bg-light bg-opacity-25 text-white border border-light border-opacity-50 px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            <i class="fas fa-handshake me-1"></i>Agencia: Soluciones Digitales MCR
+                        </span>
+                    </div>
+                    <h4 class="fw-bold mb-1">APOS &mdash; Área de Docentes Integradores y Educación Especial</h4>
+                    <p class="mb-0 small text-white-50">
+                        Cobertura Provincial: <strong class="text-white">160.000 Afiliados (Titulares y Adicionales)</strong> &bull; Padrón Oficial Activo de Titulares, Alumnos con CUD, Docentes y Escuelas de La Rioja.
+                    </p>
                 </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url('/app-docente/demo') }}" class="btn btn-light fw-bold rounded-pill px-3 shadow-sm text-primary">
+                    <i class="fas fa-mobile-screen-button me-1"></i> App Docente
+                </a>
+                <a href="{{ route('auditor.docentes.legajos') }}" class="btn btn-warning fw-bold rounded-pill px-3 shadow-sm text-dark">
+                    <i class="fas fa-user-check me-1"></i> Panel Auditor
+                </a>
+                <a href="{{ url('/app-directora/demo') }}" class="btn btn-info fw-bold rounded-pill px-3 shadow-sm text-white">
+                    <i class="fas fa-school me-1"></i> App Directora
+                </a>
+                <a href="{{ route('panel.accesos') }}" class="btn btn-outline-light fw-bold rounded-pill px-3">
+                    <i class="fas fa-share-nodes me-1"></i> Links por Rol
+                </a>
             </div>
         </div>
+    </div>
+
+    <!-- Ecosistema Metrics (Clickables) -->
+    <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-icon"><i class="fas fa-child"></i></div>
-                <div class="stats-info">
-                    <p>Alumnos/Pacientes</p>
-                    <h3>{{ $totalFamiliares ?? 0 }}</h3>
+            <a href="{{ route('tenant.titulares.index') }}" class="text-decoration-none">
+                <div class="content-card mb-0 h-100 d-flex align-items-center justify-content-between hover-shadow">
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Padres Titulares (Área)</p>
+                        <h3 class="fw-bold mb-0 text-primary">{{ $totalAfiliados ?? 0 }}</h3>
+                        <small class="text-muted">De 160.000 cápitas APOS</small>
+                    </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 54px; height: 54px; font-size: 1.5rem;">
+                        <i class="fas fa-users"></i>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                <div class="stats-info">
-                    <p>Docentes/Terapeutas</p>
-                    <h3>{{ $totalDocentes ?? 0 }}</h3>
+            <a href="{{ route('tenant.familiares.index') }}" class="text-decoration-none">
+                <div class="content-card mb-0 h-100 d-flex align-items-center justify-content-between hover-shadow">
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Chicos / Alumnos CUD</p>
+                        <h3 class="fw-bold mb-0 text-success">{{ $totalFamiliares ?? 0 }}</h3>
+                        <small class="text-muted">Con patología y resolución</small>
+                    </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success" style="width: 54px; height: 54px; font-size: 1.5rem;">
+                        <i class="fas fa-child"></i>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3">
-            <div class="stats-card">
-                <div class="stats-icon"><i class="fas fa-school"></i></div>
-                <div class="stats-info">
-                    <p>Escuelas Vinculadas</p>
-                    <h3>{{ $totalEscuelas ?? 0 }}</h3>
+            <a href="{{ route('tenant.docentes.index') }}" class="text-decoration-none">
+                <div class="content-card mb-0 h-100 d-flex align-items-center justify-content-between hover-shadow">
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Docentes / Terapeutas</p>
+                        <h3 class="fw-bold mb-0 text-info">{{ $totalDocentes ?? 0 }}</h3>
+                        <small class="text-muted">Padrón La Rioja activo</small>
+                    </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info" style="width: 54px; height: 54px; font-size: 1.5rem;">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
                 </div>
-            </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{{ route('tenant.escuelas.index') }}" class="text-decoration-none">
+                <div class="content-card mb-0 h-100 d-flex align-items-center justify-content-between hover-shadow">
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Escuelas Vinculadas</p>
+                        <h3 class="fw-bold mb-0 text-warning">{{ $totalEscuelas ?? 0 }}</h3>
+                        <small class="text-muted">Provincia de La Rioja</small>
+                    </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning" style="width: 54px; height: 54px; font-size: 1.5rem;">
+                        <i class="fas fa-school"></i>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
 
