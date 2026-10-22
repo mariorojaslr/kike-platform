@@ -584,10 +584,20 @@
                 </label>
                 <input type="text" id="alumnoResolucionInput" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; border-color: #f59e0b; font-weight: 700;" placeholder="Ej: 505/25 o RES-APOS-2026 (Opcional)">
 
-                <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">
-                    Días y Horarios de Atención (Tope: Máx. 3 hs por día / 60 hs mes):
-                </label>
-                <input type="text" id="alumnoHorariosInput" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" value="Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)">
+                <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="font-size: 0.75rem; color: #fbbf24; font-weight: 700; display: block; margin-bottom: 4px;">
+                            Horas por Día:
+                        </label>
+                        <input type="number" id="alumnoHorasDiariasInput" min="1" max="12" value="3" class="input-dark js-input-horas-diarias" style="width: 100%; padding: 10px; border-color: #38bdf8; font-weight: 800; text-align: center; color: #fbbf24;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">
+                            Días y Horarios de Atención:
+                        </label>
+                        <input type="text" id="alumnoHorariosInput" class="input-dark" style="width: 100%; padding: 10px;" value="Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)">
+                    </div>
+                </div>
 
                 <input type="text" id="alumnoDni" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DNI del Alumno">
                 <input type="number" id="alumnoEdad" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; display: none;" placeholder="Edad">
@@ -1023,7 +1033,6 @@
                     btn.innerHTML = '<i class="fas fa-bell me-2"></i> Vincular Alumno con Resolución y Notificar al Auditor';
                 }
                 if (resp && resp.ok) {
-                    mostrarToastAuditorNotificado(resp.message);
                     const banner = document.getElementById('bannerEstadoNotificacionAuditor');
                     if (banner) {
                         banner.style.background = 'rgba(16, 185, 129, 0.25)';
@@ -1032,6 +1041,21 @@
                     }
                     if (cerrarAlFinalizar) {
                         cerrarModalNuevo();
+                        if (typeof window.integraModalElegante === 'function') {
+                            window.integraModalElegante({
+                                tipo: 'success',
+                                badge: 'VÍNCULO Y RESOLUCIÓN EN VIVO',
+                                titulo: 'Auditor APOS Notificado Inmediatamente',
+                                mensaje: resp.message,
+                                linkUrl: "{{ route('auditor.docentes.index') }}",
+                                linkTexto: 'Ver en Bandeja del Auditor',
+                                autoCerrarMs: 5500
+                            });
+                        } else {
+                            mostrarToastAuditorNotificado(resp.message);
+                        }
+                    } else {
+                        mostrarToastAuditorNotificado(resp.message);
                     }
                 }
             })
@@ -1521,6 +1545,7 @@
         }
     </script>
 
+    @include('partials.modal_elegante_integra')
     @include('partials.ai_assistant_widget')
 </body>
 </html>

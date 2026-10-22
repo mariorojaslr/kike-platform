@@ -219,6 +219,7 @@
             });
         </script>
         @stack('scripts')
+        @include('partials.modal_elegante_integra')
         @include('partials.ai_assistant_widget')
     </body>
 </html>

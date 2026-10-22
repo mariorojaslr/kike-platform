@@ -426,8 +426,12 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-8">
-                            <label class="form-label fw-bold small text-muted">Días y Horarios de Atención (Regla Máx. 3 hs/día)</label>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold small text-warning">Horas por Día *</label>
+                            <input type="number" name="horas_diarias" min="1" max="12" value="3" class="form-control fw-bold text-warning text-center js-input-horas-diarias" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-muted">Días y Horarios de Atención</label>
                             <input type="text" name="horarios_atencion" class="form-control bg-light" value="Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)">
                         </div>
                         <div class="col-md-4">

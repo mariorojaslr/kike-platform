@@ -57,22 +57,6 @@
             </div>
         @endif
 
-        <!-- Banner Explicativo de Normativa APOS -->
-        <div class="card border-0 bg-dark shadow-sm mb-4" style="border-left: 4px solid #f59e0b !important; border-radius: 12px;">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="{{ asset('images/apos_logo.svg') }}" alt="APOS" style="height: 36px; background: white; padding: 4px 8px; border-radius: 6px;">
-                    <div>
-                        <h6 class="fw-bold mb-1 text-warning">Normativa APOS de Certificación de Asistencia por Resolución</h6>
-                        <p class="small text-light mb-0">
-                            Por disposición oficial de <b>APOS La Rioja</b>, el límite máximo permitido por estudiante es de <b>3 horas diarias</b>.
-                            Al presionar <b>"Avalar Asistencia Oficial"</b>, la Dirección Escolar certifica que el docente concurrió a atender al alumno vinculado a su Padre/Titular y Resolución, disparando una <b>alerta inmediata al Auditor</b>.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- BARRA DE BÚSQUEDA EN TIEMPO REAL CON MARCADO AMARILLO + FILTRO DE ESCUELA -->
         <div class="card border-0 shadow-lg mb-4" style="background: #1e293b; border-radius: 16px; border: 1px solid #334155 !important;">
             <div class="card-body p-3">
@@ -255,8 +239,14 @@
 
                                 <div class="bg-dark p-3 rounded-3 mb-3 border border-secondary">
                                     <div class="small text-light mb-1"><strong>Diagnóstico CUD:</strong> <span class="text-info">{{ $item->diagnostico }}</span></div>
-                                    <div class="small text-light mb-1"><strong>Horario Diario:</strong> <span class="text-white">{{ $item->horario }}</span></div>
-                                    <div class="small text-light"><strong>Total Horas Mes:</strong> <span class="badge bg-primary">{{ $item->horas_mes }} hs</span></div>
+                                    <div class="small text-light mb-2"><strong>Horario:</strong> <span class="text-white">{{ $item->horario }}</span></div>
+                                    <div class="d-flex align-items-center justify-content-between pt-2 border-top border-secondary">
+                                        <span class="small text-warning fw-bold"><i class="fas fa-clock me-1"></i> Horas por Día:</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input type="number" min="1" max="12" step="1" value="3" data-alumno="{{ $item->alumno_nombre }}" class="form-control form-control-sm bg-dark text-warning border-info fw-bold text-center js-input-horas-diarias" style="width: 68px; border-radius: 10px;">
+                                            <span class="badge bg-primary">{{ $item->horas_mes }} hs/mes</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -275,49 +265,55 @@
                     </div>
                 </div>
 
-                <!-- Modal de Firma Digital -->
-                <div class="modal fade" id="modalFirmar{{ $item->id }}" tabindex="-1" aria-hidden="true" style="color: #0f172a;">
+                <!-- Modal Elegante de Firma Digital -->
+                <div class="modal fade" id="modalFirmar{{ $item->id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
-                            <div class="modal-header bg-dark text-white border-0 d-flex align-items-center justify-content-between" style="border-radius: 16px 16px 0 0;">
+                        <div class="modal-content border-0 shadow-lg">
+                            <div class="modal-header d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
                                     <img src="{{ asset('images/apos_logo.svg') }}" alt="APOS" style="height: 28px; background: white; padding: 2px 6px; border-radius: 6px;">
-                                    <h5 class="modal-title fw-bold mb-0"><i class="fas fa-pen-alt text-info me-1"></i> Aval Oficial APOS</h5>
+                                    <h5 class="modal-title fw-bold mb-0 text-white"><i class="fas fa-pen-alt text-info me-1"></i> Certificación de Asistencia</h5>
                                 </div>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <form action="{{ route('directora.asistencia.firmar') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="alumno_id" value="{{ $item->id }}">
-                                <div class="modal-body p-4 text-dark">
-                                    <div class="alert alert-info p-3 small mb-3">
-                                        <strong>Alumno:</strong> {{ $item->alumno_nombre }} (DNI: {{ $item->alumno_dni }})<br>
-                                        <strong>Padre / Titular APOS:</strong> {{ $item->padre_nombre }}<br>
-                                        <strong>Docente Integrador/a:</strong> {{ $item->docente_nombre }}<br>
-                                        <strong>Resolución APOS:</strong> {{ $item->nro_resolucion }}<br>
-                                        <strong>Institución:</strong> {{ $item->escuela_nombre }}
+                                <div class="modal-body p-4">
+                                    <div class="p-3 rounded-4 mb-3" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.85rem; line-height: 1.6;">
+                                        <div><strong class="text-warning">Alumno:</strong> <span class="text-white fw-bold">{{ $item->alumno_nombre }}</span> (DNI: {{ $item->alumno_dni }})</div>
+                                        <div><strong class="text-info">Padre / Titular APOS:</strong> <span class="text-white">{{ $item->padre_nombre }}</span></div>
+                                        <div><strong class="text-info">Docente Integrador/a:</strong> <span class="text-white">{{ $item->docente_nombre }}</span></div>
+                                        <div><strong class="text-warning">Resolución APOS:</strong> <span class="badge bg-warning text-dark fw-bold">{{ $item->nro_resolucion }}</span></div>
+                                        <div><strong class="text-light">Institución:</strong> <span class="text-white">{{ $item->escuela_nombre }}</span></div>
+                                    </div>
+
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-sm-5">
+                                            <label class="form-label fw-bold small text-warning">Horas Diarias *</label>
+                                            <input type="number" name="horas_diarias" min="1" max="12" value="3" data-alumno="{{ $item->alumno_nombre }}" class="form-control fw-bold text-warning text-center js-input-horas-diarias" required>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <label class="form-label fw-bold small text-info">Autoridad Escolar Firmante *</label>
+                                            <input type="text" name="directora_nombre" class="form-control" value="{{ $directoraNombre }}" required>
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label class="form-label fw-bold">Nombre Completo de la Directora / Autoridad *</label>
-                                        <input type="text" name="directora_nombre" class="form-control" value="{{ $directoraNombre }}" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Observaciones de Asistencia (Opcional)</label>
-                                        <textarea name="observaciones" class="form-control" rows="2" placeholder="Ej: Cumplió su cronograma en conformidad en el aula según Resolución APOS."></textarea>
+                                        <label class="form-label fw-bold small text-light">Observaciones de Asistencia (Opcional)</label>
+                                        <textarea name="observaciones" class="form-control" rows="2" placeholder="Ej: Cumplió su cronograma en conformidad en el aula."></textarea>
                                     </div>
 
                                     <div class="form-check form-switch mb-2">
                                         <input class="form-check-input" type="checkbox" id="chkCertifica{{ $item->id }}" required checked>
-                                        <label class="form-check-label small fw-bold" for="chkCertifica{{ $item->id }}">
-                                            Certifico bajo responsabilidad institucional que el/la docente asistió en los días y horarios indicados. Se notificará en vivo al Auditor APOS.
+                                        <label class="form-check-label small fw-bold text-light" for="chkCertifica{{ $item->id }}">
+                                            Certifico la asistencia de la docente en el horario declarado.
                                         </label>
                                     </div>
                                 </div>
                                 <div class="modal-footer border-0 pb-4 pe-4">
-                                    <button type="button" class="btn btn-light rounded-pill px-4 text-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                                    <button type="button" class="btn btn-outline-secondary text-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow">
                                         <i class="fas fa-bell me-1"></i> Firmar Aval y Notificar al Auditor
                                     </button>
                                 </div>

@@ -11,11 +11,25 @@ use App\Http\Controllers\LimpiezaController;
 /* |-------------------------------------------------------------------------- | Web Routes - Plataforma de Gestión de Servicios PRO (Responsive) |-------------------------------------------------------------------------- | Desarrollado para: Mario Rojas - Gestión de Prestadores |-------------------------------------------------------------------------- */
 
 /**
- * 1. ACCESO PÚBLICO
+ * 1. ACCESO PÚBLICO Y LINKS OFICIALES DIRECTOS DE APOS LA RIOJA (SIN CARTEL OWNER)
  */
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+Route::get('/acceso-apos', function (\Illuminate\Http\Request $request) {
+    $aposUser = \App\Models\User::where('empresa_id', 2)->first() ?? \App\Models\User::find(2);
+    if ($aposUser) {
+        $request->session()->forget(['impersonated_by', 'impersonated_tenant_id']);
+        \Illuminate\Support\Facades\Auth::login($aposUser);
+    }
+    $destino = $request->query('ir', '/tenant');
+    return redirect($destino);
+})->name('acceso.apos.directo');
+
+Route::get('/app-docente', [\App\Http\Controllers\PwaDocenteController::class, 'demo'])->name('pwa.docente.oficial');
+Route::get('/app-directora', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo'])->name('directora.oficial');
+Route::get('/app-padre', [\App\Http\Controllers\PadreAsistenciaController::class, 'indexDemo'])->name('padre.oficial');
 
 /**
  * 2. RUTAS PROTEGIDAS (Middleware: Auth)

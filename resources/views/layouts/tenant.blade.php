@@ -190,14 +190,6 @@
 </head>
 <body>
 
-    <!-- MODO OMNISCIENTE -->
-    @if(session('impersonated_by'))
-    <div style="background-color: #dc3545; color: white; text-align: center; padding: 10px; font-weight: bold; position: sticky; top: 0; z-index: 1050; display: flex; justify-content: center; align-items: center; gap: 15px;">
-        <span><i class="fas fa-user-secret fa-lg"></i> MODO DIOS ACTIVO: Estás viendo la pantalla como <strong>{{ Auth::user()->name }}</strong> ({{ $nombreEmpresa }}).</span>
-        <a href="{{ route('impersonate.leave') }}" class="btn btn-sm btn-dark" style="border: 1px solid white;">Volver a mi cuenta Original</a>
-    </div>
-    @endif
-
     <!-- Overlay UI -->
     <div id="sidebarOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:999;"></div>
 
@@ -240,6 +232,10 @@
             
             @if(request()->routeIs('tenant.dashboard'))
                 <a href="#" class="nav-link mt-4" style="color: var(--brand-primary);" data-bs-toggle="modal" data-bs-target="#setupModal"><i class="fas fa-paint-roller"></i> Personalizar Marca</a>
+            @endif
+
+            @if(session('impersonated_by'))
+                <a href="{{ route('impersonate.leave') }}" class="nav-link mt-2 text-white-50 small"><i class="fas fa-exchange-alt"></i> Cambiar de Entidad</a>
             @endif
 
             <form method="POST" action="{{ route('logout') }}" id="logoutFormTenant">
@@ -408,6 +404,7 @@
         });
     </script>
     @stack('scripts')
+    @include('partials.modal_elegante_integra')
     @include('partials.ai_assistant_widget')
 </body>
 </html>
