@@ -286,6 +286,7 @@ Route::get('/app-afiliado/telemedicina', [\App\Http\Controllers\TelemedicinaCont
 Route::post('/telemedicina/receta/emitir', [\App\Http\Controllers\TelemedicinaController::class, 'emitirRecetaDigital'])->name('telemedicina.receta.emitir');
 
 Route::get('/owner/liquidaciones', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'indexDemo'])->name('owner.liquidaciones');
+Route::get('/liquidacion-prestadores', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'indexDemo'])->name('liquidacion.prestadores.index');
 Route::post('/liquidacion/procesar-cierre', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'procesarCierreLiquidacion'])->name('liquidacion.procesar_cierre');
 Route::get('/owner/liquidaciones/exportar-interbanking', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'descargarInterbankingTxt'])->name('liquidacion.exportar_interbanking');
 Route::get('/owner/liquidaciones/exportar-esidif-csv', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'descargarEsidifCsv'])->name('liquidacion.exportar_esidif_csv');
