@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Tema Nocturno Obligatorio App Móvil -->
+    <!-- Tema Nocturno Obligatorio App MÃ³vil -->
     <meta name="theme-color" content="#0f172a">
     <title>INTEGRA | Portal de Terapeutas</title>
     <!-- Fonts -->
@@ -19,7 +19,7 @@
             --dinero-ok: #10b981;      /* Esmeralda / Seguro para sacar */
             --dinero-ok-glow: rgba(16, 185, 129, 0.4);
             
-            --dinero-espera: #f59e0b;  /* Ambar / Pendiente auditoría */
+            --dinero-espera: #f59e0b;  /* Ambar / Pendiente auditorÃ­a */
             --dinero-espera-glow: rgba(245, 158, 11, 0.4);
             
             --gris-texto: #94a3b8;
@@ -139,7 +139,7 @@
             margin-top: 5px;
         }
 
-        /* ----- VÚMETRO MOTIVACIONAL (RELOJ DE RENTABILIDAD) ----- */
+        /* ----- VÃšMETRO MOTIVACIONAL (RELOJ DE RENTABILIDAD) ----- */
         .vumetro-container {
             background: var(--tarjeta-bg);
             border-radius: 15px;
@@ -175,10 +175,10 @@
             opacity: 0.3; /* Por defecto apagadas */
         }
 
-        /* Colores del Vúmetro según el nivel de rentabilidad (de izq a der) */
+        /* Colores del VÃºmetro segÃºn el nivel de rentabilidad (de izq a der) */
         .barra.lvl-bajo { background-color: var(--dinero-ok); } /* Verdes al principio */
         .barra.lvl-medio { background-color: var(--dinero-espera); } /* Amarillas en el medio */
-        .barra.lvl-alto { background-color: #ef4444; } /* Rojas (fuego/máximo) a la derecha */
+        .barra.lvl-alto { background-color: #ef4444; } /* Rojas (fuego/mÃ¡ximo) a la derecha */
 
         /* Encendidas */
         .barra.activa { opacity: 1; box-shadow: 0 0 10px inherit; }
@@ -214,7 +214,7 @@
         .alumno-info h4 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 600; }
         .alumno-info p { margin: 0; font-size: 0.8rem; color: var(--gris-texto); }
 
-        /* Estados (Semáforo de validación) */
+        /* Estados (SemÃ¡foro de validaciÃ³n) */
         .estado { display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; }
         .estado.sin_informar { background: rgba(51, 65, 85, 0.5); color: #94a3b8; border: 2px dashed #475569; cursor: pointer; }
         .estado.pendiente { background: rgba(245, 158, 11, 0.15); color: var(--dinero-espera); border: 2px solid var(--dinero-espera); }
@@ -250,7 +250,7 @@
         
         .nav-item i { font-size: 1.3rem; }
 
-        /* ----- SECTOR: BOTONERA DE ACCIÓN RÁPIDA ----- */
+        /* ----- SECTOR: BOTONERA DE ACCIÃ“N RÃPIDA ----- */
         .accion-rapida {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             border-radius: 16px;
@@ -326,7 +326,7 @@
         .sheet-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
         .sheet-close { background: none; border: none; color: var(--gris-texto); font-size: 1.5rem; cursor: pointer; }
 
-        /* Input y Micrófono 100% Responsive */
+        /* Input y MicrÃ³fono 100% Responsive */
         .input-group-voice {
             display: flex;
             align-items: center;
@@ -353,7 +353,7 @@
         .input-dark:focus { outline: none; border-color: #3b82f6; }
 
         .btn-mic {
-            flex-shrink: 0; /* El botón nunca se comprime ni sale de pantalla */
+            flex-shrink: 0; /* El botÃ³n nunca se comprime ni sale de pantalla */
             background: linear-gradient(135deg, #8b5cf6, #6d28d9);
             border: none;
             border-radius: 12px;
@@ -440,33 +440,33 @@
         
         <!-- BILLETERAS GEMELAS -->
         <div class="billeteras-grid">
-            <!-- Izquierda: Lo que ya es suyo, aprobado 100% por Auditoría -->
+            <!-- Izquierda: Lo que ya es suyo, aprobado 100% por AuditorÃ­a -->
             <div class="billetera-card billetera-ok">
                 <div class="billetera-titulo ok-text">Lo que vas a cobrar</div>
                 <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoCobrado, 0, ',', '.') }}</div>
-                <div class="billetera-subtexto"><i class="fas fa-check-double me-1"></i>100% Aprobado por Auditoría</div>
+                <div class="billetera-subtexto"><i class="fas fa-check-double me-1"></i>100% Aprobado por AuditorÃ­a</div>
             </div>
 
             <!-- Derecha: Lo que proyecta si completa expedientes y facturas -->
             <div class="billetera-card billetera-pretendido">
-                <div class="billetera-titulo espera-text">Lo que deberías cobrar</div>
+                <div class="billetera-titulo espera-text">Lo que deberÃ­as cobrar</div>
                 <div class="billetera-monto"><span class="moneda">$</span>{{ number_format($montoPretendido, 0, ',', '.') }}</div>
                 <div class="billetera-subtexto"><i class="fas fa-hourglass-half me-1"></i>Potencial Total del Mes</div>
             </div>
         </div>
 
-        <!-- EL VÚMETRO (ECUALIZADOR DE RENDIMIENTO) -->
+        <!-- EL VÃšMETRO (ECUALIZADOR DE RENDIMIENTO) -->
         <div class="vumetro-container">
             <div class="vumetro-header">
                 <span>Rendimiento Mensual</span>
-                <span class="ok-text">75% Óptimo</span>
+                <span class="ok-text">75% Ã“ptimo</span>
             </div>
             <div class="ecualizador" id="ecualizadorPuas">
-                <!-- Se crean dinámicamente por JS -->
+                <!-- Se crean dinÃ¡micamente por JS -->
             </div>
         </div>
 
-        <!-- SECTOR: ALUMNO NUEVO / ACCIÓN RÁPIDA -->
+        <!-- SECTOR: ALUMNO NUEVO / ACCIÃ“N RÃPIDA -->
         <div class="accion-rapida" onclick="abrirModalNuevo()">
             <div class="accion-rapida-info">
                 <h3>Alumno Nuevo</h3>
@@ -477,7 +477,7 @@
             </div>
         </div>
 
-        <!-- SECTOR: MIS ALUMNOS / ACCIÓN RÁPIDA -->
+        <!-- SECTOR: MIS ALUMNOS / ACCIÃ“N RÃPIDA -->
         <div class="accion-rapida" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="abrirModalMisAlumnos()">
             <div class="accion-rapida-info">
                 <h3>Mis Alumnos</h3>
@@ -488,12 +488,12 @@
             </div>
         </div>
 
-        <!-- SECTOR: MIS REQUISITOS (DOCUMENTACIÓN) -->
+        <!-- SECTOR: MIS REQUISITOS (DOCUMENTACIÃ“N) -->
         <div class="accion-rapida" style="background: linear-gradient(135deg, #f59e0b, #d97706); margin-top: 15px;" onclick="abrirModalRequisitos()">
             <div class="accion-rapida-info">
                 @php $pendientesCount = isset($tiposDocumentos) ? $tiposDocumentos->whereIn('estado_subida', ['sin_entregar', 'rechazado', 'observado'])->count() : 0; @endphp
                 <h3>Mis Requisitos <span class="badge bg-danger rounded-pill ms-2" style="font-size:0.7rem;">{{ $pendientesCount }} Pendientes</span></h3>
-                <p>Sube tu documentación obligatoria (Ej: Seguro Méd., DNI)</p>
+                <p>Sube tu documentaciÃ³n obligatoria (Ej: Seguro MÃ©d., DNI)</p>
             </div>
             <div class="accion-rapida-icon">
                 <i class="fas fa-file-invoice"></i>
@@ -502,7 +502,7 @@
 
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR (TAB NAV) -->
+    <!-- NAVEGACIÃ“N INFERIOR (TAB NAV) -->
     <nav class="bottom-nav">
         <a href="#" class="nav-link nav-item active">
             <i class="fas fa-home"></i>
@@ -522,7 +522,7 @@
         </a>
     </nav>
 
-    <!-- OVERLAY ÚNICO PARA MODALES -->
+    <!-- OVERLAY ÃšNICO PARA MODALES -->
     <div class="modal-overlay" id="overlayNuevo"></div>
 
     <!-- ESTRUCTURA DEL MODAL BOTTOM SHEET (NUEVO ALUMNO) -->
@@ -533,11 +533,11 @@
             <button class="sheet-close" onclick="cerrarModalNuevo()"><i class="fas fa-times-circle"></i></button>
         </div>
 
-        <!-- Selector de Métodos -->
+        <!-- Selector de MÃ©todos -->
         <div style="display: flex; gap: 10px; margin: -5px auto 15px auto; width: 100%;">
             <div id="tabModoComun" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1);" onclick="cambiarMetodo('comun')">
                 <i class="fas fa-list-ul" style="font-size: 1.2rem; color: #3b82f6;"></i>
-                <span style="font-size: 0.8rem; color: white;">Método Común</span>
+                <span style="font-size: 0.8rem; color: white;">MÃ©todo ComÃºn</span>
             </div>
             <div id="tabModoParlante" class="scan-btn" style="flex: 1; padding: 12px; cursor: pointer; border: 1px solid var(--tarjeta-borde); background: var(--bg-oscuro);" onclick="cambiarMetodo('parlante')">
                 <i class="fas fa-microphone" style="font-size: 1.2rem; color: #8b5cf6;"></i>
@@ -546,28 +546,28 @@
         </div>
 
         <p id="subtextoInteraccion" style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 15px;">
-            Inicie la búsqueda seleccionando Escuela y Alumno manualmente.
+            Inicie la bÃºsqueda seleccionando Escuela y Alumno manualmente.
         </p>
 
-        <!-- === VISTA MÉTODO COMÚN (TRADICIONAL) === -->
+        <!-- === VISTA MÃ‰TODO COMÃšN (TRADICIONAL) === -->
         <div id="seccionModoComun">
             <!-- Buscador de Titular -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Titular / Padre..." oninput="filtrarTitularComun()">
+                <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="ðŸ” Buscar Titular / Padre..." oninput="filtrarTitularComun()">
             </div>
             <div id="listaTitularesComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
 
             <!-- Buscador de Alumno (Dependiente) -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()">
+                <input type="text" id="comunAlumnoInput" class="input-dark shadow-sm" placeholder="ðŸ” Buscar Nombre del Alumno..." oninput="filtrarAlumnoComun()">
             </div>
             <div id="listaAlumnosComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
 
             <!-- Buscador de Escuela -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="🔍 Buscar Institución / Escuela..." oninput="filtrarEscuelaComun()">
+                <input type="text" id="comunEscuelaInput" class="input-dark shadow-sm" placeholder="ðŸ” Buscar InstituciÃ³n / Escuela..." oninput="filtrarEscuelaComun()">
             </div>
             <div id="listaEscuelasComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
@@ -578,13 +578,13 @@
                 
                 <input type="text" id="alumnoDni" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DNI del Alumno">
                 <input type="number" id="alumnoEdad" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Edad">
-                <input type="text" id="alumnoPatologia" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Diagnóstico / Patología">
+                <input type="text" id="alumnoPatologia" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="DiagnÃ³stico / PatologÃ­a">
                 <input type="text" id="alumnoCUD" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px;" placeholder="Nro de CUD (Opcional)">
 
                 <div class="mt-2" style="font-size: 0.8rem; background: #0f172a; padding: 12px; border-radius: 8px; border-left: 3px solid var(--dinero-espera);">
                     <div class="text-warning mb-1" style="font-weight: 600;"><i class="fas fa-clipboard-check"></i> Requerimientos Pendientes:</div>
                     <ul style="margin: 5px 0 0 0; padding-left: 20px; color: var(--gris-texto);">
-                        <li>Autorización de ingreso firmada por directivos de <strong id="lblEscuelaReq" class="text-white">la Escuela</strong></li>
+                        <li>AutorizaciÃ³n de ingreso firmada por directivos de <strong id="lblEscuelaReq" class="text-white">la Escuela</strong></li>
                         <li>Consentimiento informado de <strong id="lblTitularReq" class="text-white">el Titular</strong></li>
                         <li>DNI Frontal y Dorso del Alumno.</li>
                     </ul>
@@ -592,36 +592,36 @@
             </div>
         </div>
 
-        <!-- === VISTA MÉTODO PARLANTE (DICTADO) === -->
+        <!-- === VISTA MÃ‰TODO PARLANTE (DICTADO) === -->
         <div id="seccionModoParlante" style="display: none;">
             <div class="input-group-voice" style="margin-bottom: 15px; width: 100%; box-sizing: border-box;">
                 <input type="text" id="alumnoSearchInput" class="input-dark" style="min-width: 0; flex: 1;" placeholder="Ej: Dicta o escribe el nombre (ej: Abayay)...">
-                <button class="btn-mic" id="btnMicSearch" onclick="iniciarDictadoVoz()" title="Búsqueda por Voz">
+                <button class="btn-mic" id="btnMicSearch" onclick="iniciarDictadoVoz()" title="BÃºsqueda por Voz">
                     <i class="fas fa-microphone"></i>
                 </button>
             </div>
             
             <button type="button" onclick="iniciarDictadoVoz()" class="btn w-100 py-3 rounded-3 fw-bold mb-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); cursor: pointer;">
-                <i class="fas fa-microphone fa-lg me-1"></i> Tocar para Hablar / Activar Micrófono
+                <i class="fas fa-microphone fa-lg me-1"></i> Tocar para Hablar / Activar MicrÃ³fono
             </button>
         </div>
 
-        <!-- Tarjeta de Confirmación de Coincidencia en BD -->
+        <!-- Tarjeta de ConfirmaciÃ³n de Coincidencia en BD -->
         <div id="cardVerificadoBd" style="display: none; background: rgba(16, 185, 129, 0.15); border: 2px solid #10b981; border-radius: 14px; padding: 15px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                 <span style="font-weight: 700; color: #10b981; font-size: 0.9rem; text-transform: uppercase;">
-                    <i class="fas fa-check-circle me-1" style="font-size: 1.1rem;"></i> ¡REGISTRO OFICIAL VERIFICADO EN BD!
+                    <i class="fas fa-check-circle me-1" style="font-size: 1.1rem;"></i> Â¡REGISTRO OFICIAL VERIFICADO EN BD!
                 </span>
-                <span class="badge bg-success" style="font-size: 0.75rem; padding: 5px 8px;">VÁLIDO 100%</span>
+                <span class="badge bg-success" style="font-size: 0.75rem; padding: 5px 8px;">VÃLIDO 100%</span>
             </div>
             <div style="font-size: 0.85rem; color: white; line-height: 1.6;">
                 <div><strong style="color: #60a5fa;"><i class="fas fa-user-shield me-1"></i> Titular / Padre:</strong> <span id="verificadoTitular" class="fw-bold"></span></div>
                 <div><strong style="color: #fbbf24;"><i class="fas fa-child me-1"></i> Alumno Atendido:</strong> <span id="verificadoAlumno" class="fw-bold"></span></div>
-                <div><strong style="color: #34d399;"><i class="fas fa-school me-1"></i> Institución:</strong> <span id="verificadoEscuela" class="fw-bold"></span></div>
+                <div><strong style="color: #34d399;"><i class="fas fa-school me-1"></i> InstituciÃ³n:</strong> <span id="verificadoEscuela" class="fw-bold"></span></div>
             </div>
         </div>
 
-        <!-- Escáneres Especiales con Subida de Archivos -->
+        <!-- EscÃ¡neres Especiales con Subida de Archivos -->
         <form id="formSubidaDoc" style="display: none;">
             @csrf
             <input type="file" id="cameraPicker" name="documento" accept="image/*" capture="environment" onchange="manejarSubidaArchivo('cameraPicker')">
@@ -635,11 +635,11 @@
             </div>
             <div class="scan-btn" id="btnScanGallery" onclick="abrirCamaraUpload('Archivo Adjunto / PDF', 'galleryPicker')">
                 <i class="fas fa-file-upload text-primary"></i>
-                <span id="spanScanGallery" style="font-size: 0.75rem;">Subir de Galería/PDF</span>
+                <span id="spanScanGallery" style="font-size: 0.75rem;">Subir de GalerÃ­a/PDF</span>
             </div>
-            <div class="scan-btn" onclick="abrirCamaraUpload('Código QR / Factura', 'cameraPicker')" style="grid-column: span 2;">
+            <div class="scan-btn" onclick="abrirCamaraUpload('CÃ³digo QR / Factura', 'cameraPicker')" style="grid-column: span 2;">
                 <i class="fas fa-qrcode text-warning"></i>
-                <span style="font-size: 0.8rem;">Escanear Código QR en Vivo</span>
+                <span style="font-size: 0.8rem;">Escanear CÃ³digo QR en Vivo</span>
             </div>
         </div>
 
@@ -657,12 +657,12 @@
         </div>
 
         <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 15px;">
-            Alumnos asignados en el mes activo. Verifique el cumplimiento de <b>Factura ARCA</b> y <b>Certificación Digital de Directora</b>.
+            Alumnos asignados en el mes activo. Verifique el cumplimiento de <b>Factura ARCA</b> y <b>CertificaciÃ³n Digital de Directora</b>.
         </p>
 
-        <!-- Barra de búsqueda rápida -->
+        <!-- Barra de bÃºsqueda rÃ¡pida -->
         <div class="input-group-voice" style="margin-bottom: 15px;">
-            <input type="text" id="misAlumnosSearchInput" class="input-dark shadow-sm" placeholder="🔍 Buscar por nombre de alumno o escuela..." oninput="filtrarAlumnosActivos()">
+            <input type="text" id="misAlumnosSearchInput" class="input-dark shadow-sm" placeholder="ðŸ” Buscar por nombre de alumno o escuela..." oninput="filtrarAlumnosActivos()">
         </div>
 
         <!-- Lista Integrada de Alumnos y Requisitos Mensuales -->
@@ -678,7 +678,7 @@
                         </div>
                         <div>
                             @if(($alumno->progreso ?? 0) == 100)
-                                <span class="badge bg-success" style="font-size: 0.75rem;"><i class="fas fa-check-circle me-1"></i> 100% AL DÍA</span>
+                                <span class="badge bg-success" style="font-size: 0.75rem;"><i class="fas fa-check-circle me-1"></i> 100% AL DÃA</span>
                             @else
                                 <span class="badge bg-warning text-dark" style="font-size: 0.75rem;"><i class="fas fa-clock me-1"></i> EN PROCESO</span>
                             @endif
@@ -706,14 +706,14 @@
                                 </button>
                             @endif
                         </div>
-                        <!-- Requisito 2: Certificación Directora -->
+                        <!-- Requisito 2: CertificaciÃ³n Directora -->
                         <div>
                             <span class="text-muted d-block">2. Aval Directora:</span>
                             @if(($alumno->progreso ?? 0) >= 50)
                                 <strong class="text-success" title="Firmado digitalmente"><i class="fas fa-signature me-1"></i> Certificado</strong>
                             @else
                                 @php
-                                    $msgWa = urlencode("Hola Directora, le solicito la certificación digital de las asistencias del alumno " . $alumno->nombre . " para el mes activo. Puede certificar digitalmente ingresando aquí: " . route('directora.asistencias.demo'));
+                                    $msgWa = urlencode("Hola Directora, le solicito la certificaciÃ³n digital de las asistencias del alumno " . $alumno->nombre . " para el mes activo. Puede certificar digitalmente ingresando aquÃ­: " . route('directora.asistencias.demo'));
                                 @endphp
                                 <a href="https://wa.me/?text={{ $msgWa }}" class="btn btn-sm btn-outline-success p-1 py-0 mt-1" style="font-size: 0.7rem;" target="_blank" title="Enviar enlace de firma por WhatsApp">
                                     <i class="fab fa-whatsapp me-1"></i> Enviar WhatsApp
@@ -734,12 +734,12 @@
     <div class="bottom-sheet" id="sheetRequisitos">
         <div class="sheet-pill"></div>
         <div class="sheet-header">
-            <h3>Documentación Docente</h3>
+            <h3>DocumentaciÃ³n Docente</h3>
             <button class="sheet-close" onclick="cerrarModalRequisitos()"><i class="fas fa-times-circle"></i></button>
         </div>
 
         <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 15px;">
-            Tu perfil requiere adjuntar la siguiente documentación (exigido por Auditoría)
+            Tu perfil requiere adjuntar la siguiente documentaciÃ³n (exigido por AuditorÃ­a)
         </p>
 
         <!-- Lista Integrada de Requisitos -->
@@ -751,12 +751,12 @@
                             {{ $req->nombre }} 
                             {!! $req->es_obligatorio ? '<span class="text-danger" style="font-size:0.7rem;">(Obligatorio)</span>' : '' !!}
                         </h4>
-                        <p style="font-size: 0.75rem;"><i class="fas fa-clock me-1 mb-2 text-warning"></i> @if($req->vencimiento_dias) Vence cada {{ $req->vencimiento_dias }} días @else Única Vez @endif</p>
+                        <p style="font-size: 0.75rem;"><i class="fas fa-clock me-1 mb-2 text-warning"></i> @if($req->vencimiento_dias) Vence cada {{ $req->vencimiento_dias }} dÃ­as @else Ãšnica Vez @endif</p>
                         
                         @if($req->estado_subida == 'observado' || $req->estado_subida == 'rechazado')
                             <p style="font-size: 0.75rem; color: #ef4444; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> {{ $req->comentarios ?? 'Documento rechazado o requiere cambios.' }}</p>
                         @elseif($req->estado_subida == 'pendiente')
-                            <p style="font-size: 0.75rem; color: #3b82f6;"><i class="fas fa-search"></i> En Revisión por Auditor</p>
+                            <p style="font-size: 0.75rem; color: #3b82f6;"><i class="fas fa-search"></i> En RevisiÃ³n por Auditor</p>
                         @elseif($req->estado_subida == 'aprobado')
                             <p style="font-size: 0.75rem; color: #10b981;"><i class="fas fa-check-double"></i> Aprobado Vigente</p>
                         @else
@@ -787,7 +787,7 @@
 
     <!-- SCRIPTS INTEGRADOS -->
     <script>
-        // 1. ECUALIZADOR / VÚMETRO DE RENDIMIENTO
+        // 1. ECUALIZADOR / VÃšMETRO DE RENDIMIENTO
         const ecualizadorContenedor = document.getElementById('ecualizadorPuas');
         if (ecualizadorContenedor) {
             const totalBarras = 18;
@@ -894,7 +894,7 @@
             overlay.addEventListener('click', cerrarTodosLosModales);
         }
 
-        // 3. CAMBIO ENTRE MÉTODO COMÚN Y MODO PARLANTE
+        // 3. CAMBIO ENTRE MÃ‰TODO COMÃšN Y MODO PARLANTE
         function cambiarMetodo(modo) {
             metodoActual = modo;
             const tabComun = document.getElementById('tabModoComun');
@@ -910,7 +910,7 @@
                 tabComun.style.borderColor = "var(--tarjeta-borde)";
                 secParlante.style.display = 'block';
                 secComun.style.display = 'none';
-                subtexto.innerText = "Siga las instrucciones habladas por el asistente y dictée sus respuestas.";
+                subtexto.innerText = "Siga las instrucciones habladas por el asistente y dictÃ©e sus respuestas.";
                 iniciarAsistenteSecuencial();
             } else {
                 tabComun.style.background = "rgba(59, 130, 246, 0.1)";
@@ -919,7 +919,7 @@
                 tabParlante.style.borderColor = "var(--tarjeta-borde)";
                 secComun.style.display = 'block';
                 secParlante.style.display = 'none';
-                subtexto.innerText = "Inicie la búsqueda seleccionando Escuela y Alumno manualmente.";
+                subtexto.innerText = "Inicie la bÃºsqueda seleccionando Escuela y Alumno manualmente.";
                 if (window.speechSynthesis) window.speechSynthesis.cancel();
             }
         }
@@ -927,10 +927,10 @@
         function habilitarFormularioDatos() {
             if (datosAsistidos.alumno) {
                 document.getElementById('formDatosAlumno').style.display = 'block';
-                document.getElementById('lblEscuelaReq').innerText = datosAsistidos.escuela || "la Institución";
+                document.getElementById('lblEscuelaReq').innerText = datosAsistidos.escuela || "la InstituciÃ³n";
                 document.getElementById('lblTitularReq').innerText = datosAsistidos.titular || "el Responsable";
                 pasoActual = 3; 
-                asistenteHabla("Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentación requerida escaneando con la cámara.");
+                asistenteHabla("Has seleccionado todo. Por favor completa los datos del estudiante y adjunta la documentaciÃ³n requerida escaneando con la cÃ¡mara.");
             }
         }
 
@@ -946,13 +946,13 @@
             
             document.getElementById('verificadoTitular').innerText = titular || 'Titular Verificado en BD';
             document.getElementById('verificadoAlumno').innerText = alumno || 'Alumno Verificado en BD';
-            document.getElementById('verificadoEscuela').innerText = escuela || 'Institución Asignada';
+            document.getElementById('verificadoEscuela').innerText = escuela || 'InstituciÃ³n Asignada';
             
             card.style.display = 'block';
-            asistenteHabla(`¡Registro verificado en base de datos! Encontrado ${alumno}, hijo de ${titular}.`);
+            asistenteHabla(`Â¡Registro verificado en base de datos! Encontrado ${alumno}, hijo de ${titular}.`);
         }
 
-        // 4. BÚSQUEDAS FILTRABLES (MÉTODO COMÚN)
+        // 4. BÃšSQUEDAS FILTRABLES (MÃ‰TODO COMÃšN)
         function filtrarTitularComun() {
             clearTimeout(timeoutComun);
             const term = document.getElementById('comunTitularInput').value.trim();
@@ -976,7 +976,7 @@
 
                                 let hijosHtml = '';
                                 if (e.familiares && e.familiares.length > 0) {
-                                    const nombresHijos = e.familiares.map(h => `<span class="badge bg-secondary bg-opacity-20 text-warning me-1"><i class="fas fa-child me-1"></i>${h.nombre}</span>`).join('');
+                                    const nombresHijos = e.familiares.map(h => `<span class="badge bg-secondary bg-opacity-25 text-warning me-1"><i class="fas fa-child me-1"></i>${h.nombre}</span>`).join('');
                                     hijosHtml = `<div class="mt-1 small text-muted">${nombresHijos}</div>`;
                                 } else {
                                     hijosHtml = `<div class="mt-1 small text-muted font-italic">Sin alumnos dependientes vinculados</div>`;
@@ -999,7 +999,7 @@
                                     listAlum.innerHTML = "";
                                     
                                     if (e.familiares && e.familiares.length > 0) {
-                                        alumSelect.placeholder = `🔍 Seleccionar hijo de ${e.nombre}...`;
+                                        alumSelect.placeholder = `ðŸ” Seleccionar hijo de ${e.nombre}...`;
                                         e.familiares.forEach(a => {
                                             const rowAlum = document.createElement('div');
                                             rowAlum.className = "alumno-card";
@@ -1012,7 +1012,7 @@
                                                 listAlum.style.display = 'none';
                                                 
                                                 document.getElementById('alumnoDni').value = a.dni || '';
-                                                document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
+                                                document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'SÃ­, pero sin especificar' : 'Sano'));
                                                 
                                                 const escNombre = a.escuela ? a.escuela.nombre : '';
                                                 if (a.escuela) {
@@ -1026,7 +1026,7 @@
                                             listAlum.appendChild(rowAlum);
                                         });
                                     } else {
-                                        alumSelect.placeholder = "⚠️ Este titular no tiene hijos registrados.";
+                                        alumSelect.placeholder = "âš ï¸ Este titular no tiene hijos registrados.";
                                     }
                                 };
                                 list.appendChild(row);
@@ -1077,7 +1077,7 @@
                                     }
 
                                     document.getElementById('alumnoDni').value = a.dni || '';
-                                    document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'Sí, pero sin especificar' : 'Sano'));
+                                    document.getElementById('alumnoPatologia').value = (a.diagnostico ? a.diagnostico.nombre : (a.tiene_patologia ? 'SÃ­, pero sin especificar' : 'Sano'));
 
                                     const escNombre = a.escuela ? a.escuela.nombre : '';
                                     if (a.escuela) {
@@ -1152,7 +1152,7 @@
         }
 
         function cerrarYCrear() {
-            alert("Procesando información de alta de alumno...");
+            alert("Procesando informaciÃ³n de alta de alumno...");
             cerrarModalNuevo();
         }
 
@@ -1179,7 +1179,7 @@
         function asistenteEscucha(placeholder, callback) {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRec) {
-                alert("Tu navegador no soporta micrófono por voz. Puedes escribir en el cuadro.");
+                alert("Tu navegador no soporta micrÃ³fono por voz. Puedes escribir en el cuadro.");
                 return;
             }
 
@@ -1208,7 +1208,7 @@
 
             reconocimiento.onerror = function(event) {
                 console.error("Error Speech API:", event.error);
-                if (inputSearch) inputSearch.placeholder = "No escuché. Toca el micrófono para hablar.";
+                if (inputSearch) inputSearch.placeholder = "No escuchÃ©. Toca el micrÃ³fono para hablar.";
                 if (btnMic) btnMic.classList.remove('listening');
             };
 
@@ -1236,7 +1236,7 @@
                         if (data && data.length > 0) {
                             const a = data[0];
                             const padreNombre = a.titular ? a.titular.nombre : 'Titular Verificado';
-                            const escNombre = a.escuela ? a.escuela.nombre : 'Institución Registrada';
+                            const escNombre = a.escuela ? a.escuela.nombre : 'InstituciÃ³n Registrada';
 
                             document.getElementById('comunAlumnoInput').value = a.nombre;
                             if (a.titular) document.getElementById('comunTitularInput').value = a.titular.nombre;
@@ -1257,7 +1257,7 @@
                                     if (dataT && dataT.length > 0) {
                                         const t = dataT[0];
                                         const a = (t.familiares && t.familiares.length > 0) ? t.familiares[0] : { nombre: 'Alumno Asociado', dni: '' };
-                                        const escNombre = a.escuela ? a.escuela.nombre : 'Institución Registrada';
+                                        const escNombre = a.escuela ? a.escuela.nombre : 'InstituciÃ³n Registrada';
 
                                         document.getElementById('comunTitularInput').value = t.nombre;
                                         document.getElementById('comunAlumnoInput').value = a.nombre;
@@ -1271,7 +1271,7 @@
                                         mostrarRegistroVerificado(t.nombre, a.nombre, escNombre);
                                         habilitarFormularioDatos();
                                     } else {
-                                        asistenteHabla(`No encontré registros para "${comando}". Intenta dictar el número de DNI o selecciona el nombre en la lista.`);
+                                        asistenteHabla(`No encontrÃ© registros para "${comando}". Intenta dictar el nÃºmero de DNI o selecciona el nombre en la lista.`);
                                     }
                                 });
                         }
@@ -1280,12 +1280,12 @@
         }
 
         function iniciarAsistenteSecuencial() {
-            asistenteHabla("Hola. Por favor presiona el botón del micrófono o dicta el nombre del alumno o su DNI.", () => {
+            asistenteHabla("Hola. Por favor presiona el botÃ³n del micrÃ³fono o dicta el nombre del alumno o su DNI.", () => {
                 iniciarDictadoVoz();
             });
         }
 
-        // 6. GESTIÓN DE ARCHIVOS Y COMPRESIÓN DE IMÁGENES CLIENT-SIDE
+        // 6. GESTIÃ“N DE ARCHIVOS Y COMPRESIÃ“N DE IMÃGENES CLIENT-SIDE
         function abrirCamaraUpload(tipo, inputId) {
             const input = document.getElementById(inputId);
             if(input) {
@@ -1335,7 +1335,7 @@
                                 type: 'image/jpeg',
                                 lastModified: Date.now()
                             });
-                            console.log(`Compresión completada: de ${(file.size/1024/1024).toFixed(2)}MB a ${(compressedFile.size/1024).toFixed(1)}KB`);
+                            console.log(`CompresiÃ³n completada: de ${(file.size/1024/1024).toFixed(2)}MB a ${(compressedFile.size/1024).toFixed(1)}KB`);
                             resolve(compressedFile);
                         }, 'image/jpeg', quality);
                     };
@@ -1380,20 +1380,20 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    if(document.getElementById(spanId)) document.getElementById(spanId).innerHTML = '<i class="fas fa-check-circle"></i> ¡Subido!';
+                    if(document.getElementById(spanId)) document.getElementById(spanId).innerHTML = '<i class="fas fa-check-circle"></i> Â¡Subido!';
                     if(btnEle) btnEle.style.opacity = "1";
                     setTimeout(() => { if(document.getElementById(spanId)) document.getElementById(spanId).innerText = originalText; }, 1500);
-                    alert(`✅ ¡Tu documento (${tipoDoc}) se cargó perfectamente en la plataforma!`);
+                    alert(`âœ… Â¡Tu documento (${tipoDoc}) se cargÃ³ perfectamente en la plataforma!`);
                 } else {
                     if(document.getElementById(spanId)) document.getElementById(spanId).innerText = originalText; 
                     if(btnEle) btnEle.style.opacity = "1";
-                    alert("⚠️ Ocurrió un error: " + (result.message || "Fallo en servidor"));
+                    alert("âš ï¸ OcurriÃ³ un error: " + (result.message || "Fallo en servidor"));
                 }
             } catch (error) {
                 console.error("Error subiendo el archivo:", error);
                 if(document.getElementById(spanId)) document.getElementById(spanId).innerText = originalText; 
                 if(btnEle) btnEle.style.opacity = "1";
-                alert("⚠️ Error de conexión al intentar subir el archivo.");
+                alert("âš ï¸ Error de conexiÃ³n al intentar subir el archivo.");
             }
             
             if(input) input.value = "";
@@ -1403,3 +1403,4 @@
     @include('partials.ai_assistant_widget')
 </body>
 </html>
+

@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Billetera Virtual Mutual & Préstamos de Salud')
+@section('title', 'Billetera Virtual Mutual & PrÃ©stamos de Salud')
 
 @section('content')
 <div class="container-fluid py-4" style="background-color: #0f172a; min-height: 100vh; color: white;">
@@ -17,7 +17,7 @@
                 </h3>
                 <small class="text-white-50"><i class="fas fa-user me-1 text-info"></i> {{ $billetera->titular }} | {{ $billetera->cbu_alias }}</small>
             </div>
-            <div class="bg-success bg-opacity-20 text-success p-3 rounded-circle text-center" style="width: 55px; height: 55px;">
+            <div class="bg-success bg-opacity-25 text-success p-3 rounded-circle text-center" style="width: 55px; height: 55px;">
                 <i class="fas fa-coins fa-lg" style="line-height: 25px;"></i>
             </div>
         </div>
@@ -27,12 +27,12 @@
                 <i class="fas fa-check-circle fa-2x text-success"></i>
                 <div>
                     <h6 class="mb-0 fw-bold">{{ session('success') }}</h6>
-                    <small>Acreditación bancaria verificada en tiempo real.</small>
+                    <small>AcreditaciÃ³n bancaria verificada en tiempo real.</small>
                 </div>
             </div>
         @endif
 
-        <!-- Card Saldo y Crédito -->
+        <!-- Card Saldo y CrÃ©dito -->
         <div class="card border-0 text-white shadow-lg mb-4 p-4" style="background: linear-gradient(135deg, #059669, #047857); border-radius: 20px;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-white-50 small fw-bold">SALDO EN CUENTA PARA COPAGOS Y FARMACIA</span>
@@ -42,11 +42,11 @@
             
             <div class="pt-3 border-top border-white border-opacity-25 d-flex justify-content-between align-items-center">
                 <div>
-                    <small class="text-white-50 d-block">Línea de Crédito Salud Preaprobada:</small>
+                    <small class="text-white-50 d-block">LÃ­nea de CrÃ©dito Salud Preaprobada:</small>
                     <strong class="fs-5">${{ number_format($billetera->credito_preaprobado, 0, ',', '.') }} (hasta 12 cuotas)</strong>
                 </div>
                 <button type="button" class="btn btn-light rounded-pill fw-bold text-success px-3 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalPedirCredito">
-                    <i class="fas fa-hand-holding-usd me-1"></i> Pedir Crédito
+                    <i class="fas fa-hand-holding-usd me-1"></i> Pedir CrÃ©dito
                 </button>
             </div>
         </div>
@@ -84,12 +84,12 @@
     </div>
 </div>
 
-<!-- Modal Pedir Crédito -->
+<!-- Modal Pedir CrÃ©dito -->
 <div class="modal fade" id="modalPedirCredito" tabindex="-1" aria-hidden="true" style="color: #0f172a;">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
             <div class="modal-header bg-dark text-white border-0" style="border-radius: 16px 16px 0 0;">
-                <h5 class="modal-title fw-bold"><i class="fas fa-hand-holding-usd text-success me-2"></i> Solicitar Microcrédito de Salud</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-hand-holding-usd text-success me-2"></i> Solicitar MicrocrÃ©dito de Salud</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('afiliado.billetera.credito') }}" method="POST">
@@ -103,7 +103,7 @@
                             <option value="200000">$200.000 en 12 cuotas de $21.000</option>
                         </select>
                     </div>
-                    <small class="text-muted">El crédito se descuenta automáticamente de su recibo de sueldo / débito directo.</small>
+                    <small class="text-muted">El crÃ©dito se descuenta automÃ¡ticamente de su recibo de sueldo / dÃ©bito directo.</small>
                 </div>
                 <div class="modal-footer border-0 pb-4 pe-4">
                     <button type="button" class="btn btn-light rounded-pill px-4 text-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
@@ -116,3 +116,4 @@
     </div>
 </div>
 @endsection
+

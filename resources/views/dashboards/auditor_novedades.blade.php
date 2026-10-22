@@ -1,4 +1,4 @@
-@extends('layouts.tenant')
+﻿@extends('layouts.tenant')
 
 @section('title', 'Novedades y Expedientes en Tiempo Real')
 
@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h3 class="fw-bold mb-1"><i class="fas fa-bell text-warning me-2"></i> Feed de Novedades y Expedientes en Tiempo Real</h3>
-            <p class="text-muted small mb-0">Auditoría ágil e inmediata de Resoluciones en Papel, Certificados Médicos y Facturas ARCA/AFIP.</p>
+            <p class="text-muted small mb-0">AuditorÃ­a Ã¡gil e inmediata de Resoluciones en Papel, Certificados MÃ©dicos y Facturas ARCA/AFIP.</p>
         </div>
         <a href="{{ route('auditor.docentes.legajos') }}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
             <i class="fas fa-id-card-alt me-2"></i> Ver Legajos de Docentes
@@ -35,15 +35,15 @@
                                 <p class="mb-1 text-secondary small">{{ $nov->descripcion }}</p>
                                 
                                 @if($nov->tipo_novedad == 'aval_directora')
-                                    <span class="badge bg-info bg-opacity-20 text-info border border-info px-2 py-1 font-monospace" style="font-size:0.65rem;">
+                                    <span class="badge bg-info bg-opacity-25 text-info border border-info px-2 py-1 font-monospace" style="font-size:0.65rem;">
                                         <i class="fas fa-signature me-1"></i> AVAL DIRECTORA ESCUELA
                                     </span>
                                 @elseif($nov->tipo_novedad == 'aval_padre')
-                                    <span class="badge bg-warning bg-opacity-20 text-warning border border-warning px-2 py-1 font-monospace" style="font-size:0.65rem;">
-                                        <i class="fas fa-user-shield me-1"></i> CONFIRMACIÓN DEL PADRE
+                                    <span class="badge bg-warning bg-opacity-25 text-warning border border-warning px-2 py-1 font-monospace" style="font-size:0.65rem;">
+                                        <i class="fas fa-user-shield me-1"></i> CONFIRMACIÃ“N DEL PADRE
                                     </span>
                                 @elseif($nov->tipo_novedad == 'nueva_factura_arca')
-                                    <span class="badge bg-success bg-opacity-20 text-success border border-success px-2 py-1 font-monospace" style="font-size:0.65rem;">
+                                    <span class="badge bg-success bg-opacity-25 text-success border border-success px-2 py-1 font-monospace" style="font-size:0.65rem;">
                                         <i class="fas fa-file-invoice-dollar me-1"></i> FACTURA ARCA SUBIDA
                                     </span>
                                 @else
@@ -74,7 +74,7 @@
                             <div class="list-group-item p-3">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <div>
-                                        <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-receipt me-1 text-success"></i> Factura N° {{ $fac->nro_factura ?? 'Sin N°' }}</h6>
+                                        <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-receipt me-1 text-success"></i> Factura NÂ° {{ $fac->nro_factura ?? 'Sin NÂ°' }}</h6>
                                         <small class="text-muted d-block">Docente: {{ $fac->docente->nombre ?? 'N/A' }} | CUIT: {{ $fac->cuit_emisor ?? 'N/A' }}</small>
                                         <small class="text-muted d-block font-monospace">CAE: {{ $fac->cae ?? 'N/A' }} (Venc: {{ $fac->vencimiento_cae }})</small>
                                     </div>
@@ -113,7 +113,7 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="text-center py-4 text-muted small">No hay facturas ARCA pendientes de auditoría.</div>
+                            <div class="text-center py-4 text-muted small">No hay facturas ARCA pendientes de auditorÃ­a.</div>
                         @endforelse
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                                     <div>
                                         <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-child me-1 text-info"></i> Alumno: {{ $exp->alumno->nombre ?? 'Alumno #' . $exp->alumno_id }}</h6>
                                         <small class="text-muted d-block">Docente: {{ $exp->docente->nombre ?? 'Docente' }} | Escuela: {{ $exp->escuela->nombre ?? 'Escuela' }}</small>
-                                        <small class="text-muted d-block font-monospace">Resolución: {{ $exp->nro_resolucion ?? 'En trámite' }} (Máx. {{ $exp->horas_mensuales_asignadas }}hs/mes)</small>
+                                        <small class="text-muted d-block font-monospace">ResoluciÃ³n: {{ $exp->nro_resolucion ?? 'En trÃ¡mite' }} (MÃ¡x. {{ $exp->horas_mensuales_asignadas }}hs/mes)</small>
                                     </div>
                                     <span class="badge bg-warning text-dark">Pendiente</span>
                                 </div>
@@ -141,16 +141,16 @@
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <div class="d-flex gap-1">
                                         <a href="{{ route('expediente.pdf', $exp->id) }}" target="_blank" class="btn btn-sm btn-outline-dark" title="Ver / Imprimir Certificado PDF con QR">
-                                            <i class="fas fa-file-pdf me-1 text-danger"></i> Rendición PDF (QR)
+                                            <i class="fas fa-file-pdf me-1 text-danger"></i> RendiciÃ³n PDF (QR)
                                         </a>
                                         @if($exp->resolucion_url)
-                                            <a href="{{ asset('storage/' . $exp->resolucion_url) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver Resolución">
-                                                <i class="fas fa-file-contract me-1"></i> Resolución
+                                            <a href="{{ asset('storage/' . $exp->resolucion_url) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver ResoluciÃ³n">
+                                                <i class="fas fa-file-contract me-1"></i> ResoluciÃ³n
                                             </a>
                                         @endif
                                     </div>
                                         @if($exp->certificado_medico_url)
-                                            <a href="{{ asset('storage/' . $exp->certificado_medico_url) }}" target="_blank" class="btn btn-sm btn-outline-info" title="Ver Certificado Médico">
+                                            <a href="{{ asset('storage/' . $exp->certificado_medico_url) }}" target="_blank" class="btn btn-sm btn-outline-info" title="Ver Certificado MÃ©dico">
                                                 <i class="fas fa-notes-medical me-1"></i> Certificado
                                             </a>
                                         @endif
@@ -173,7 +173,7 @@
                                     <form action="{{ route('auditor.expedientes.rechazar', $exp->id) }}" method="POST" class="bg-light p-3 rounded border border-danger">
                                         @csrf
                                         <label class="form-label fw-bold small text-danger">Motivo de Rechazo del Expediente</label>
-                                        <textarea name="motivo_rechazo" class="form-control mb-2" rows="2" placeholder="Ej: La foto de la resolución es ilegible o falta el diagnóstico firmado." required></textarea>
+                                        <textarea name="motivo_rechazo" class="form-control mb-2" rows="2" placeholder="Ej: La foto de la resoluciÃ³n es ilegible o falta el diagnÃ³stico firmado." required></textarea>
                                         <div class="text-end">
                                             <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3">Notificar Rechazo</button>
                                         </div>
@@ -181,7 +181,7 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="text-center py-4 text-muted small">No hay expedientes pendientes de validación.</div>
+                            <div class="text-center py-4 text-muted small">No hay expedientes pendientes de validaciÃ³n.</div>
                         @endforelse
                     </div>
                 </div>
@@ -190,3 +190,4 @@
     </div>
 </div>
 @endsection
+

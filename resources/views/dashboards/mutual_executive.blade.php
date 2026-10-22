@@ -1,16 +1,16 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Cuadro de Mando Ejecutivo - Dirección General Mutual')
+@section('title', 'Cuadro de Mando Ejecutivo - DirecciÃ³n General Mutual')
 
 @section('content')
 <div class="container-fluid py-4" style="background-color: #0b1329; min-height: 100vh; color: white;">
     <div class="container">
         
-        <!-- Encabezado Ejecutivo del Dueño de la Mutual con Selector de Sucursales -->
+        <!-- Encabezado Ejecutivo del DueÃ±o de la Mutual con Selector de Sucursales -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-secondary border-opacity-25 gap-3">
             <div>
                 <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold text-uppercase" style="letter-spacing: 1px;">
-                    <i class="fas fa-crown me-1"></i> Dirección General & Consejo de Administración
+                    <i class="fas fa-crown me-1"></i> DirecciÃ³n General & Consejo de AdministraciÃ³n
                 </span>
                 <h2 class="fw-bold mt-2 mb-0 text-white">
                     <i class="fas fa-chart-line text-success me-2"></i> Cuadro de Mando Ejecutivo Mutual
@@ -25,11 +25,11 @@
                 <form action="{{ route('owner.mutual_dashboard') }}" method="GET" class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 text-muted small fw-bold text-nowrap"><i class="fas fa-map-marker-alt text-danger me-1"></i> Sucursal / Sede:</label>
                     <select name="sucursal" class="form-select bg-dark text-white border-secondary fw-bold rounded-pill" onchange="this.form.submit()" style="min-width: 260px;">
-                        <option value="todas" {{ $sucursalSeleccionada == 'todas' ? 'selected' : '' }}>🌐 Todas las Sedes (Visión Global)</option>
-                        <option value="chilecito" {{ $sucursalSeleccionada == 'chilecito' ? 'selected' : '' }}>🏔️ Sede Chilecito</option>
-                        <option value="la_rioja" {{ $sucursalSeleccionada == 'la_rioja' ? 'selected' : '' }}>🏙️ Sede La Rioja Capital</option>
-                        <option value="cordoba" {{ $sucursalSeleccionada == 'cordoba' ? 'selected' : '' }}>🎓 Sede Córdoba (Alta Complejidad)</option>
-                        <option value="buenos_aires" {{ $sucursalSeleccionada == 'buenos_aires' ? 'selected' : '' }}>🏛️ Sede Buenos Aires (Derivaciones)</option>
+                        <option value="todas" {{ $sucursalSeleccionada == 'todas' ? 'selected' : '' }}>ðŸŒ Todas las Sedes (VisiÃ³n Global)</option>
+                        <option value="chilecito" {{ $sucursalSeleccionada == 'chilecito' ? 'selected' : '' }}>ðŸ”ï¸ Sede Chilecito</option>
+                        <option value="la_rioja" {{ $sucursalSeleccionada == 'la_rioja' ? 'selected' : '' }}>ðŸ™ï¸ Sede La Rioja Capital</option>
+                        <option value="cordoba" {{ $sucursalSeleccionada == 'cordoba' ? 'selected' : '' }}>ðŸŽ“ Sede CÃ³rdoba (Alta Complejidad)</option>
+                        <option value="buenos_aires" {{ $sucursalSeleccionada == 'buenos_aires' ? 'selected' : '' }}>ðŸ›ï¸ Sede Buenos Aires (Derivaciones)</option>
                     </select>
                 </form>
 
@@ -41,12 +41,12 @@
 
         <!-- Alerta de Filtro Activo por Sucursal -->
         @if($sucursalSeleccionada != 'todas')
-            <div class="alert alert-info border-0 shadow-lg rounded-3 mb-4 p-3 d-flex align-items-center justify-content-between bg-primary bg-opacity-20 text-info">
+            <div class="alert alert-info border-0 shadow-lg rounded-3 mb-4 p-3 d-flex align-items-center justify-content-between bg-primary bg-opacity-25 text-info">
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-filter fa-lg"></i>
                     <div>
-                        <strong class="text-white fs-6">Visualizando Métricas Específicas: {{ $datosSedeActual->nombre }}</strong>
-                        <div class="small opacity-75">Filtrando cápitas ({{ number_format($datosSedeActual->capitas, 0, ',', '.') }}), prestadores y presupuesto auditado de la sede.</div>
+                        <strong class="text-white fs-6">Visualizando MÃ©tricas EspecÃ­ficas: {{ $datosSedeActual->nombre }}</strong>
+                        <div class="small opacity-75">Filtrando cÃ¡pitas ({{ number_format($datosSedeActual->capitas, 0, ',', '.') }}), prestadores y presupuesto auditado de la sede.</div>
                     </div>
                 </div>
                 <a href="{{ route('owner.mutual_dashboard') }}" class="btn btn-sm btn-light rounded-pill fw-bold px-3">
@@ -55,13 +55,13 @@
             </div>
         @endif
 
-        <!-- KPI Cards de Alta Dirección (Billeteras y Cápitas) -->
+        <!-- KPI Cards de Alta DirecciÃ³n (Billeteras y CÃ¡pitas) -->
         <div class="row g-3 mb-4">
-            <!-- Recaudación Total -->
+            <!-- RecaudaciÃ³n Total -->
             <div class="col-md-3">
                 <div class="card border-0 bg-dark p-4 h-100" style="border-radius: 18px; border-left: 5px solid #10b981 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small fw-bold text-uppercase">RECAUDACIÓN POR CUOTAS</span>
+                        <span class="text-muted small fw-bold text-uppercase">RECAUDACIÃ“N POR CUOTAS</span>
                         <i class="fas fa-wallet fa-lg text-success"></i>
                     </div>
                     <h3 class="fw-bold text-success mb-0">${{ number_format($kpis->recaudacion_total, 0, ',', '.') }}</h3>
@@ -93,11 +93,11 @@
                 </div>
             </div>
 
-            <!-- Ahorro Generado por Auditoría e IA -->
+            <!-- Ahorro Generado por AuditorÃ­a e IA -->
             <div class="col-md-3">
                 <div class="card border-0 bg-dark p-4 h-100" style="border-radius: 18px; border-left: 5px solid #8b5cf6 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small fw-bold text-uppercase">AHORRO AUDITORÍA & IA</span>
+                        <span class="text-muted small fw-bold text-uppercase">AHORRO AUDITORÃA & IA</span>
                         <i class="fas fa-robot fa-lg text-info"></i>
                     </div>
                     <h3 class="fw-bold mb-0" style="color: #a78bfa;">${{ number_format($kpis->ahorro_auditoria_ia, 0, ',', '.') }}</h3>
@@ -106,11 +106,11 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: TOTALIZADORES POR SUCURSAL / DEPARTAMENTO GEOGRÁFICO -->
+        <!-- SECCIÃ“N: TOTALIZADORES POR SUCURSAL / DEPARTAMENTO GEOGRÃFICO -->
         <div class="card border-0 bg-dark p-4 mb-4" style="border-radius: 18px;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold text-white mb-0">
-                    <i class="fas fa-map-marked-alt text-danger me-2"></i> Totalizadores por Sucursal / Departamento Geográfico
+                    <i class="fas fa-map-marked-alt text-danger me-2"></i> Totalizadores por Sucursal / Departamento GeogrÃ¡fico
                 </h5>
                 <span class="badge bg-secondary px-3 py-1 rounded-pill small">Control Descentalizado Auditado</span>
             </div>
@@ -120,12 +120,12 @@
                     <thead>
                         <tr class="text-muted small text-uppercase">
                             <th>Sucursal / Departamento</th>
-                            <th>Cápitas Atendidas</th>
-                            <th>Recaudación Local</th>
+                            <th>CÃ¡pitas Atendidas</th>
+                            <th>RecaudaciÃ³n Local</th>
                             <th>Gasto Prestacional</th>
                             <th class="text-center">Siniestralidad</th>
                             <th>Principal Gasto / Prevalencia</th>
-                            <th class="text-end">Acción Auditoría</th>
+                            <th class="text-end">AcciÃ³n AuditorÃ­a</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -137,7 +137,7 @@
                                 </td>
                                 <td>
                                     <span class="badge px-3 py-1.5 rounded-pill fw-bold" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); font-size: 0.8rem;">
-                                        <i class="fas fa-users me-1"></i> {{ number_format($suc->capitas, 0, ',', '.') }} Cápitas
+                                        <i class="fas fa-users me-1"></i> {{ number_format($suc->capitas, 0, ',', '.') }} CÃ¡pitas
                                     </span>
                                 </td>
                                 <td class="fw-bold text-success">${{ number_format($suc->recaudacion, 0, ',', '.') }}</td>
@@ -164,25 +164,25 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: MATRIZ EPIDEMIOLÓGICA Y COSTOS POR ENFERMEDAD / PATOLOGÍA -->
+        <!-- SECCIÃ“N: MATRIZ EPIDEMIOLÃ“GICA Y COSTOS POR ENFERMEDAD / PATOLOGÃA -->
         <div class="card border-0 bg-dark p-4 mb-4" style="border-radius: 18px;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold text-white mb-0">
-                    <i class="fas fa-notes-medical text-warning me-2"></i> Inteligencia Epidemiológica & Costos por Patología
+                    <i class="fas fa-notes-medical text-warning me-2"></i> Inteligencia EpidemiolÃ³gica & Costos por PatologÃ­a
                 </h5>
-                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">Clasificación Cie-10 & Vademécum</span>
+                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">ClasificaciÃ³n Cie-10 & VademÃ©cum</span>
             </div>
 
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
                     <thead>
                         <tr class="text-muted small text-uppercase">
-                            <th>Enfermedad / Patología Prevalente</th>
-                            <th>Categoría Prestacional</th>
+                            <th>Enfermedad / PatologÃ­a Prevalente</th>
+                            <th>CategorÃ­a Prestacional</th>
                             <th class="text-center">Casos / Pacientes</th>
                             <th>Gasto Total Acumulado</th>
                             <th>Costo Promedio / Afiliado</th>
-                            <th>Sede Mayor Concentración</th>
+                            <th>Sede Mayor ConcentraciÃ³n</th>
                             <th class="text-end">Tendencia</th>
                         </tr>
                     </thead>
@@ -222,10 +222,10 @@
         </div>
 
         <div class="row g-4 mb-4">
-            <!-- Distribución del Gasto por Departamento -->
+            <!-- DistribuciÃ³n del Gasto por Departamento -->
             <div class="col-lg-5">
                 <div class="card border-0 bg-dark p-4 h-100" style="border-radius: 18px;">
-                    <h5 class="fw-bold text-white mb-3"><i class="fas fa-pie-chart text-info me-2"></i> Distribución del Presupuesto por Sector</h5>
+                    <h5 class="fw-bold text-white mb-3"><i class="fas fa-pie-chart text-info me-2"></i> DistribuciÃ³n del Presupuesto por Sector</h5>
                     
                     @foreach($departamentosGasto as $dep)
                         <div class="mb-3">
@@ -241,19 +241,19 @@
                 </div>
             </div>
 
-            <!-- Sanatorios y Clínicas en Convenio (Top Rendimiento) -->
+            <!-- Sanatorios y ClÃ­nicas en Convenio (Top Rendimiento) -->
             <div class="col-lg-7">
                 <div class="card border-0 bg-dark p-4 h-100" style="border-radius: 18px;">
-                    <h5 class="fw-bold text-white mb-3"><i class="fas fa-hospital-user text-warning me-2"></i> Clínicas y Sanatorios con Convenio Activo</h5>
+                    <h5 class="fw-bold text-white mb-3"><i class="fas fa-hospital-user text-warning me-2"></i> ClÃ­nicas y Sanatorios con Convenio Activo</h5>
                     
                     <div class="table-responsive">
                         <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
                             <thead>
                                 <tr class="text-muted small text-uppercase">
-                                    <th>Sanatorio / Centro Médico</th>
+                                    <th>Sanatorio / Centro MÃ©dico</th>
                                     <th class="text-center">Internaciones</th>
-                                    <th>Facturación Mes</th>
-                                    <th class="text-end">Calidad / Auditoría</th>
+                                    <th>FacturaciÃ³n Mes</th>
+                                    <th class="text-end">Calidad / AuditorÃ­a</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -284,3 +284,4 @@
     </div>
 </div>
 @endsection
+

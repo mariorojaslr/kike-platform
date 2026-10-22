@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Portal del Padre / Titular - Reintegros y Avales')
 
@@ -10,14 +10,14 @@
         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
             <div>
                 <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold text-uppercase" style="font-size: 0.75rem;">
-                    <i class="fas fa-hand-holding-usd me-1"></i> Módulo de Reintegros
+                    <i class="fas fa-hand-holding-usd me-1"></i> MÃ³dulo de Reintegros
                 </span>
                 <h3 class="fw-bold mt-2 mb-0 text-white">
                     <i class="fas fa-user-shield text-primary me-2"></i> {{ $padreNombre }}
                 </h3>
                 <small class="text-white-50"><i class="fas fa-child me-1 text-warning"></i> Atendido: <strong class="text-white">{{ $hijoNombre }}</strong></small>
             </div>
-            <div class="bg-primary bg-opacity-20 text-primary p-3 rounded-circle text-center" style="width: 50px; height: 50px;">
+            <div class="bg-primary bg-opacity-25 text-primary p-3 rounded-circle text-center" style="width: 50px; height: 50px;">
                 <i class="fas fa-user-tie fa-lg" style="line-height: 20px;"></i>
             </div>
         </div>
@@ -27,7 +27,7 @@
                 <i class="fas fa-check-circle fa-2x text-success"></i>
                 <div>
                     <h6 class="mb-0 fw-bold">{{ session('success') }}</h6>
-                    <small>Se guardó la trazabilidad inalterable en Auditoría.</small>
+                    <small>Se guardÃ³ la trazabilidad inalterable en AuditorÃ­a.</small>
                 </div>
             </div>
         @endif
@@ -38,22 +38,22 @@
                 <div class="d-flex align-items-center gap-3">
                     <i class="fas fa-info-circle fa-2x text-primary"></i>
                     <div>
-                        <h6 class="fw-bold mb-1 text-white">¿Cómo funciona la Modalidad Reintegro?</h6>
+                        <h6 class="fw-bold mb-1 text-white">Â¿CÃ³mo funciona la Modalidad Reintegro?</h6>
                         <p class="small text-light mb-0">
-                            El Titular/Padre paga el servicio prestado por el docente y solicita la devolución a la Mutual. 
-                            Usted puede <b>subir la Resolución</b> y <b>confirmar la asistencia del docente</b> para agilizar la liquidación.
+                            El Titular/Padre paga el servicio prestado por el docente y solicita la devoluciÃ³n a la Mutual. 
+                            Usted puede <b>subir la ResoluciÃ³n</b> y <b>confirmar la asistencia del docente</b> para agilizar la liquidaciÃ³n.
                         </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Botón para Cargar Resolución directamente el Padre -->
+        <!-- BotÃ³n para Cargar ResoluciÃ³n directamente el Padre -->
         <button type="button" class="btn btn-outline-warning w-100 rounded-pill fw-bold py-3 mb-4 d-flex align-items-center justify-content-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalSubirResolucionPadre">
-            <i class="fas fa-file-upload fa-lg"></i> Cargar Resolución del OSP (Vía Padre)
+            <i class="fas fa-file-upload fa-lg"></i> Cargar ResoluciÃ³n del OSP (VÃ­a Padre)
         </button>
 
-        <!-- Histórico de Reintegros y Estados -->
+        <!-- HistÃ³rico de Reintegros y Estados -->
         <h5 class="fw-bold text-white mb-3"><i class="fas fa-list-alt me-2 text-info"></i> Mis Solicitudes de Reintegro</h5>
 
         @foreach($reintegros as $r)
@@ -64,7 +64,7 @@
                         @if($r->estado_reintegro == 'aprobado_para_pago')
                             <span class="badge bg-success text-white rounded-pill px-3 py-1 fw-bold shadow-sm"><i class="fas fa-check-circle me-1"></i> LISTO PARA REINTEGRO</span>
                         @else
-                            <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold shadow-sm"><i class="fas fa-hourglass-half me-1"></i> EN AUDITORÍA</span>
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold shadow-sm"><i class="fas fa-hourglass-half me-1"></i> EN AUDITORÃA</span>
                         @endif
                     </div>
 
@@ -73,7 +73,7 @@
                     <!-- Triple Trazabilidad (Docente, Directora, Padre) -->
                     <div class="bg-dark p-3 rounded-3 mb-3 border border-secondary border-opacity-25" style="font-size: 0.8rem;">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span><i class="fas fa-file-contract text-info me-2"></i> Resolución OSP:</span>
+                            <span><i class="fas fa-file-contract text-info me-2"></i> ResoluciÃ³n OSP:</span>
                             <span class="badge bg-success"><i class="fas fa-check me-1"></i> {{ $r->nro_resolucion }}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -85,7 +85,7 @@
                             @endif
                         </div>
                         <div class="d-flex align-items-center justify-content-between">
-                            <span><i class="fas fa-user-shield text-warning me-2"></i> Confirmación del Padre:</span>
+                            <span><i class="fas fa-user-shield text-warning me-2"></i> ConfirmaciÃ³n del Padre:</span>
                             @if($r->aval_padre)
                                 <span class="badge bg-success" title="{{ $r->fecha_aval_padre }}"><i class="fas fa-check me-1"></i> Avalado</span>
                             @else
@@ -111,20 +111,20 @@
     </div>
 </div>
 
-<!-- Modal Cargar Resolución Padre -->
+<!-- Modal Cargar ResoluciÃ³n Padre -->
 <div class="modal fade" id="modalSubirResolucionPadre" tabindex="-1" aria-hidden="true" style="color: #0f172a;">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
             <div class="modal-header bg-dark text-white border-0" style="border-radius: 16px 16px 0 0;">
-                <h5 class="modal-title fw-bold"><i class="fas fa-file-upload text-warning me-2"></i> Cargar Resolución de OSP</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-file-upload text-warning me-2"></i> Cargar ResoluciÃ³n de OSP</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('pwa.expediente.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4 text-dark">
-                    <p class="small text-muted mb-3">Si usted posee la Resolución en papel o PDF, puede adjuntarla aquí para que la Mutual la asigne automáticamente a la docente.</p>
+                    <p class="small text-muted mb-3">Si usted posee la ResoluciÃ³n en papel o PDF, puede adjuntarla aquÃ­ para que la Mutual la asigne automÃ¡ticamente a la docente.</p>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Adjuntar Imagen o PDF de la Resolución *</label>
+                        <label class="form-label fw-bold">Adjuntar Imagen o PDF de la ResoluciÃ³n *</label>
                         <input type="file" name="resolucion_file" class="form-control" accept="image/*,.pdf" required>
                     </div>
                 </div>
@@ -139,3 +139,4 @@
     </div>
 </div>
 @endsection
+
