@@ -27,17 +27,25 @@ class OwnerDashboardController extends Controller
         // Sumatoria de volumen físico simulada o calculada:
         $volumenTotalMb = Empresa::sum('consumo_actual_mb');
 
-        // Cargar todas las empresas con sus métricas relacionadas para la tabla principal
-        // En una app real, Docentes y Familiares tendrían un empresa_id, simularemos el conteo aquí si no lo tienen.
-        // Asumiremos que la relación está construida o listamos las empresas simplemente.
-        $empresas = Empresa::withCount('users', 'tickets')->get();
+        // Cargar estructura jerárquica: Nivel 2 (Sucursales / Marcas Blancas Provinciales) -> Nivel 3 (Clientes / Obras Sociales dentro de cada Sucursal)
+        $sucursales = Empresa::whereNull('parent_id')
+            ->with(['provincia', 'clientes' => function ($q) {
+                $q->with('provincia')->withCount('users', 'tickets');
+            }])
+            ->withCount('users', 'tickets')
+            ->get();
+
+        $empresas = Empresa::with('parent', 'provincia')->withCount('users', 'tickets')->get();
+        $provincias = \App\Models\Provincia::orderBy('nombre', 'asc')->get();
 
         return view('dashboards.owner', compact(
             'totalEmpresas', 
             'ticketsAbiertos', 
             'totalUsuariosGlobal', 
             'volumenTotalMb',
-            'empresas'
+            'sucursales',
+            'empresas',
+            'provincias'
         ));
     }
 }

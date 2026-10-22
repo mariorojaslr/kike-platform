@@ -3,42 +3,116 @@
 @section('title', 'Inicio')
 
 @section('content')
-    <!-- Cabecera Institucional APOS La Rioja & Soluciones Digitales MCR -->
-    <div class="content-card mb-4 border-0 text-white shadow" style="background: linear-gradient(135deg, #0f172a 0%, #0369a1 60%, #0284c7 100%); border-radius: 18px;">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('images/apos_logo.svg') }}" alt="APOS La Rioja" class="rounded-4 shadow" style="width: 72px; height: 72px; background: #fff; padding: 3px;">
-                <div>
-                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                        <span class="badge bg-info text-dark fw-bold px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
-                            <i class="fas fa-landmark me-1"></i>OBRA SOCIAL PROVINCIAL - LA RIOJA
-                        </span>
-                        <span class="badge bg-light bg-opacity-25 text-white border border-light border-opacity-50 px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
-                            <i class="fas fa-handshake me-1"></i>Agencia: Soluciones Digitales MCR
-                        </span>
+    @if(($empresa->tipo_entidad ?? '') === 'subagencia')
+        <!-- VISTA NIVEL 2: PANEL DE SUCURSAL / MARCA BLANCA PROVINCIAL (EJ. SOLUCIONES DIGITALES MCR) -->
+        <div class="content-card mb-4 border-0 text-white shadow" style="background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 60%, #4f46e5 100%); border-radius: 18px;">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ asset('images/mcr_logo.svg') }}" alt="{{ $empresa->nombre }}" class="rounded-4 shadow" style="width: 72px; height: 72px; background: #fff; padding: 3px;">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                <i class="fas fa-network-wired me-1"></i>NIVEL 2 &bull; SUCURSAL / MARCA BLANCA PROVINCIAL ({{ strtoupper($empresa->provincia->nombre ?? 'LA RIOJA') }})
+                            </span>
+                            <span class="badge bg-light bg-opacity-25 text-white border border-light border-opacity-50 px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                <i class="fas fa-layer-group me-1"></i>Plataforma Madre: INTEGRA
+                            </span>
+                        </div>
+                        <h4 class="fw-bold mb-1">{{ $empresa->nombre }} &mdash; Cartera de Clientes en {{ $empresa->provincia->nombre ?? 'La Rioja' }}</h4>
+                        <p class="mb-0 small text-white-50">
+                            Desde esta Sucursal Provincial administrás las Obras Sociales y clientes asignados a tu provincia.
+                        </p>
                     </div>
-                    <h4 class="fw-bold mb-1">APOS &mdash; Área de Docentes Integradores y Educación Especial</h4>
-                    <p class="mb-0 small text-white-50">
-                        Cobertura Provincial: <strong class="text-white">160.000 Afiliados (Titulares y Adicionales)</strong> &bull; Padrón Oficial Activo de Titulares, Alumnos con CUD, Docentes y Escuelas de La Rioja.
-                    </p>
                 </div>
             </div>
-            <div class="d-flex flex-wrap gap-2">
-                <a href="{{ url('/app-docente/demo') }}" class="btn btn-light fw-bold rounded-pill px-3 shadow-sm text-primary">
-                    <i class="fas fa-mobile-screen-button me-1"></i> App Docente
-                </a>
-                <a href="{{ route('auditor.docentes.legajos') }}" class="btn btn-warning fw-bold rounded-pill px-3 shadow-sm text-dark">
-                    <i class="fas fa-user-check me-1"></i> Panel Auditor
-                </a>
-                <a href="{{ url('/app-directora/demo') }}" class="btn btn-info fw-bold rounded-pill px-3 shadow-sm text-white">
-                    <i class="fas fa-school me-1"></i> App Directora
-                </a>
-                <a href="{{ route('panel.accesos') }}" class="btn btn-outline-light fw-bold rounded-pill px-3">
-                    <i class="fas fa-share-nodes me-1"></i> Links por Rol
-                </a>
+        </div>
+
+        <!-- Cartera de Clientes (Obras Sociales) dentro de esta Sucursal Provincial -->
+        <div class="content-card mb-4 border-0 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h5 class="fw-bold text-primary mb-0">
+                    <i class="fas fa-hospital-user me-2"></i> Clientes / Obras Sociales de {{ $empresa->nombre }} (Nivel 3)
+                </h5>
+                <span class="badge bg-primary rounded-pill">{{ isset($clientesHijos) ? $clientesHijos->count() : 0 }} Obra(s) Social(es) Activa(s)</span>
+            </div>
+            <div class="row g-3">
+                @forelse($clientesHijos ?? [] as $clienteHijo)
+                    @php
+                        $adminHijo = \App\Models\User::where('empresa_id', $clienteHijo->id)->first();
+                    @endphp
+                    <div class="col-md-12">
+                        <div class="p-3 rounded-4 border d-flex flex-wrap align-items-center justify-content-between gap-3" style="background-color: #f8fafc; border-left: 5px solid #0284c7 !important;">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ asset('images/apos_logo.svg') }}" alt="{{ $clienteHijo->nombre }}" class="rounded-3 shadow-sm" style="width: 58px; height: 58px;">
+                                <div>
+                                    <span class="badge bg-info text-dark fw-bold mb-1" style="font-size: 0.68rem;">CLIENTE NIVEL 3 &bull; OBRA SOCIAL PROVINCIAL</span>
+                                    <h5 class="fw-bold mb-0 text-dark">{{ $clienteHijo->nombre }}</h5>
+                                    <small class="text-muted">
+                                        Cobertura: <strong>{{ number_format($clienteHijo->capitas_afiliados ?: 160000, 0, ',', '.') }} Afiliados</strong> &bull;
+                                        Comisión Sucursal: <strong>{{ number_format($clienteHijo->comision_subagencia_pct ?: 15, 0) }}%</strong>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                @if($adminHijo)
+                                    <a href="{{ route('impersonate.enter', $adminHijo->id) }}" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+                                        <i class="fas fa-sign-in-alt me-1"></i> Entrar a Administrar {{ $clienteHijo->nombre }}
+                                    </a>
+                                @endif
+                                <a href="{{ route('owner.liquidaciones') }}" class="btn btn-outline-success fw-bold rounded-pill px-3">
+                                    <i class="fas fa-file-csv me-1"></i> Liquidación e-SIDIF
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12 text-center py-4 text-muted">
+                        No hay clientes cargados aún dentro de esta sucursal provincial.
+                    </div>
+                @endforelse
             </div>
         </div>
-    </div>
+    @else
+        <!-- VISTA NIVEL 3: CABECERA INSTITUCIONAL DEL CLIENTE (APOS LA RIOJA) DENTRO DE SU SUCURSAL (SOLUCIONES DIGITALES MCR) -->
+        <div class="content-card mb-4 border-0 text-white shadow" style="background: linear-gradient(135deg, #0f172a 0%, #0369a1 60%, #0284c7 100%); border-radius: 18px;">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ asset('images/apos_logo.svg') }}" alt="APOS La Rioja" class="rounded-4 shadow" style="width: 72px; height: 72px; background: #fff; padding: 3px;">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <span class="badge bg-info text-dark fw-bold px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                <i class="fas fa-landmark me-1"></i>NIVEL 3 &bull; OBRA SOCIAL PROVINCIAL - LA RIOJA
+                            </span>
+                            <span class="badge bg-light bg-opacity-25 text-white border border-light border-opacity-50 px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                <i class="fas fa-sitemap me-1"></i>Sucursal Provincial: {{ $empresa->parent->nombre ?? $empresa->subagencia_nombre ?? 'Soluciones Digitales MCR' }}
+                            </span>
+                        </div>
+                        <h4 class="fw-bold mb-1">APOS &mdash; Área de Docentes Integradores y Educación Especial</h4>
+                        <p class="mb-0 small text-white-50">
+                            Cobertura Provincial: <strong class="text-white">160.000 Afiliados (Titulares y Adicionales)</strong> &bull; Padrón Oficial Activo de Titulares, Alumnos con CUD, Docentes y Escuelas de La Rioja.
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url('/app-docente/demo') }}" class="btn btn-light fw-bold rounded-pill px-3 shadow-sm text-primary">
+                        <i class="fas fa-mobile-screen-button me-1"></i> App Docente
+                    </a>
+                    <a href="{{ route('auditor.docentes.legajos') }}" class="btn btn-warning fw-bold rounded-pill px-3 shadow-sm text-dark">
+                        <i class="fas fa-user-check me-1"></i> Panel Auditor
+                    </a>
+                    <a href="{{ url('/app-directora/demo') }}" class="btn btn-info fw-bold rounded-pill px-3 shadow-sm text-white">
+                        <i class="fas fa-school me-1"></i> App Directora
+                    </a>
+                    <a href="{{ route('owner.liquidaciones') }}" class="btn btn-success fw-bold rounded-pill px-3 shadow-sm text-white">
+                        <i class="fas fa-file-csv me-1"></i> Liquidación e-SIDIF
+                    </a>
+                    <a href="{{ route('panel.accesos') }}" class="btn btn-outline-light fw-bold rounded-pill px-3">
+                        <i class="fas fa-share-nodes me-1"></i> Links por Rol
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Ecosistema Metrics (Clickables) -->
     <div class="row g-3 mb-4">

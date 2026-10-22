@@ -34,13 +34,24 @@ class TenantDashboardController extends Controller
         }
 
         // 4. Preparar variables del Ecosistema para poblar los medidores (KPIs de la vista)
-        $totalEscuelas = \App\Models\Escuela::where('empresa_id', $empresa->id)->count(); 
-        $totalAfiliados = \App\Models\Titular::where('empresa_id', $empresa->id)->count();
-        $totalDocentes = \App\Models\Docente::where('empresa_id', $empresa->id)->count();
-        $totalFamiliares = \App\Models\Familiar::where('empresa_id', $empresa->id)->count();
+        // Si es una Subagencia / Marca Blanca Provincial (ej: Soluciones Digitales MCR), consolidamos sus clientes hijos (ej: APOS)
+        $clientesSubagencia = [];
+        if (($empresa->tipo_entidad ?? '') === 'subagencia') {
+            $clientesSubagencia = Empresa::where('parent_id', $empresa->id)->get();
+            $idsClientes = $clientesSubagencia->pluck('id')->push($empresa->id)->toArray();
+            $totalEscuelas = \App\Models\Escuela::whereIn('empresa_id', $idsClientes)->count();
+            $totalAfiliados = \App\Models\Titular::whereIn('empresa_id', $idsClientes)->count();
+            $totalDocentes = \App\Models\Docente::whereIn('empresa_id', $idsClientes)->count();
+            $totalFamiliares = \App\Models\Familiar::whereIn('empresa_id', $idsClientes)->count();
+        } else {
+            $totalEscuelas = \App\Models\Escuela::where('empresa_id', $empresa->id)->count(); 
+            $totalAfiliados = \App\Models\Titular::where('empresa_id', $empresa->id)->count();
+            $totalDocentes = \App\Models\Docente::where('empresa_id', $empresa->id)->count();
+            $totalFamiliares = \App\Models\Familiar::where('empresa_id', $empresa->id)->count();
+        }
 
-        // 5. Retornar vista "tenant" (El Cockpit del administrador de la clínica)
-        return view('dashboards.tenant', compact('empresa', 'totalEscuelas', 'totalAfiliados', 'totalDocentes', 'totalFamiliares', 'provincias', 'localidadesEmpresa'));
+        // 5. Retornar vista "tenant" (El Cockpit del administrador de la sucursal o de la obra social)
+        return view('dashboards.tenant', compact('empresa', 'clientesSubagencia', 'totalEscuelas', 'totalAfiliados', 'totalDocentes', 'totalFamiliares', 'provincias', 'localidadesEmpresa'));
     }
 
     /**

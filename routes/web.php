@@ -284,6 +284,9 @@ Route::post('/telemedicina/receta/emitir', [\App\Http\Controllers\TelemedicinaCo
 Route::get('/owner/liquidaciones', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'indexDemo'])->name('owner.liquidaciones');
 Route::post('/liquidacion/procesar-cierre', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'procesarCierreLiquidacion'])->name('liquidacion.procesar_cierre');
 Route::get('/owner/liquidaciones/exportar-interbanking', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'descargarInterbankingTxt'])->name('liquidacion.exportar_interbanking');
+Route::get('/owner/liquidaciones/exportar-esidif-csv', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'descargarEsidifCsv'])->name('liquidacion.exportar_esidif_csv');
+Route::post('/owner/liquidaciones/esidif-pki', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'guardarLlavesEsidif'])->name('liquidacion.esidif_pki_guardar');
+Route::post('/owner/liquidaciones/esidif-transmitir', [\App\Http\Controllers\LiquidacionPrestadoresController::class, 'transmitirLoteEsidifWs'])->name('liquidacion.esidif_transmitir_ws');
 
 Route::get('/app-afiliado/derivaciones', [\App\Http\Controllers\DerivacionViaticosController::class, 'indexDemo'])->name('afiliado.derivaciones.demo');
 Route::post('/derivaciones/emitir-voucher', [\App\Http\Controllers\DerivacionViaticosController::class, 'emitirVoucherTransito'])->name('derivaciones.emitir_voucher');

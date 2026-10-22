@@ -17,4 +17,19 @@ class Empresa extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(Empresa::class, 'parent_id');
+    }
+
+    public function clientes()
+    {
+        return $this->hasMany(Empresa::class, 'parent_id');
+    }
+
+    public function provincia()
+    {
+        return $this->belongsTo(Provincia::class, 'provincia_id');
+    }
 }

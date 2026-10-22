@@ -13,17 +13,26 @@ class ImpersonateController extends Controller
      */
     public function enter($userId)
     {
-        // 1. Solo un verdadero 'owner' (dueño de la plataforma) puede usar el God Mode.
+        // 1. Un 'owner' (dueño de Integra) o el administrador de una Subagencia Provincial puede entrar a sus clientes hijos.
         $originalUser = Auth::user();
-        if ($originalUser->role !== 'owner') {
-            return redirect()->back()->with('error', 'Acceso denegado: God Mode es exclusivo para Owners.');
-        }
-
-        // 2. Buscar a la "víctima" (el usuario que vamos a suplantar)
         $userToImpersonate = User::findOrFail($userId);
 
-        // 3. Guardamos el ID del Owner original en su propia sesión para no perder el mapa de retorno
-        session()->put('impersonated_by', $originalUser->id);
+        $esSubagenciaDelCliente = false;
+        if ($originalUser->empresa_id && $userToImpersonate->empresa_id) {
+            $empresaDestino = \App\Models\Empresa::find($userToImpersonate->empresa_id);
+            if ($empresaDestino && $empresaDestino->parent_id == $originalUser->empresa_id) {
+                $esSubagenciaDelCliente = true;
+            }
+        }
+
+        if ($originalUser->role !== 'owner' && !$esSubagenciaDelCliente && !session()->has('impersonated_by')) {
+            return redirect()->back()->with('error', 'Acceso denegado: No tienes permisos para administrar esta entidad.');
+        }
+
+        // 3. Guardamos el ID del usuario original en su propia sesión si aún no estaba guardado
+        if (!session()->has('impersonated_by')) {
+            session()->put('impersonated_by', $originalUser->id);
+        }
 
         // 4. Hacemos login mágico forzoso sin contraseña
         Auth::login($userToImpersonate);

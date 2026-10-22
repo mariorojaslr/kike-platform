@@ -20,9 +20,18 @@ class EmpresaController extends Controller
             'admin_email' => 'required|email|unique:users,email',
         ]);
 
-        // 2. Crear la Institución/Empresa en la Base de Datos
+        // 2. Crear la Sucursal/Marca Blanca o el Cliente/Obra Social en la Base de Datos
+        $parentId = $request->filled('parent_id') ? $request->parent_id : null;
+        $parentEmpresa = $parentId ? Empresa::find($parentId) : null;
+        $tipoEntidad = $request->input('tipo_entidad', $parentId ? 'obra_social' : 'subagencia');
+
         $empresa = Empresa::create([
+            'parent_id' => $parentId,
             'nombre' => $request->nombre,
+            'tipo_entidad' => $tipoEntidad,
+            'subagencia_nombre' => $parentEmpresa ? $parentEmpresa->nombre : ($request->subagencia_nombre ?? 'Sucursal Oficial Provincial'),
+            'provincia_id' => $request->provincia_id ?? ($parentEmpresa ? $parentEmpresa->provincia_id : null),
+            'capitas_afiliados' => $request->input('capitas_afiliados', 0),
             'limite_usuarios' => $request->limite_usuarios,
             'limite_mb' => $request->limite_mb,
             'consumo_actual_mb' => 0.00, // Siempre inicia en 0 MB consumidos

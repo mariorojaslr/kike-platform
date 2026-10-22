@@ -304,7 +304,8 @@
         </div>
         <div class="nav flex-column sidebar-nav">
             <a href="{{ route('dashboard') }}" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Cockpit General</a>
-            <a href="#empresas-list" class="nav-link"><i class="fas fa-building"></i> Empresas (Clientes)</a>
+            <a href="#empresas-list" class="nav-link"><i class="fas fa-sitemap"></i> Sucursales & Clientes</a>
+            <a href="{{ route('owner.liquidaciones') }}" class="nav-link"><i class="fas fa-landmark"></i> Liquidación e-SIDIF / Pagos</a>
             <a href="{{ route('owner.usuarios.index') }}" class="nav-link"><i class="fas fa-users-cog"></i> Gestión de Usuarios</a>
             <a href="{{ route('owner.billing') }}" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> Facturación y Tarifas</a>
             <a href="#" class="nav-link"><i class="fas fa-headset"></i> Mesa de Ayuda (Tickets)</a>
@@ -328,14 +329,17 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div>
-                    <h4 class="mb-0 fw-bold d-none d-sm-block">Panel de Control Global</h4>
+                    <h4 class="mb-0 fw-bold d-none d-sm-block">Panel de Control Global (INTEGRA Master)</h4>
                     <h5 class="mb-0 fw-bold d-sm-none">Cockpit</h5>
-                    <p class="text-muted mb-0 small">{{ date('d M Y') }}</p>
+                    <p class="text-muted mb-0 small">Arquitectura Comercial: <strong>Nivel 1 (Integra) &rarr; Nivel 2 (Sucursal / Marca Blanca Provincial) &rarr; Nivel 3 (Obra Social / Cliente)</strong></p>
                 </div>
             </div>
-            <div class="user-profile">
-                <button class="btn btn-outline-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#nuevaEmpresaModal">
-                    <i class="fas fa-plus me-1"></i> Nueva Empresa
+            <div class="user-profile flex-wrap">
+                <button class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#nuevaSucursalModal">
+                    <i class="fas fa-network-wired me-1 text-purple"></i> + Nueva Sucursal / Marca Blanca
+                </button>
+                <button class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#nuevaEmpresaModal">
+                    <i class="fas fa-plus me-1"></i> + Nuevo Cliente / Obra Social
                 </button>
                 @if(Auth::user()->avatar)
                     <img src="{{ Storage::disk('public')->url(Auth::user()->avatar) }}" class="avatar rounded-circle shadow-sm" style="object-fit: cover; border: 2px solid var(--secundario);">
@@ -356,11 +360,11 @@
             <div class="col-md-3">
                 <div class="gauge-card">
                     <div class="gauge-info">
-                        <p>Empresas Activas</p>
+                        <p>Sucursales & Clientes</p>
                         <h3>{{ $totalEmpresas ?? 0 }}</h3>
                     </div>
                     <div class="gauge-icon bg-blue-light">
-                        <i class="fas fa-city"></i>
+                        <i class="fas fa-sitemap"></i>
                     </div>
                 </div>
             </div>
@@ -399,165 +403,220 @@
             </div>
         </div>
 
-        <!-- Contenido Principal: Monitor de Clientes (Empresas) -->
+        <!-- Contenido Principal: Monitor Jerárquico de Sucursales Provinciales (Nivel 2) y sus Clientes/Obras Sociales (Nivel 3) -->
         <div class="row" id="empresas-list">
             <div class="col-12">
                 <div class="content-card">
                     <div class="card-header-styled">
-                        <h5 class="text-primary"><i class="fas fa-chart-line"></i> Monitor de Clientes (SaaS)</h5>
-                        <div class="input-group" style="width: 250px;">
-                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar empresa...">
+                        <div>
+                            <h5 class="text-primary mb-1"><i class="fas fa-sitemap"></i> Estructura de Sucursales / Marcas Blancas y sus Obras Sociales</h5>
+                            <small class="text-muted">Cada Sucursal o Marca Blanca representa una Provincia (ej. <strong>Soluciones Digitales MCR</strong> en La Rioja) y agrupa adentro a sus clientes (ej. <strong>APOS</strong>).</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{{ route('owner.liquidaciones') }}" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                                <i class="fas fa-file-csv me-1"></i> Liquidación e-SIDIF Nación
+                            </a>
                         </div>
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-custom table-hover">
+                        <table class="table table-custom align-middle">
                             <thead>
                                 <tr>
-                                    <th>Empresa</th>
+                                    <th style="width: 34%">Jerarquía: Sucursal Provincial &rarr; Cliente / Obra Social</th>
                                     <th>Cta. Corriente</th>
                                     <th>Usuarios Activos</th>
-                                    <th style="width: 30%">Vúmetro de Consumo (Almacenamiento)</th>
+                                    <th style="width: 24%">Vúmetro de Consumo (Almacenamiento)</th>
                                     <th>Tickets</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($empresas ?? [] as $empresa)
+                                @php
+                                    $listaSucursales = isset($sucursales) && count($sucursales) > 0
+                                        ? $sucursales
+                                        : collect($empresas ?? [])->whereNull('parent_id');
+                                @endphp
+                                @forelse($listaSucursales as $sucursal)
                                     @php
-                                        // Fake data for visual mock if DB is empty
-                                        $porcentajeMb = $empresa->limite_mb > 0 ? ($empresa->consumo_actual_mb / $empresa->limite_mb) * 100 : 0;
-                                        $vumetroClass = 'vumetro-safe';
-                                        if($porcentajeMb > 75) $vumetroClass = 'vumetro-warn';
-                                        if($porcentajeMb > 90) $vumetroClass = 'vumetro-danger';
-
-                                        $estadoLabel = match($empresa->estado_cuenta) {
-                                            'al_dia' => ['text' => 'Al Día', 'class' => 'status-aldia'],
-                                            'pendiente' => ['text' => 'Pendiente', 'class' => 'status-pendiente'],
-                                            'suspendida' => ['text' => 'Suspendida', 'class' => 'status-suspendida'],
-                                            default => ['text' => 'Desconocido', 'class' => 'status-pendiente']
-                                        };
+                                        $porcentajeMbSuc = $sucursal->limite_mb > 0 ? ($sucursal->consumo_actual_mb / $sucursal->limite_mb) * 100 : 0;
+                                        $vumetroClassSuc = $porcentajeMbSuc > 90 ? 'vumetro-danger' : ($porcentajeMbSuc > 75 ? 'vumetro-warn' : 'vumetro-safe');
+                                        $vencimientoSuc = $sucursal->proximo_vencimiento ? \Carbon\Carbon::parse($sucursal->proximo_vencimiento) : now()->addMonth();
+                                        $diasRestantesSuc = now()->startOfDay()->diffInDays($vencimientoSuc->startOfDay(), false);
+                                        $semaforoClassSuc = $diasRestantesSuc < 0 ? 'status-suspendida' : ($diasRestantesSuc <= 7 ? 'status-pendiente' : 'status-aldia');
+                                        $semaforoTextoSuc = $diasRestantesSuc < 0 ? 'Vencido (' . abs(intval($diasRestantesSuc)) . ' días)' : 'Vence: ' . $vencimientoSuc->format('d/m/Y');
+                                        $adminUserSuc = \App\Models\User::where('empresa_id', $sucursal->id)->first();
                                     @endphp
-                                    <tr>
+                                    <!-- FILA NIVEL 2: SUCURSAL / MARCA BLANCA PROVINCIAL -->
+                                    <tr style="background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%); border-left: 5px solid #4f46e5;">
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                @if($empresa->logo && str_contains($empresa->logo, 'apos'))
-                                                    <img src="{{ asset('images/apos_logo.svg') }}" class="rounded me-3 shadow-sm" style="width:44px;height:44px;object-fit:cover;">
-                                                @elseif($empresa->logo && str_contains($empresa->logo, 'mcr'))
-                                                    <img src="{{ asset('images/mcr_logo.svg') }}" class="rounded me-3 shadow-sm" style="width:44px;height:44px;object-fit:cover;">
+                                                @if($sucursal->logo && str_contains($sucursal->logo, 'mcr'))
+                                                    <img src="{{ asset('images/mcr_logo.svg') }}" class="rounded me-3 shadow-sm" style="width:46px;height:46px;object-fit:cover;">
                                                 @else
-                                                    <div class="bg-light rounded p-2 me-3 text-center" style="width:44px;height:44px;line-height:28px; font-weight:bold; color:var(--primario);">
-                                                        {{ substr($empresa->nombre ?? 'N/A', 0, 1) }}
+                                                    <div class="rounded p-2 me-3 text-center text-white shadow-sm" style="width:46px;height:46px;line-height:30px; font-weight:bold; background:#4f46e5;">
+                                                        <i class="fas fa-building-flag"></i>
                                                     </div>
                                                 @endif
                                                 <div>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <h6 class="mb-0 fw-bold">{{ $empresa->nombre ?? 'Empresa Genérica' }}</h6>
-                                                        @if(($empresa->tipo_entidad ?? '') === 'subagencia')
-                                                            <span class="badge bg-purple-light text-purple" style="font-size: 0.68rem;">Subagencia Provincial</span>
-                                                        @elseif(($empresa->tipo_entidad ?? '') === 'obra_social')
-                                                            <span class="badge bg-blue-light text-primary" style="font-size: 0.68rem;">Obra Social ({{ number_format($empresa->capitas_afiliados ?: 160000, 0, ',', '.') }} Afiliados)</span>
-                                                        @endif
+                                                    <div class="mb-1">
+                                                        <span class="badge text-white fw-bold" style="background-color: #4f46e5; font-size: 0.65rem; letter-spacing: 0.5px;">
+                                                            <i class="fas fa-map-marked-alt me-1"></i> NIVEL 2 &bull; SUCURSAL / MARCA BLANCA PROVINCIAL ({{ strtoupper($sucursal->provincia->nombre ?? 'LA RIOJA') }})
+                                                        </span>
                                                     </div>
+                                                    <h6 class="mb-0 fw-bold text-dark" style="font-size: 1rem;">{{ $sucursal->nombre }}</h6>
                                                     <small class="text-muted">
-                                                        ID: #{{ str_pad($empresa->id, 4, '0', STR_PAD_LEFT) }}
-                                                        @if($empresa->subagencia_nombre)
-                                                            &bull; <i class="fas fa-sitemap text-primary"></i> {{ $empresa->subagencia_nombre }}
-                                                        @endif
+                                                        ID Sucursal: #{{ str_pad($sucursal->id, 4, '0', STR_PAD_LEFT) }} &bull;
+                                                        <strong>{{ $sucursal->clientes ? $sucursal->clientes->count() : 0 }} Cliente(s) / Obra(s) Social(es) a cargo</strong>
                                                     </small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            @php
-                                                // Lógica de semáforo de facturación
-                                                $vencimiento = $empresa->proximo_vencimiento ? \Carbon\Carbon::parse($empresa->proximo_vencimiento) : now()->addMonth();
-                                                $diasRestantes = now()->startOfDay()->diffInDays($vencimiento->startOfDay(), false);
-                                                
-                                                $semaforoClass = 'status-aldia'; // Verde por defecto
-                                                $semaforoTexto = 'Vence: ' . $vencimiento->format('d/m/Y');
-                                                $icono = 'fa-check-circle';
-                                                
-                                                if ($diasRestantes < 0) {
-                                                    $semaforoClass = 'status-suspendida'; // Rojo (vencido)
-                                                    $semaforoTexto = 'Vencido (' . abs(intval($diasRestantes)) . ' días)';
-                                                    $icono = 'fa-times-circle';
-                                                } elseif ($diasRestantes <= 7) {
-                                                    $semaforoClass = 'status-pendiente'; // Amarillo (por vencer)
-                                                    $semaforoTexto = 'Vence en ' . intval($diasRestantes) . ' días';
-                                                    $icono = 'fa-exclamation-triangle';
-                                                }
-                                            @endphp
                                             <div class="fw-bold mb-1" style="font-size: 0.85rem;">
-                                                <span class="text-secondary">$</span> {{ number_format($empresa->deuda_actual ?? 0, 2) }} 
-                                                @if(($empresa->meses_adeudados ?? 0) > 0)
-                                                    <small class="text-danger">({{ $empresa->meses_adeudados }} cuotas)</small>
-                                                @endif
+                                                <span class="text-secondary">$</span> {{ number_format($sucursal->deuda_actual ?? 0, 2) }}
                                             </div>
-                                            <span class="badge-status {{ $semaforoClass }} d-inline-block">
-                                                <i class="fas {{ $icono }}" style="font-size:10px; vertical-align:middle; margin-right:4px;"></i> {{ $semaforoTexto }}
+                                            <span class="badge-status {{ $semaforoClassSuc }} d-inline-block">
+                                                <i class="fas fa-check-circle" style="font-size:10px; vertical-align:middle; margin-right:4px;"></i> {{ $semaforoTextoSuc }}
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="fw-bold">{{ $empresa->users_count ?? 0 }} <span class="text-muted fw-normal small">/ {{ $empresa->limite_usuarios }}</span></div>
+                                            <div class="fw-bold">{{ $sucursal->users_count ?? 0 }} <span class="text-muted fw-normal small">/ {{ $sucursal->limite_usuarios }}</span></div>
                                         </td>
                                         <td>
                                             <div class="d-flex justify-content-between small text-muted mb-1">
-                                                <span>{{ number_format($empresa->consumo_actual_mb, 1) }} MB</span>
-                                                <span>{{ number_format($empresa->limite_mb, 0) }} MB</span>
+                                                <span>{{ number_format($sucursal->consumo_actual_mb, 1) }} MB</span>
+                                                <span>{{ number_format($sucursal->limite_mb, 0) }} MB</span>
                                             </div>
                                             <div class="vumetro">
-                                                <div class="vumetro-bar {{ $vumetroClass }}" style="width: {{ min(100, max(0, $porcentajeMb)) }}%"></div>
+                                                <div class="vumetro-bar {{ $vumetroClassSuc }}" style="width: {{ min(100, max(0, $porcentajeMbSuc)) }}%"></div>
                                             </div>
                                         </td>
                                         <td>
-                                            @if(($empresa->tickets_count ?? 0) > 0)
-                                                <span class="badge bg-danger rounded-pill">{{ $empresa->tickets_count }} Activos</span>
-                                            @else
-                                                <span class="text-muted small"><i class="fas fa-check text-success"></i> 0</span>
-                                            @endif
+                                            <span class="text-muted small"><i class="fas fa-check text-success"></i> 0</span>
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center flex-nowrap gap-1">
-                                                <!-- Botón OJO nativo (Ver Detalles del Tenant) -->
-                                                <button class="btn btn-sm btn-light text-primary" title="Ver Radiografía Completa" data-bs-toggle="modal" data-bs-target="#modalDetallesEmpresa{{ $empresa->id }}"><i class="fas fa-eye"></i></button>
-
-                                                <!-- Botón GOD MODE (Suplantar) -->
-                                                @php
-                                                    // Buscamos cualquier usuario asociado a esa empresa que sea admin.
-                                                    $adminUser = \App\Models\User::where('empresa_id', $empresa->id)->first();
-                                                @endphp
-                                                @if($adminUser)
-                                                <button class="btn btn-sm btn-light text-success" title="Entrar en esta empresa (Elegir Rol)" data-bs-toggle="modal" data-bs-target="#modalSelectorRoles{{ $empresa->id }}">
-                                                    <i class="fas fa-sign-in-alt"></i>
+                                                <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1 fw-bold" style="font-size: 0.72rem;"
+                                                        title="Agregar nueva Obra Social / Cliente dentro de {{ $sucursal->nombre }}"
+                                                        onclick="preseleccionarSucursal({{ $sucursal->id }}, '{{ addslashes($sucursal->nombre) }}')"
+                                                        data-bs-toggle="modal" data-bs-target="#nuevaEmpresaModal">
+                                                    <i class="fas fa-plus"></i> Cliente
                                                 </button>
-                                                @else
-                                                <button class="btn btn-sm btn-light text-muted" title="Esta empresa aún no tiene un administrador creado" disabled>
+                                                <button class="btn btn-sm btn-light text-primary" title="Ver Radiografía de la Sucursal" data-bs-toggle="modal" data-bs-target="#modalDetallesEmpresa{{ $sucursal->id }}"><i class="fas fa-eye"></i></button>
+                                                @if($adminUserSuc)
+                                                <button class="btn btn-sm btn-light text-success" title="Entrar a la Sucursal {{ $sucursal->nombre }}" data-bs-toggle="modal" data-bs-target="#modalSelectorRoles{{ $sucursal->id }}">
                                                     <i class="fas fa-sign-in-alt"></i>
                                                 </button>
                                                 @endif
-                                                
-                                                <!-- Funcionalidad SUSPENDER -->
-                                                <form action="{{ route('empresas.toggle_status', $empresa->id) }}" method="POST" class="m-0 p-0">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-light {{ $empresa->estado_cuenta === 'suspendida' ? 'text-success' : 'text-danger' }}" 
-                                                            title="{{ $empresa->estado_cuenta === 'suspendida' ? 'Reactivar Servicio' : 'Suspender por Falta de Pago' }}">
-                                                        <i class="fas {{ $empresa->estado_cuenta === 'suspendida' ? 'fa-play-circle' : 'fa-ban' }}"></i>
-                                                    </button>
-                                                </form>
                                             </div>
                                         </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="6" class="text-center py-5">
-                    <div class="text-muted mb-3"><i class="fas fa-box-open fa-3x"></i></div>
-                    <h6>No hay empresas registradas aún.</h6>
-                    <p class="small">Haz clic en "Nueva Empresa" para comenzar.</p>
-                </td>
-            </tr>
-        @endforelse
+                                    </tr>
+
+                                    <!-- FILAS NIVEL 3: CLIENTES / OBRAS SOCIALES DENTRO DE ESTA SUCURSAL -->
+                                    @php
+                                        $clientesDeSucursal = $sucursal->clientes ?? collect($empresas ?? [])->where('parent_id', $sucursal->id);
+                                    @endphp
+                                    @foreach($clientesDeSucursal as $empresa)
+                                        @php
+                                            $porcentajeMb = $empresa->limite_mb > 0 ? ($empresa->consumo_actual_mb / $empresa->limite_mb) * 100 : 0;
+                                            $vumetroClass = $porcentajeMb > 90 ? 'vumetro-danger' : ($porcentajeMb > 75 ? 'vumetro-warn' : 'vumetro-safe');
+                                            $vencimiento = $empresa->proximo_vencimiento ? \Carbon\Carbon::parse($empresa->proximo_vencimiento) : now()->addMonth();
+                                            $diasRestantes = now()->startOfDay()->diffInDays($vencimiento->startOfDay(), false);
+                                            $semaforoClass = $diasRestantes < 0 ? 'status-suspendida' : ($diasRestantes <= 7 ? 'status-pendiente' : 'status-aldia');
+                                            $semaforoTexto = $diasRestantes < 0 ? 'Vencido (' . abs(intval($diasRestantes)) . ' días)' : 'Vence: ' . $vencimiento->format('d/m/Y');
+                                            $icono = $diasRestantes < 0 ? 'fa-times-circle' : ($diasRestantes <= 7 ? 'fa-exclamation-triangle' : 'fa-check-circle');
+                                            $adminUser = \App\Models\User::where('empresa_id', $empresa->id)->first();
+                                        @endphp
+                                        <tr style="background-color: #ffffff;">
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center ps-3" style="border-left: 3px solid #0284c7;">
+                                                    <span class="text-primary fw-bold me-2 fs-5" title="Cliente perteneciente a {{ $sucursal->nombre }}">&#8627;</span>
+                                                    @if($empresa->logo && str_contains($empresa->logo, 'apos'))
+                                                        <img src="{{ asset('images/apos_logo.svg') }}" class="rounded me-3 shadow-sm" style="width:46px;height:46px;object-fit:cover;">
+                                                    @else
+                                                        <div class="bg-blue-light rounded p-2 me-3 text-center" style="width:46px;height:46px;line-height:30px; font-weight:bold; color:#0284c7;">
+                                                            {{ substr($empresa->nombre ?? 'C', 0, 1) }}
+                                                        </div>
+                                                    @endif
+                                                    <div>
+                                                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                                            <span class="badge bg-blue-light text-primary fw-bold" style="font-size: 0.65rem;">
+                                                                <i class="fas fa-hospital-user me-1"></i> NIVEL 3 &bull; CLIENTE DE {{ strtoupper($sucursal->nombre) }}
+                                                            </span>
+                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size: 0.65rem;">
+                                                                {{ number_format($empresa->capitas_afiliados ?: 160000, 0, ',', '.') }} Afiliados
+                                                            </span>
+                                                        </div>
+                                                        <h6 class="mb-0 fw-bold text-dark">{{ $empresa->nombre }}</h6>
+                                                        <small class="text-muted">
+                                                            ID Cliente: #{{ str_pad($empresa->id, 4, '0', STR_PAD_LEFT) }} &bull;
+                                                            Comisión Agencia ({{ $sucursal->nombre }}): <strong>{{ number_format($empresa->comision_subagencia_pct ?: 15, 0) }}%</strong>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold mb-1" style="font-size: 0.85rem;">
+                                                    <span class="text-secondary">$</span> {{ number_format($empresa->deuda_actual ?? 0, 2) }}
+                                                    @if(($empresa->meses_adeudados ?? 0) > 0)
+                                                        <small class="text-danger">({{ $empresa->meses_adeudados }} cuotas)</small>
+                                                    @endif
+                                                </div>
+                                                <span class="badge-status {{ $semaforoClass }} d-inline-block">
+                                                    <i class="fas {{ $icono }}" style="font-size:10px; vertical-align:middle; margin-right:4px;"></i> {{ $semaforoTexto }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold">{{ $empresa->users_count ?? 0 }} <span class="text-muted fw-normal small">/ {{ $empresa->limite_usuarios }}</span></div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                                    <span>{{ number_format($empresa->consumo_actual_mb, 1) }} MB</span>
+                                                    <span>{{ number_format($empresa->limite_mb, 0) }} MB</span>
+                                                </div>
+                                                <div class="vumetro">
+                                                    <div class="vumetro-bar {{ $vumetroClass }}" style="width: {{ min(100, max(0, $porcentajeMb)) }}%"></div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if(($empresa->tickets_count ?? 0) > 0)
+                                                    <span class="badge bg-danger rounded-pill">{{ $empresa->tickets_count }} Activos</span>
+                                                @else
+                                                    <span class="text-muted small"><i class="fas fa-check text-success"></i> 0</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center flex-nowrap gap-1">
+                                                    <button class="btn btn-sm btn-light text-primary" title="Ver Radiografía Completa de {{ $empresa->nombre }}" data-bs-toggle="modal" data-bs-target="#modalDetallesEmpresa{{ $empresa->id }}"><i class="fas fa-eye"></i></button>
+                                                    @if($adminUser)
+                                                    <button class="btn btn-sm btn-success text-white fw-bold px-2" title="Entrar a {{ $empresa->nombre }} (Elegir Rol)" data-bs-toggle="modal" data-bs-target="#modalSelectorRoles{{ $empresa->id }}">
+                                                        <i class="fas fa-sign-in-alt me-1"></i> Entrar
+                                                    </button>
+                                                    @else
+                                                    <button class="btn btn-sm btn-light text-muted" title="Esta empresa aún no tiene un administrador creado" disabled>
+                                                        <i class="fas fa-sign-in-alt"></i>
+                                                    </button>
+                                                    @endif
+                                                    <form action="{{ route('empresas.toggle_status', $empresa->id) }}" method="POST" class="m-0 p-0">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-light {{ $empresa->estado_cuenta === 'suspendida' ? 'text-success' : 'text-danger' }}"
+                                                                title="{{ $empresa->estado_cuenta === 'suspendida' ? 'Reactivar Servicio' : 'Suspender por Falta de Pago' }}">
+                                                            <i class="fas {{ $empresa->estado_cuenta === 'suspendida' ? 'fa-play-circle' : 'fa-ban' }}"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="text-muted mb-3"><i class="fas fa-box-open fa-3x"></i></div>
+                                            <h6>No hay sucursales ni clientes registrados aún.</h6>
+                                        </td>
+                                    </tr>
+                                @endforelse
         
         <!-- Datos simulados (Mock) para vista previa visual en caso de que la tabla de Base de Datos esté vacía (útil para el diseño) -->
         @if(!isset($empresas) || count($empresas) === 0)
@@ -885,44 +944,114 @@
         </div>
     </div>
 
-    <!-- Modal Nueva Empresa -->
-    <div class="modal fade" id="nuevaEmpresaModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal Nueva Sucursal / Marca Blanca Provincial (Nivel 2) -->
+    <div class="modal fade" id="nuevaSucursalModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content border-0" style="border-radius: 15px;">
-                <div class="modal-header bg-light border-0" style="border-radius: 15px 15px 0 0;">
-                    <h5 class="modal-title fw-bold"><i class="fas fa-building text-primary me-2"></i> Alta de Nueva Empresa</h5>
-                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header text-white border-0" style="border-radius: 15px 15px 0 0; background-color: #4f46e5;">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-network-wired me-2"></i> Nueva Sucursal / Marca Blanca Provincial</h5>
+                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="POST" action="{{ route('empresas.store') }}">
                     @csrf
+                    <input type="hidden" name="tipo_entidad" value="subagencia">
+                    <input type="hidden" name="parent_id" value="">
                     <div class="modal-body p-4">
+                        <div class="alert alert-light border small mb-3">
+                            <i class="fas fa-info-circle text-primary me-1"></i> Creá una <strong>Sucursal o Marca Blanca</strong> para representar una Provincia (ej. <em>Soluciones Digitales MCR</em> en La Rioja, o futuras agencias en Catamarca, Córdoba, etc.).
+                        </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">Nombre de Institución/Empresa</label>
-                            <input type="text" name="nombre" class="form-control bg-light border-0" placeholder="Ej. Centro de Terapia Integral" required>
+                            <label class="form-label fw-bold small text-muted">Nombre de la Sucursal / Marca Blanca</label>
+                            <input type="text" name="nombre" class="form-control bg-light border-0" placeholder="Ej. Agencia Oficial Catamarca / Marca Blanca" required>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small text-muted">Límite de Usuarios</label>
-                                <input type="number" name="limite_usuarios" class="form-control bg-light border-0" value="50" required min="1">
+                                <input type="number" name="limite_usuarios" class="form-control bg-light border-0" value="100" required min="1">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold small text-muted">Almacenamiento (MB)</label>
-                                <input type="number" name="limite_mb" class="form-control bg-light border-0" value="500" required min="1">
+                                <input type="number" name="limite_mb" class="form-control bg-light border-0" value="5000" required min="1">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">Correo del Administrador Emisor</label>
-                            <input type="email" name="admin_email" class="form-control bg-light border-0" placeholder="admin@empresa.com" required>
+                            <label class="form-label fw-bold small text-muted">Correo del Administrador de la Sucursal</label>
+                            <input type="email" name="admin_email" class="form-control bg-light border-0" placeholder="agencia@provincia.com" required>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pb-4 pe-4">
                         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4" style="background-color: var(--secundario); border: none;">Crear Entorno</button>
+                        <button type="submit" class="btn text-white rounded-pill px-4 fw-bold" style="background-color: #4f46e5;">Crear Sucursal Provincial</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Modal Nuevo Cliente / Obra Social dentro de una Sucursal (Nivel 3) -->
+    <div class="modal fade" id="nuevaEmpresaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0" style="border-radius: 15px;">
+                <div class="modal-header bg-primary text-white border-0" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-hospital-user me-2"></i> Nuevo Cliente / Obra Social (Nivel 3)</h5>
+                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{{ route('empresas.store') }}">
+                    @csrf
+                    <input type="hidden" name="tipo_entidad" value="obra_social">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Sucursal / Marca Blanca Provincial a la que pertenece</label>
+                            <select name="parent_id" id="selectSucursalPadre" class="form-select bg-light border-0 fw-bold" required>
+                                @foreach($listaSucursales as $suc)
+                                    <option value="{{ $suc->id }}">{{ $suc->nombre }} ({{ $suc->provincia->nombre ?? 'La Rioja' }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Nombre de la Obra Social / Mutual / Cliente</label>
+                            <input type="text" name="nombre" class="form-control bg-light border-0" placeholder="Ej. APOS - Obra Social Provincial" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Cápitas / Afiliados</label>
+                                <input type="number" name="capitas_afiliados" class="form-control bg-light border-0" value="160000" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">% Comisión p/ Sucursal</label>
+                                <input type="number" name="comision_subagencia_pct" class="form-control bg-light border-0" value="15" min="0" max="100" step="0.5">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Límite de Usuarios</label>
+                                <input type="number" name="limite_usuarios" class="form-control bg-light border-0" value="500" required min="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted">Almacenamiento (MB)</label>
+                                <input type="number" name="limite_mb" class="form-control bg-light border-0" value="15000" required min="1">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Correo del Administrador del Cliente</label>
+                            <input type="email" name="admin_email" class="form-control bg-light border-0" placeholder="admin@obrasocial.gob.ar" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pb-4 pe-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold" style="background-color: var(--secundario); border: none;">Crear Obra Social / Cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function preseleccionarSucursal(sucursalId, nombreSucursal) {
+            const sel = document.getElementById('selectSucursalPadre');
+            if (sel) sel.value = sucursalId;
+        }
+    </script>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
