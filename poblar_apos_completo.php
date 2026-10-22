@@ -436,11 +436,21 @@ echo "Detalles de alumnos indexados desde Archivo B: " . count($alumnosDetalleMa
 
 // Limpiar tablas de familiares y expedientes_alumno antes de reconstruir el padrón limpio de APOS
 DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+// Si en el servidor expedientes_alumno tenía FK apuntando a la vieja tabla 'familiars' en vez de 'familiares', la quitamos
+try {
+    DB::statement('ALTER TABLE expedientes_alumno DROP FOREIGN KEY expedientes_alumno_alumno_id_foreign');
+} catch (\Throwable $e) {
+    // Si ya no existe, ignoramos
+}
+
 DB::table('familiares')->truncate();
-DB::table('familiars')->truncate();
+if (Schema::hasTable('familiars')) {
+    DB::table('familiars')->truncate();
+}
 DB::table('expedientes_alumno')->truncate();
 DB::table('escuelas')->where('id', '<=', 2)->delete(); // quitar las 2 escuelas de prueba viejas ("Pepita", "Juanita")
-DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
 
 // Embellecer nombres de los docentes existentes en APOS
 $docentesExistentes = Docente::where('empresa_id', $aposId)->get();
@@ -685,6 +695,8 @@ Familiar::updateOrCreate(
         'horario'         => '08:00 a 11:00 hs',
     ]
 );
+
+DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
 echo "\n=== RESUMEN FINAL DE POBLACIÓN APOS LA RIOJA ===\n";
 echo "Empresas configuradas: " . Empresa::count() . " (1: Soluciones Digitales MCR | 2: APOS La Rioja)\n";
