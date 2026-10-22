@@ -42,7 +42,7 @@ class PwaDocenteController extends Controller
         $docenteNombre = $docenteReal ? ('Prof. ' . $docenteReal->nombre_completo . ' (APOS La Rioja)') : 'Prof. María Eugenia López (APOS La Rioja)';
 
         // Lista de docentes de APOS para poder cambiar de docente en la demo si se desea
-        $docentesApos = Docente::where('empresa_id', $empresaIdDemo)->orderBy('apellido')->orderBy('nombre')->get();
+        $docentesApos = Docente::where('empresa_id', $empresaIdDemo)->orderBy('nombre')->get();
 
         // Carga de Expedientes Reales de la Base de Datos para el Docente
         $expedientesReales = ExpedienteAlumno::with(['alumno', 'titular', 'escuela', 'facturas'])
@@ -156,10 +156,8 @@ class PwaDocenteController extends Controller
         if (!$alumno && $request->filled('alumno_nombre')) {
             $term = trim($request->input('alumno_nombre'));
             $alumno = Familiar::with(['titular', 'escuela', 'diagnostico'])
-                ->where(function ($q) use ($term) {
-                    $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('apellido', 'LIKE', "%{$term}%");
-                })->first();
+                ->where('nombre', 'LIKE', "%{$term}%")
+                ->first();
         }
 
         if (!$alumno) {
@@ -249,6 +247,7 @@ class PwaDocenteController extends Controller
         }
 
         return response()->json([
+            'ok' => true,
             'success' => true,
             'expediente_id' => $expediente->id,
             'novedad_id' => $novedad->id,
@@ -358,13 +357,10 @@ class PwaDocenteController extends Controller
             $titulares = Titular::with(['familiares.escuela', 'familiares.diagnostico'])
                 ->where(function ($q) use ($term) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('apellido', 'LIKE', "%{$term}%")
-                      ->orWhereRaw("CONCAT(COALESCE(apellido,''), ' ', COALESCE(nombre,'')) LIKE ?", ["%{$term}%"])
                       ->orWhere('dni', 'LIKE', "%{$term}%")
-                      ->orWhere('nro_afiliado', 'LIKE', "%{$term}%")
+                      ->orWhere('n_afiliado', 'LIKE', "%{$term}%")
                       ->orWhereHas('familiares', function ($fq) use ($term) {
                           $fq->where('nombre', 'LIKE', "%{$term}%")
-                             ->orWhere('apellido', 'LIKE', "%{$term}%")
                              ->orWhere('dni', 'LIKE', "%{$term}%");
                       });
                 })
@@ -372,10 +368,11 @@ class PwaDocenteController extends Controller
                 ->get()
                 ->map(function ($t) {
                     $t->nombre = $t->nombre_completo;
+                    $t->nro_afiliado = $t->n_afiliado ?: $t->dni;
                     foreach ($t->familiares as $f) {
                         $f->nombre = $f->nombre_completo;
                         $exp = ExpedienteAlumno::where('alumno_id', $f->id)->first();
-                        $f->nro_resolucion = $exp ? $exp->nro_resolucion : null;
+                        $f->nro_resolucion = $exp ? $exp->nro_resolucion : ($f->resolucion ?: null);
                         $f->horarios_atencion = $exp ? $exp->horarios_atencion : null;
                     }
                     return $t;
@@ -385,7 +382,6 @@ class PwaDocenteController extends Controller
         }
 
         if ($type === 'alumnos' || $type === 'resolucion') {
-            // También buscamos si el término coincide con un N° de Resolución en expedientes_alumno
             $alumnoIdsPorResolucion = ExpedienteAlumno::where('nro_resolucion', 'LIKE', "%{$term}%")
                 ->pluck('alumno_id')
                 ->toArray();
@@ -395,9 +391,8 @@ class PwaDocenteController extends Controller
             if ($term) {
                 $query->where(function ($q) use ($term, $alumnoIdsPorResolucion) {
                     $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('apellido', 'LIKE', "%{$term}%")
-                      ->orWhereRaw("CONCAT(COALESCE(apellido,''), ' ', COALESCE(nombre,'')) LIKE ?", ["%{$term}%"])
                       ->orWhere('dni', 'LIKE', "%{$term}%")
+                      ->orWhere('resolucion', 'LIKE', "%{$term}%")
                       ->orWhere('diagnostico_detalle', 'LIKE', "%{$term}%");
 
                     if (!empty($alumnoIdsPorResolucion)) {
@@ -406,10 +401,8 @@ class PwaDocenteController extends Controller
 
                     $q->orWhereHas('titular', function ($tq) use ($term) {
                         $tq->where('nombre', 'LIKE', "%{$term}%")
-                           ->orWhere('apellido', 'LIKE', "%{$term}%")
-                           ->orWhereRaw("CONCAT(COALESCE(apellido,''), ' ', COALESCE(nombre,'')) LIKE ?", ["%{$term}%"])
                            ->orWhere('dni', 'LIKE', "%{$term}%")
-                           ->orWhere('nro_afiliado', 'LIKE', "%{$term}%");
+                           ->orWhere('n_afiliado', 'LIKE', "%{$term}%");
                     });
                 });
             }
@@ -422,12 +415,13 @@ class PwaDocenteController extends Controller
                 $a->nombre = $a->nombre_completo;
                 if ($a->titular) {
                     $a->titular->nombre = $a->titular->nombre_completo;
+                    $a->titular->nro_afiliado = $a->titular->n_afiliado ?: $a->titular->dni;
                 }
                 if ($a->escuela) {
                     $a->escuela->nombre = $a->escuela->nombre_completo;
                 }
                 $exp = ExpedienteAlumno::where('alumno_id', $a->id)->first();
-                $a->nro_resolucion = $exp ? $exp->nro_resolucion : null;
+                $a->nro_resolucion = $exp ? $exp->nro_resolucion : ($a->resolucion ?: null);
                 $a->horarios_atencion = $exp ? $exp->horarios_atencion : 'Lunes a Viernes (Máx. 3 hs/día)';
                 $a->horas_mensuales_asignadas = $exp ? $exp->horas_mensuales_asignadas : 60;
                 return $a;
@@ -444,7 +438,7 @@ class PwaDocenteController extends Controller
                 ->map(function ($a) {
                     $a->nombre = $a->nombre_completo;
                     $exp = ExpedienteAlumno::where('alumno_id', $a->id)->first();
-                    $a->nro_resolucion = $exp ? $exp->nro_resolucion : null;
+                    $a->nro_resolucion = $exp ? $exp->nro_resolucion : ($a->resolucion ?: null);
                     $a->horarios_atencion = $exp ? $exp->horarios_atencion : 'Lunes a Viernes (Máx. 3 hs/día)';
                     return $a;
                 });
@@ -454,11 +448,12 @@ class PwaDocenteController extends Controller
 
         if ($type === 'escuelas') {
             $escuelas = Escuela::where(function ($q) use ($term) {
-                    $q->where('nombre', 'LIKE', "%{$term}%")
-                      ->orWhere('numero', 'LIKE', "%{$term}%")
-                      ->orWhere('localidad', 'LIKE', "%{$term}%");
+                    $q->where('nombre', 'LIKE', "%{$term}%");
                     if (Schema::hasColumn('escuelas', 'cue')) {
                         $q->orWhere('cue', 'LIKE', "%{$term}%");
+                    }
+                    if (Schema::hasColumn('escuelas', 'direccion')) {
+                        $q->orWhere('direccion', 'LIKE', "%{$term}%");
                     }
                 })
                 ->take(20)

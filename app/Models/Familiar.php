@@ -88,4 +88,14 @@ class Familiar extends Model
     {
         return $this->belongsTo(Docente::class, 'docente_id');
     }
+
+    public function getNombreCompletoAttribute()
+    {
+        return trim(($this->attributes['apellido'] ?? '') . ' ' . ($this->attributes['nombre'] ?? ''));
+    }
+
+    public function getNroAfiliadoAttribute()
+    {
+        return $this->attributes['n_afiliado'] ?? ($this->attributes['nro_afiliado'] ?? $this->dni);
+    }
 }

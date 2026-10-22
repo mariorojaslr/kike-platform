@@ -55,6 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- MÓDULO: AUDITORÍA DE DOCENTES & NOVEDADES EN TIEMPO REAL ---
     Route::get('/auditor/docentes-legajos', [\App\Http\Controllers\AuditorDocenteController::class, 'indexLegajos'])->name('auditor.docentes.legajos');
+    Route::get('/auditor/docentes', [\App\Http\Controllers\AuditorDocenteController::class, 'indexLegajos'])->name('auditor.docentes.index');
     Route::get('/auditor/novedades', [\App\Http\Controllers\AuditorDocenteController::class, 'novedades'])->name('auditor.novedades');
     Route::post('/auditor/resolucion/vincular', [\App\Http\Controllers\AuditorDocenteController::class, 'registrarResolucionVinculo'])->name('auditor.resolucion.vincular');
     

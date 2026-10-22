@@ -40,4 +40,9 @@ class Docente extends Model
     {
         return $this->belongsTo(Formacion::class, 'formacion_id');
     }
+
+    public function getNombreCompletoAttribute()
+    {
+        return trim(($this->attributes['apellido'] ?? '') . ' ' . ($this->attributes['nombre'] ?? ''));
+    }
 }

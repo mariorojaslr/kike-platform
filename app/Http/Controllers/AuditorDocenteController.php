@@ -21,7 +21,7 @@ class AuditorDocenteController extends Controller
      */
     public function indexLegajos()
     {
-        $docentes = Docente::with('documentos')->orderBy('apellido')->orderBy('nombre')->get();
+        $docentes = Docente::with('documentos')->orderBy('nombre')->get();
 
         $totalDocentes = $docentes->count();
         $alDia = $docentes->where('estado_legajo', 'al_dia')->count();
@@ -47,7 +47,7 @@ class AuditorDocenteController extends Controller
             ->get();
 
         // Listas para alta rápida de Resolución / Vinculación desde mesa de entrada o auditoría
-        $alumnosApos = Familiar::with(['titular', 'escuela'])->orderBy('apellido')->orderBy('nombre')->get();
+        $alumnosApos = Familiar::with(['titular', 'escuela'])->orderBy('nombre')->get();
         $escuelasApos = Escuela::orderBy('nombre')->get();
 
         return view('dashboards.auditor_docentes', compact(

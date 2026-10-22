@@ -106,13 +106,10 @@ class PadreAsistenciaController extends Controller
             try {
                 NotificacionSistema::create([
                     'empresa_id' => $exp->empresa_id ?? 2,
-                    'remitente_rol' => 'padre',
-                    'destinatario_rol' => 'auditor',
-                    'titulo' => "Aval del Padre Titular: {$alumNom} (Res: {$resTxt})",
+                    'titulo' => "🔔 Aval del Padre Titular: {$alumNom} (Res: {$resTxt})",
                     'mensaje' => $descripcion,
-                    'tipo_alerta' => 'info',
-                    'leida' => false,
-                    'url_redireccion' => route('auditor.docentes.index', [], false) . '#bandeja-resoluciones-vivo'
+                    'link' => route('auditor.docentes.legajos'),
+                    'leido' => false,
                 ]);
             } catch (\Throwable $e) {
                 // Continuar

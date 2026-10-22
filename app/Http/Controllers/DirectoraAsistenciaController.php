@@ -120,13 +120,10 @@ class DirectoraAsistenciaController extends Controller
             try {
                 NotificacionSistema::create([
                     'empresa_id' => $exp->empresa_id ?? 2,
-                    'remitente_rol' => 'directora',
-                    'destinatario_rol' => 'auditor',
-                    'titulo' => "Aval Escolar Firmado: {$alumNom} (Res: {$resTxt})",
+                    'titulo' => "🔔 Aval Escolar Firmado: {$alumNom} (Res: {$resTxt})",
                     'mensaje' => $descripcion,
-                    'tipo_alerta' => 'success',
-                    'leida' => false,
-                    'url_redireccion' => route('auditor.docentes.index', [], false) . '#bandeja-resoluciones-vivo'
+                    'link' => route('auditor.docentes.legajos'),
+                    'leido' => false,
                 ]);
             } catch (\Throwable $e) {
                 // Continuar si la tabla difiere

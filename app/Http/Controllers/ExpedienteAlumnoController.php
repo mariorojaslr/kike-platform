@@ -26,7 +26,7 @@ class ExpedienteAlumnoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'alumno_id' => 'required|exists:familiares,id',
+            'alumno_id' => 'nullable|exists:familiares,id',
             'escuela_id' => 'nullable|exists:escuelas,id',
             'horarios_atencion' => 'nullable|string|max:255',
             'horas_mensuales_asignadas' => 'nullable|integer|min:1|max:120',
@@ -36,15 +36,18 @@ class ExpedienteAlumnoController extends Controller
 
         $user = Auth::user();
         // Buscar o asumir docente del usuario
-        $docente = Docente::where('email', $user->email ?? '')->first() ?? Docente::first();
+        $docente = Docente::where('email', $user->email ?? '')->first() ?? Docente::where('empresa_id', 2)->first() ?? Docente::first();
 
         if (!$docente) {
             return back()->with('error', 'No se encontró el registro del docente.');
         }
 
+        $alumnoId = $request->alumno_id ?: (\App\Models\Familiar::where('empresa_id', $docente->empresa_id ?? 2)->value('id') ?? \App\Models\Familiar::value('id'));
+        $alumnoObj = \App\Models\Familiar::with('titular')->find($alumnoId);
+
         $resolucionUrl = null;
         $datosIa = null;
-        $tieneResolucion = false;
+        $tieneResolucion = $request->filled('nro_resolucion');
 
         if ($request->hasFile('resolucion_file')) {
             $path = $request->file('resolucion_file')->store('resoluciones', 'public');
@@ -64,38 +67,57 @@ class ExpedienteAlumnoController extends Controller
             $certificadoUrl = $request->file('certificado_file')->store('certificados', 'public');
         }
 
-        $nroRes = $datosIa['nro_resolucion'] ?? $request->nro_resolucion ?? ($tieneResolucion ? ('RES-' . date('Y') . '-' . rand(100, 999)) : null);
+        $nroRes = $request->nro_resolucion ?? $datosIa['nro_resolucion'] ?? ($tieneResolucion ? ('RES-' . date('Y') . '-' . rand(100, 999)) : null);
 
-        $expediente = ExpedienteAlumno::create([
-            'docente_id' => $docente->id,
-            'empresa_id' => $docente->empresa_id ?? 1,
-            'alumno_id' => $request->alumno_id,
-            'escuela_id' => $request->escuela_id,
-            'horarios_atencion' => $request->horarios_atencion,
-            'horas_mensuales_asignadas' => $request->horas_mensuales_asignadas ?? 3, // Default 3hs
-            'origen_resolucion' => $tieneResolucion ? 'externa_papel' : 'pendiente_auditoria',
-            'nro_resolucion' => $nroRes,
-            'resolucion_url' => $resolucionUrl,
-            'resolucion_datos_ia' => $datosIa,
-            'certificado_medico_url' => $certificadoUrl,
-            'diagnostico' => $datosIa['diagnostico_resumido'] ?? $request->diagnostico ?? null,
-            'estado_auditoria' => 'pendiente',
-        ]);
+        $expediente = ExpedienteAlumno::updateOrCreate(
+            [
+                'empresa_id' => $docente->empresa_id ?? 2,
+                'alumno_id' => $alumnoId,
+            ],
+            [
+                'docente_id' => $docente->id,
+                'titular_id' => $alumnoObj ? $alumnoObj->titular_id : null,
+                'escuela_id' => $request->escuela_id ?: ($alumnoObj ? $alumnoObj->escuela_id : null),
+                'horarios_atencion' => $request->horarios_atencion ?: 'Lunes a Viernes (3 hs/día)',
+                'horas_mensuales_asignadas' => $request->horas_mensuales_asignadas ?? 60,
+                'origen_resolucion' => $tieneResolucion ? 'resolucion_apos' : 'pendiente_auditoria',
+                'nro_resolucion' => $nroRes ?: 'EN TRÁMITE AUDITORÍA',
+                'resolucion_url' => $resolucionUrl,
+                'resolucion_datos_ia' => $datosIa,
+                'certificado_medico_url' => $certificadoUrl,
+                'diagnostico' => $datosIa['diagnostico_resumido'] ?? $request->diagnostico ?? ($alumnoObj ? $alumnoObj->diagnostico_detalle : null),
+                'estado_auditoria' => 'pendiente',
+            ]
+        );
 
         // Registrar Novedad en tiempo real para el auditor
         $tipoNov = $tieneResolucion ? 'nueva_resolucion' : 'solicitud_resolucion_auditoria';
+        $alumNom = $alumnoObj ? $alumnoObj->nombre_completo : 'Alumno';
+        $titNom = ($alumnoObj && $alumnoObj->titular) ? $alumnoObj->titular->nombre_completo : 'Titular APOS';
         $descNov = $tieneResolucion 
-            ? "El docente {$docente->nombre} cargó la Resolución N° {$nroRes} para el expediente del alumno."
-            : "El docente {$docente->nombre} inició expediente del alumno sin resolución. Requiere que Auditoría le consigna/refiera una resolución válida.";
+            ? "NUEVA RESOLUCIÓN APOS CARGADA (N° {$nroRes}): Vinculada al Alumno {$alumNom}, Padre/Titular {$titNom} y Docente {$docente->nombre_completo}."
+            : "SOLICITUD DE RESOLUCIÓN: Se inició trámite para el Alumno {$alumNom} (Titular: {$titNom}) con Docente {$docente->nombre_completo}. Requiere autorización del Auditor.";
 
         NovedadAuditoria::create([
-            'empresa_id' => $docente->empresa_id ?? 1,
+            'empresa_id' => $docente->empresa_id ?? 2,
             'docente_id' => $docente->id,
             'expediente_id' => $expediente->id,
             'tipo_novedad' => $tipoNov,
             'descripcion' => $descNov,
             'estado' => 'pendiente',
         ]);
+
+        try {
+            \App\Models\NotificacionSistema::create([
+                'empresa_id' => $docente->empresa_id ?? 2,
+                'titulo' => "🔔 Resolución APOS Vinculada ({$nroRes})",
+                'mensaje' => $descNov,
+                'link' => route('auditor.docentes.legajos'),
+                'leido' => false,
+            ]);
+        } catch (\Throwable $e) {
+            // Continuar
+        }
 
         $mensajeExito = $tieneResolucion 
             ? "Expediente del alumno iniciado con Resolución (analizado con IA). Alerta enviada a Auditoría." 

@@ -23,4 +23,14 @@ class Titular extends Model
         $hijosFormateado = str_pad($cantidadHijos, 2, '0', STR_PAD_LEFT);
         return "1" . $this->dni . $hijosFormateado;
     }
+
+    public function getNombreCompletoAttribute()
+    {
+        return trim(($this->attributes['apellido'] ?? '') . ' ' . ($this->attributes['nombre'] ?? ''));
+    }
+
+    public function getNroAfiliadoAttribute()
+    {
+        return $this->attributes['n_afiliado'] ?? ($this->attributes['nro_afiliado'] ?? $this->dni);
+    }
 }

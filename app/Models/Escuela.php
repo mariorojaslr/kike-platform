@@ -27,4 +27,9 @@ class Escuela extends Model
         return $this->hasMany(Afiliado::class, 'escuela_id');
     }
 
+    public function getNombreCompletoAttribute()
+    {
+        return $this->attributes['nombre'] ?? 'Institución Educativa';
+    }
+
 }
