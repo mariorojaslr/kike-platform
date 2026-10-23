@@ -89,9 +89,30 @@ class Familiar extends Model
         return $this->belongsTo(Docente::class, 'docente_id');
     }
 
+    public function getNombreAttribute($value)
+    {
+        return \App\Support\SpanishTextCleaner::clean($value, true);
+    }
+
+    public function getDiagnosticoDetalleAttribute($value)
+    {
+        return \App\Support\SpanishTextCleaner::clean($value, false);
+    }
+
+    public function getGradoDivisionAttribute($value)
+    {
+        return \App\Support\SpanishTextCleaner::clean($value, false);
+    }
+
+    public function getTurnoAttribute($value)
+    {
+        return \App\Support\SpanishTextCleaner::clean($value, false);
+    }
+
     public function getNombreCompletoAttribute()
     {
-        return trim(($this->attributes['apellido'] ?? '') . ' ' . ($this->attributes['nombre'] ?? ''));
+        $raw = trim(($this->attributes['apellido'] ?? '') . ' ' . ($this->attributes['nombre'] ?? ''));
+        return \App\Support\SpanishTextCleaner::clean($raw, true);
     }
 
     public function getNroAfiliadoAttribute()

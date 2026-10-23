@@ -88,7 +88,7 @@ class ImportadorController extends Controller
                     }
                     $emptyLines = 0;
 
-                    $titularNombre = trim($row[0] ?? '');
+                    $titularNombre = \App\Support\SpanishTextCleaner::clean($row[0] ?? '', true);
                     
                     // Saltamos filas de encabezado engañosas ("sep=;", "TITULAR_APELLIDO", etc)
                     if (str_contains(strtolower($titularNombre), 'sep=') || str_contains(strtolower($titularNombre), 'titular_apellido')) {
@@ -96,9 +96,9 @@ class ImportadorController extends Controller
                     }
 
                     $titularAfiliado = mb_substr(trim($row[1] ?? ''), 0, 100);
-                    $benefNombre = mb_substr(trim($row[2] ?? ''), 0, 250);
+                    $benefNombre = mb_substr(\App\Support\SpanishTextCleaner::clean($row[2] ?? '', true), 0, 250);
                     $benefAfiliado = mb_substr(trim($row[3] ?? ''), 0, 100);
-                    $docenteNombre = mb_substr(trim($row[4] ?? ''), 0, 250);
+                    $docenteNombre = mb_substr(\App\Support\SpanishTextCleaner::clean($row[4] ?? '', true), 0, 250);
                     $docenteDni = mb_substr(trim($row[5] ?? ''), 0, 100);
                     $docenteRes = mb_substr(trim($row[6] ?? ''), 0, 250);
 
@@ -160,7 +160,7 @@ class ImportadorController extends Controller
                     }
                     $emptyLines = 0;
 
-                    $alumnoNombre = mb_substr(trim($row[0] ?? ''), 0, 250);
+                    $alumnoNombre = mb_substr(\App\Support\SpanishTextCleaner::clean($row[0] ?? '', true), 0, 250);
                     
                     if (str_contains(strtolower($alumnoNombre), 'sep=') || str_contains(strtolower($alumnoNombre), 'alumno_apellido')) {
                         continue;
@@ -168,18 +168,18 @@ class ImportadorController extends Controller
 
                     $alumnoDni = mb_substr(trim($row[1] ?? ''), 0, 100);
                     $nAfiliado = mb_substr(trim($row[2] ?? ''), 0, 100);
-                    $diagnosticoStr = trim($row[3] ?? '');
+                    $diagnosticoStr = \App\Support\SpanishTextCleaner::clean($row[3] ?? '', false);
                     if (mb_strlen($diagnosticoStr) > 250) {
                         $diagnosticoStr = mb_substr($diagnosticoStr, 0, 250);
                     }
                     
-                    $escuelaStr = trim($row[4] ?? '');
+                    $escuelaStr = \App\Support\SpanishTextCleaner::clean($row[4] ?? '', false);
                     if (mb_strlen($escuelaStr) > 250) {
                         $escuelaStr = mb_substr($escuelaStr, 0, 250);
                     }
-                    $gradoStr = trim($row[5] ?? '');
-                    $turnoStr = trim($row[6] ?? '');
-                    $horarioStr = trim($row[7] ?? '');
+                    $gradoStr = \App\Support\SpanishTextCleaner::clean($row[5] ?? '', true);
+                    $turnoStr = \App\Support\SpanishTextCleaner::clean($row[6] ?? '', true);
+                    $horarioStr = \App\Support\SpanishTextCleaner::clean($row[7] ?? '', false);
 
                     // Tratar Diagnóstico
                     $diagnosticoId = null;

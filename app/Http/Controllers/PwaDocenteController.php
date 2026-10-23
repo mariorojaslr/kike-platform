@@ -31,11 +31,24 @@ class PwaDocenteController extends Controller
         return $docente;
     }
 
+    private function ensureApprovalColumns(): void
+    {
+        if (Schema::hasTable('expedientes_alumno') && !Schema::hasColumn('expedientes_alumno', 'visto_bueno_auditor')) {
+            Schema::table('expedientes_alumno', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->boolean('visto_bueno_auditor')->default(false)->after('estado_auditoria');
+                $table->boolean('visto_bueno_jefe')->default(false)->after('visto_bueno_auditor');
+                $table->timestamp('aprobado_auditor_at')->nullable()->after('visto_bueno_jefe');
+                $table->timestamp('aprobado_jefe_at')->nullable()->after('aprobado_auditor_at');
+            });
+        }
+    }
+
     /**
      * Vista de simulación del Ecosistema del Docente/Terapeuta
      */
     public function demo(Request $request)
     {
+        $this->ensureApprovalColumns();
         $empresaIdDemo = 2; // APOS - Obra Social Provincial
         $docenteReal = $this->resolveDocenteActivo($request);
         $docenteIdDemo = $docenteReal ? $docenteReal->id : 21;
@@ -43,6 +56,17 @@ class PwaDocenteController extends Controller
 
         // Lista de docentes de APOS para poder cambiar de docente en la demo si se desea
         $docentesApos = Docente::where('empresa_id', $empresaIdDemo)->orderBy('nombre')->get();
+
+        // Resoluciones emitidas desde Administración APOS que vienen "En Camino" para que la docente las tome y complete documentación
+        $resolucionesEnCamino = ExpedienteAlumno::with(['alumno.diagnostico', 'titular', 'escuela', 'docente'])
+            ->where(function ($q) use ($docenteIdDemo) {
+                $q->where('docente_id', $docenteIdDemo)
+                  ->orWhere('estado_auditoria', 'en_camino');
+            })
+            ->whereIn('estado_auditoria', ['en_camino', 'pendiente'])
+            ->orderByDesc('updated_at')
+            ->limit(8)
+            ->get();
 
         // Carga de Expedientes Reales de la Base de Datos para el Docente
         $expedientesReales = ExpedienteAlumno::with(['alumno', 'titular', 'escuela', 'facturas'])
@@ -56,8 +80,15 @@ class PwaDocenteController extends Controller
 
         if ($expedientesReales->count() > 0) {
             foreach ($expedientesReales as $exp) {
-                $pct = $exp->estado_auditoria === 'aprobado' ? 100 : 50;
-                $montoExp = ($exp->horas_mensuales_asignadas ?? 60) * 6500;
+                $vbAuditor = (bool)($exp->visto_bueno_auditor ?? ($exp->estado_auditoria === 'aprobado'));
+                $vbJefe = (bool)($exp->visto_bueno_jefe ?? ($exp->estado_auditoria === 'aprobado'));
+                $pct = $exp->estado_auditoria === 'aprobado' ? 100 : ($vbAuditor ? 75 : ($exp->estado_auditoria === 'en_camino' ? 25 : 50));
+
+                $horasMesCalc = (int)($exp->horas_mensuales_asignadas ?? 60);
+                if ($horasMesCalc > 0 && $horasMesCalc <= 3) {
+                    $horasMesCalc = $horasMesCalc * 20; // 3 hs/día x 20 días hábiles = 60 hs/mes
+                }
+                $montoExp = $horasMesCalc * 6500;
 
                 if ($exp->estado_auditoria === 'aprobado') {
                     $montoCobrado += $montoExp;
@@ -66,12 +97,22 @@ class PwaDocenteController extends Controller
                     $estadoLabel = 'rechazado';
                 } else {
                     $montoPretendido += $montoExp;
-                    $estadoLabel = 'pendiente';
+                    $estadoLabel = $exp->estado_auditoria === 'en_camino' ? 'en_camino' : 'pendiente';
                 }
 
                 $nombreAlumno = $exp->alumno ? $exp->alumno->nombre_completo : 'Alumno #' . $exp->alumno_id;
                 $nombreTitular = $exp->titular ? $exp->titular->nombre_completo : ($exp->alumno && $exp->alumno->titular ? $exp->alumno->titular->nombre_completo : 'Titular APOS');
                 $nroResolucion = $exp->nro_resolucion ?: 'Pendiente Auditoría';
+
+                if ($exp->estado_auditoria === 'aprobado') {
+                    $pasoLabel = '✅ Trámite Finalizado (OK Auditor + Jefe de Área)';
+                } elseif ($vbAuditor && !$vbJefe) {
+                    $pasoLabel = '⏳ Visto Bueno Auditor OK • Falta Jefe de Área';
+                } elseif ($exp->estado_auditoria === 'en_camino') {
+                    $pasoLabel = '📬 Resolución en Camino • Tocar para completar docs';
+                } else {
+                    $pasoLabel = '🔍 En Bandeja de Auditoría y Jefe de Área';
+                }
 
                 $alumnosDemo[] = (object)[
                     'id' => $exp->id,
@@ -82,7 +123,9 @@ class PwaDocenteController extends Controller
                     'curso' => ($exp->escuela->nombre_completo ?? 'Escuela Asignada') . " • Res: {$nroResolucion}",
                     'estado' => $estadoLabel,
                     'progreso' => $pct,
-                    'paso_label' => $exp->estado_auditoria === 'aprobado' ? 'Aprobado por Auditoría APOS' : 'En Bandeja del Auditor (Pendiente Visado)'
+                    'visto_bueno_auditor' => $vbAuditor,
+                    'visto_bueno_jefe' => $vbJefe,
+                    'paso_label' => $pasoLabel
                 ];
             }
         }
@@ -127,11 +170,82 @@ class PwaDocenteController extends Controller
             'docenteIdDemo',
             'docenteNombre',
             'docentesApos',
+            'resolucionesEnCamino',
             'montoCobrado',
             'montoPretendido',
             'alumnosDemo',
             'tiposDocumentos'
         ));
+    }
+
+    /**
+     * Endpoint en Tiempo Real para que la App de la Docente se refleje sola automáticamente
+     * cuando Administración emite una "Resolución en Camino" o cuando el Auditor / Jefe de Área da el Visto Bueno.
+     */
+    public function liveStatus(Request $request)
+    {
+        $this->ensureApprovalColumns();
+        $docente = $this->resolveDocenteActivo($request);
+        $docenteId = $docente ? $docente->id : 1;
+
+        $expedientes = ExpedienteAlumno::with(['alumno.diagnostico', 'titular', 'escuela'])
+            ->where('docente_id', $docenteId)
+            ->orderByDesc('updated_at')
+            ->get();
+
+        $montoCobrado = 0;
+        $montoPretendido = 0;
+        $enCaminoList = [];
+        $aprobadosIds = [];
+
+        foreach ($expedientes as $exp) {
+            $horasMes = (int)($exp->horas_mensuales_asignadas ?? 60);
+            if ($horasMes > 0 && $horasMes <= 3) $horasMes *= 20;
+            $monto = $horasMes * 6500;
+
+            if ($exp->estado_auditoria === 'aprobado') {
+                $montoCobrado += $monto;
+                $aprobadosIds[] = [
+                    'id' => $exp->id,
+                    'nro_resolucion' => $exp->nro_resolucion,
+                    'alumno' => $exp->alumno ? $exp->alumno->nombre_completo : 'Alumno',
+                    'titular' => $exp->titular ? $exp->titular->nombre_completo : 'Titular',
+                ];
+            } elseif ($exp->estado_auditoria !== 'rechazado') {
+                $montoPretendido += $monto;
+            }
+
+            if ($exp->estado_auditoria === 'en_camino') {
+                $enCaminoList[] = [
+                    'expediente_id' => $exp->id,
+                    'alumno_id' => $exp->alumno_id,
+                    'titular_id' => $exp->titular_id,
+                    'escuela_id' => $exp->escuela_id,
+                    'nro_resolucion' => $exp->nro_resolucion,
+                    'alumno_nombre' => $exp->alumno ? $exp->alumno->nombre_completo : 'Alumno APOS',
+                    'alumno_dni' => $exp->alumno ? $exp->alumno->dni : '',
+                    'titular_nombre' => $exp->titular ? $exp->titular->nombre_completo : ($exp->alumno && $exp->alumno->titular ? $exp->alumno->titular->nombre_completo : 'Titular APOS'),
+                    'titular_afiliado' => $exp->titular ? $exp->titular->nro_afiliado : '',
+                    'escuela_nombre' => $exp->escuela ? $exp->escuela->nombre_completo : 'Escuela Provincial',
+                    'diagnostico' => $exp->diagnostico ?: ($exp->alumno && $exp->alumno->diagnostico ? $exp->alumno->diagnostico->nombre : 'CUD Activo'),
+                    'horarios_atencion' => $exp->horarios_atencion ?: 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)',
+                ];
+            }
+        }
+
+        return response()->json([
+            'ok' => true,
+            'docente_id' => $docenteId,
+            'monto_cobrado' => $montoCobrado,
+            'monto_cobrado_fmt' => number_format($montoCobrado, 0, ',', '.'),
+            'monto_pretendido' => $montoPretendido,
+            'monto_pretendido_fmt' => number_format($montoPretendido, 0, ',', '.'),
+            'en_camino_count' => count($enCaminoList),
+            'en_camino' => $enCaminoList,
+            'aprobados_count' => count($aprobadosIds),
+            'aprobados' => $aprobadosIds,
+            'updated_signature' => md5(json_encode([$montoCobrado, $montoPretendido, count($enCaminoList), count($aprobadosIds)])),
+        ]);
     }
 
     /**
@@ -187,17 +301,23 @@ class PwaDocenteController extends Controller
         }
 
         $horarios = $request->input('horarios_atencion') ?: ($expExistente->horarios_atencion ?? 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)');
-        $horasMes = (int)($request->input('horas_mensuales_asignadas') ?: ($expExistente->horas_mensuales_asignadas ?? 60));
+        $horasDiarias = min(3, max(1, (int)$request->input('horas_diarias', 3)));
+        $horasMes = $horasDiarias * 20;
         $diagnosticoTexto = $request->input('diagnostico') ?: ($alumno->diagnostico_detalle ?? ($alumno->diagnostico->nombre ?? 'CUD Activo'));
 
-        // 1. Actualizar vínculo directo en la tabla familiares (Alumno -> Docente + Escuela)
+        $this->ensureApprovalColumns();
+
+        // 1. Actualizar vínculo directo en la tabla familiares (Alumno -> Docente + Escuela + Resolución)
         $alumno->docente_id = $docente->id;
         if ($escuela) {
             $alumno->escuela_id = $escuela->id;
         }
+        if ($tieneResolucion) {
+            $alumno->resolucion = $nroResolucion;
+        }
         $alumno->save();
 
-        // 2. Crear o actualizar el ExpedienteAlumno poniéndolo en estado 'pendiente' de Auditoría
+        // 2. Crear o actualizar el ExpedienteAlumno poniéndolo en estado 'pendiente' de Visto Bueno (Auditor y Jefe de Área)
         $expediente = ExpedienteAlumno::updateOrCreate(
             [
                 'empresa_id' => $empresaId,
@@ -213,6 +333,8 @@ class PwaDocenteController extends Controller
                 'horarios_atencion' => $horarios,
                 'horas_mensuales_asignadas' => $horasMes,
                 'estado_auditoria' => 'pendiente',
+                'visto_bueno_auditor' => false,
+                'visto_bueno_jefe' => false,
                 'motivo_rechazo' => null,
             ]
         );
@@ -422,8 +544,9 @@ class PwaDocenteController extends Controller
                 }
                 $exp = ExpedienteAlumno::where('alumno_id', $a->id)->first();
                 $a->nro_resolucion = $exp ? $exp->nro_resolucion : ($a->resolucion ?: null);
-                $a->horarios_atencion = $exp ? $exp->horarios_atencion : 'Lunes a Viernes (Máx. 3 hs/día)';
-                $a->horas_mensuales_asignadas = $exp ? $exp->horas_mensuales_asignadas : 60;
+                $a->estado_expediente = $exp ? $exp->estado_auditoria : 'disponible';
+                $a->horarios_atencion = $exp ? $exp->horarios_atencion : 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)';
+                $a->horas_mensuales_asignadas = 60;
                 return $a;
             });
 

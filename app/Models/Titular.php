@@ -24,9 +24,15 @@ class Titular extends Model
         return "1" . $this->dni . $hijosFormateado;
     }
 
+    public function getNombreAttribute($value)
+    {
+        return \App\Support\SpanishTextCleaner::clean($value, true);
+    }
+
     public function getNombreCompletoAttribute()
     {
-        return trim(($this->attributes['apellido'] ?? '') . ' ' . ($this->attributes['nombre'] ?? ''));
+        $raw = trim(($this->attributes['apellido'] ?? '') . ' ' . ($this->attributes['nombre'] ?? ''));
+        return \App\Support\SpanishTextCleaner::clean($raw, true);
     }
 
     public function getNroAfiliadoAttribute()

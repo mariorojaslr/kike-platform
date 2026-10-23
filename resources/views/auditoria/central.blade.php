@@ -1,16 +1,16 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Hub de AuditorÃ­a MÃ©dica Central & Trazabilidad MD5 - Mutual INTEGRA')
+@section('title', 'Hub de Auditoría Médica Central & Trazabilidad MD5 - Mutual INTEGRA')
 
 @section('content')
 <div class="container-fluid py-4" style="background-color: #0b1329; min-height: 100vh; color: white;">
     <div class="container">
         
-        <!-- Header AuditorÃ­a Central -->
+        <!-- Header Auditoría Central -->
         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
             <div>
                 <span class="badge bg-danger px-3 py-1 rounded-pill fw-bold text-uppercase" style="letter-spacing: 1px;">
-                    <i class="fas fa-user-md me-1"></i> AuditorÃ­a MÃ©dica Central & Junta Evaluadora
+                    <i class="fas fa-user-md me-1"></i> Auditoría Médica Central & Junta Evaluadora
                 </span>
                 <h2 class="fw-bold mt-2 mb-0 text-white">
                     <i class="fas fa-shield-alt text-warning me-2"></i> {{ $auditorActual->nombre }}
@@ -19,20 +19,20 @@
             </div>
             <div>
                 <span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-2 rounded-pill">
-                    <i class="fas fa-lock me-1"></i> CriptografÃ­a Hash MD5 Activa
+                    <i class="fas fa-lock me-1"></i> Criptografía Hash MD5 Activa
                 </span>
             </div>
         </div>
 
-        <!-- Alertas de AuditorÃ­a Prioritaria -->
+        <!-- Alertas de Auditoría Prioritaria -->
         <div class="card border-0 bg-dark shadow-sm mb-4" style="border-left: 4px solid #ef4444 !important; border-radius: 14px;">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center gap-3">
                     <i class="fas fa-stethoscope fa-2x text-danger"></i>
                     <div>
-                        <h6 class="fw-bold mb-1 text-white">MÃ³dulo de AprobaciÃ³n de PrÃ¡cticas QuirÃºrgicas & PrÃ³thesis</h6>
+                        <h6 class="fw-bold mb-1 text-white">Módulo de Aprobación de Prácticas Quirúrgicas & Próthesis</h6>
                         <p class="small text-muted mb-0">
-                            Todas las autorizaciones aprobadas generan automÃ¡ticamente sello digital con <b>Hash MD5 inalterable</b> para rendiciÃ³n oficial ante el Ministerio de Salud y la Obra Social Provincia.
+                            Todas las autorizaciones aprobadas generan automáticamente sello digital con <b>Hash MD5 inalterable</b> para rendición oficial ante el Ministerio de Salud y la Obra Social Provincia.
                         </p>
                     </div>
                 </div>
@@ -48,12 +48,12 @@
                     <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
                         <thead>
                             <tr class="text-muted small text-uppercase">
-                                <th class="ps-4">CÃ³digo Solicitud & Fecha</th>
+                                <th class="ps-4">Código Solicitud & Fecha</th>
                                 <th>Afiliado Titular / Beneficiario</th>
                                 <th>Sanatorio Solicante</th>
-                                <th>PrÃ¡ctica / PrÃ³thesis & CIE-10</th>
+                                <th>Práctica / Próthesis & CIE-10</th>
                                 <th>Importe Estimado</th>
-                                <th class="text-center">Estado AuditorÃ­a</th>
+                                <th class="text-center">Estado Auditoría</th>
                                 <th class="text-end pe-4">Dictamen</th>
                             </tr>
                         </thead>
@@ -80,7 +80,7 @@
                                         @if($sol->estado == 'aprobado')
                                             <span class="badge bg-success px-3 py-1.5 rounded-pill"><i class="fas fa-check-circle me-1"></i> APROBADO CON HASH MD5</span>
                                         @else
-                                            <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold"><i class="fas fa-hourglass-half me-1"></i> PENDIENTE REVISIÃ“N</span>
+                                            <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold"><i class="fas fa-hourglass-half me-1"></i> PENDIENTE REVISIÓN</span>
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
@@ -114,7 +114,7 @@ function abrirDictamen(solicitudId, afiliado, practica) {
         body: JSON.stringify({
             solicitud_id: solicitudId,
             dictamen: dictamen.toLowerCase(),
-            observaciones: "Dictamen emitido en junta de auditorÃ­a mÃ©dica central."
+            observaciones: "Dictamen emitido en junta de auditoría médica central."
         })
     })
     .then(res => res.json())

@@ -16,11 +16,24 @@ use Illuminate\Support\Facades\Schema;
 
 class AuditorDocenteController extends Controller
 {
+    private function ensureApprovalColumns(): void
+    {
+        if (Schema::hasTable('expedientes_alumno') && !Schema::hasColumn('expedientes_alumno', 'visto_bueno_auditor')) {
+            Schema::table('expedientes_alumno', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->boolean('visto_bueno_auditor')->default(false)->after('estado_auditoria');
+                $table->boolean('visto_bueno_jefe')->default(false)->after('visto_bueno_auditor');
+                $table->timestamp('aprobado_auditor_at')->nullable()->after('visto_bueno_jefe');
+                $table->timestamp('aprobado_jefe_at')->nullable()->after('aprobado_auditor_at');
+            });
+        }
+    }
+
     /**
      * Dashboard de Auditoría de Docentes + Bandeja Inmediata en Vivo al alcance de la mano
      */
     public function indexLegajos()
     {
+        $this->ensureApprovalColumns();
         $docentes = Docente::with('documentos')->orderBy('nombre')->get();
 
         $totalDocentes = $docentes->count();
@@ -34,9 +47,9 @@ class AuditorDocenteController extends Controller
             ->limit(25)
             ->get();
 
-        // Expedientes pendientes de visado inmediato por el Auditor (al alcance de 1 clic)
+        // Expedientes pendientes de visado inmediato por el Auditor / Jefe de Área (al alcance de 1 clic)
         $expedientesPendientes = ExpedienteAlumno::with(['docente', 'alumno.titular', 'titular', 'escuela', 'facturas'])
-            ->where('estado_auditoria', 'pendiente')
+            ->whereIn('estado_auditoria', ['pendiente', 'en_camino'])
             ->orderByDesc('updated_at')
             ->get();
 
@@ -110,17 +123,22 @@ class AuditorDocenteController extends Controller
     }
 
     /**
-     * Alta o Vinculación de Resolución + Alumno + Padre + Docente desde Auditoría / Mesa de Entrada
+     * Alta o Emisión de Resolución APOS (Administración / Mesa de Entrada / Auditoría)
+     * Vincula Padre Titular + Hijo Alumno + Docente + Escuela + Horas (máx 3 hs/día)
+     * y lo envía "En Camino" a la App de la Docente o a la Bandeja de Visto Bueno.
      */
     public function registrarResolucionVinculo(Request $request)
     {
+        $this->ensureApprovalColumns();
+
         $request->validate([
             'alumno_id' => 'required|exists:familiares,id',
             'docente_id' => 'required|exists:docentes,id',
             'nro_resolucion' => 'nullable|string|max:120',
             'escuela_id' => 'nullable|exists:escuelas,id',
             'horarios_atencion' => 'nullable|string|max:255',
-            'horas_mensuales_asignadas' => 'nullable|integer|min:1|max:120',
+            'horas_diarias' => 'nullable|integer|min:1|max:3',
+            'horas_mensuales_asignadas' => 'nullable|integer|min:1|max:60',
         ]);
 
         $alumno = Familiar::with(['titular', 'escuela'])->findOrFail($request->alumno_id);
@@ -131,17 +149,42 @@ class AuditorDocenteController extends Controller
         $empresaId = $docente->empresa_id ?? 2;
 
         $nroRes = trim((string)$request->nro_resolucion);
-        $tieneRes = $nroRes !== '';
+        if ($nroRes === '') {
+            $nroRes = 'RES-APOS-' . date('Y') . '-' . str_pad((string)$alumno->id, 3, '0', STR_PAD_LEFT);
+        } elseif (is_numeric($nroRes)) {
+            $nroRes = 'RES-' . $nroRes;
+        }
 
-        // Vincular en tabla familiares
+        $horasDiarias = min(3, max(1, (int)$request->input('horas_diarias', 3)));
+        $horasMes = $horasDiarias * 20;
+
+        // Vincular en tabla familiares y titulares para que la Resolución traiga siempre Padre + Hijo
         $alumno->docente_id = $docente->id;
+        $alumno->resolucion = $nroRes;
         if ($escuelaId) {
             $alumno->escuela_id = $escuelaId;
         }
         $alumno->save();
 
-        // Crear o actualizar expediente en estado 'pendiente' (o 'aprobado' si el auditor ya lo deja visado)
-        $estadoInicial = $request->input('accion_inmediata') === 'aprobar_ya' ? 'aprobado' : 'pendiente';
+        if ($titular) {
+            $titular->resolucion = $nroRes;
+            $titular->save();
+        }
+
+        $accion = $request->input('accion_inmediata', 'en_camino');
+        if ($accion === 'aprobar_ya') {
+            $estadoInicial = 'aprobado';
+            $vbAuditor = true;
+            $vbJefe = true;
+        } elseif ($accion === 'en_camino') {
+            $estadoInicial = 'en_camino';
+            $vbAuditor = false;
+            $vbJefe = false;
+        } else {
+            $estadoInicial = 'pendiente';
+            $vbAuditor = false;
+            $vbJefe = false;
+        }
 
         $exp = ExpedienteAlumno::updateOrCreate(
             [
@@ -152,78 +195,104 @@ class AuditorDocenteController extends Controller
                 'docente_id' => $docente->id,
                 'titular_id' => $titular ? $titular->id : $alumno->titular_id,
                 'escuela_id' => $escuelaId,
-                'origen_resolucion' => $tieneRes ? 'resolucion_apos' : 'autorizacion_auditoria',
-                'nro_resolucion' => $tieneRes ? $nroRes : ('AUT-AUDITOR-' . date('Y') . '-' . str_pad((string)$alumno->id, 3, '0', STR_PAD_LEFT)),
+                'origen_resolucion' => 'resolucion_apos',
+                'nro_resolucion' => $nroRes,
                 'diagnostico' => $alumno->diagnostico_detalle ?: 'CUD Activo',
-                'horarios_atencion' => $request->horarios_atencion ?: 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)',
-                'horas_mensuales_asignadas' => $request->horas_mensuales_asignadas ?: 60,
+                'horarios_atencion' => $request->horarios_atencion ?: "Lunes a Viernes de 08:00 a 11:00 hs ({$horasDiarias} hs/día)",
+                'horas_mensuales_asignadas' => $horasMes,
                 'estado_auditoria' => $estadoInicial,
+                'visto_bueno_auditor' => $vbAuditor,
+                'visto_bueno_jefe' => $vbJefe,
+                'aprobado_auditor_at' => $vbAuditor ? now() : null,
+                'aprobado_jefe_at' => $vbJefe ? now() : null,
                 'motivo_rechazo' => null,
             ]
         );
 
         $titularTexto = $titular ? ($titular->nombre_completo . " (Af. {$titular->nro_afiliado})") : 'Titular APOS';
-        $resLabel = $exp->nro_resolucion;
 
         NovedadAuditoria::create([
             'empresa_id' => $empresaId,
             'docente_id' => $docente->id,
             'expediente_id' => $exp->id,
-            'tipo_novedad' => 'alta_resolucion_vinculo',
-            'descripcion' => "Se dio de alta la Resolución {$resLabel} vinculando al alumno {$alumno->nombre_completo} (Padre/Titular: {$titularTexto}) con la docente {$docente->nombre_completo}" . ($escuela ? " en {$escuela->nombre_completo}." : "."),
-            'estado' => $estadoInicial,
+            'tipo_novedad' => $estadoInicial === 'en_camino' ? 'resolucion_en_camino' : 'alta_resolucion_vinculo',
+            'descripcion' => ($estadoInicial === 'en_camino' ? "📬 Resolución {$nroRes} emitida y enviada 'En Camino' a la docente {$docente->nombre_completo}" : "Se registró la Resolución {$nroRes} para la docente {$docente->nombre_completo}") . " • Alumno: {$alumno->nombre_completo} • Padre/Titular: {$titularTexto} ({$horasDiarias} hs/día).",
+            'estado' => $estadoInicial === 'aprobado' ? 'aprobado' : 'pendiente',
         ]);
 
         if (Schema::hasTable('notificaciones_sistema')) {
             NotificacionSistema::create([
                 'empresa_id' => $empresaId,
-                'titulo' => "🔔 Resolución {$resLabel} Vinculada",
-                'mensaje' => "Alumno {$alumno->nombre_completo} (Titular: {$titularTexto}) vinculado con Docente {$docente->nombre_completo}.",
+                'titulo' => "📬 Resolución {$nroRes} " . ($estadoInicial === 'en_camino' ? "Enviada en Camino a Docente" : "Vinculada"),
+                'mensaje' => "Titular: {$titularTexto} • Alumno: {$alumno->nombre_completo} • Docente: {$docente->nombre_completo} ({$horasDiarias} hs/día).",
                 'link' => route('auditor.docentes.legajos'),
                 'leido' => false,
             ]);
         }
 
-        return back()->with('success', "✅ Resolución {$resLabel} registrada: Alumno {$alumno->nombre_completo} + Titular {$titularTexto} vinculados con la Docente {$docente->nombre_completo}.");
+        return back()->with('success', "✅ Resolución {$nroRes} emitida para el Titular {$titularTexto} y su hijo/a {$alumno->nombre_completo} ({$horasDiarias} hs/día). Ya le aparece 'En Camino' a la Docente {$docente->nombre_completo} en su App en tiempo real.");
     }
 
     /**
-     * Aprobar Expediente de Alumno (y confirmar o asignar N° de Resolución / Autorización Expresa)
+     * Dar Visto Bueno del Auditor y/o del Jefe de Área al Expediente de Alumno
      */
     public function aprobarExpediente(Request $request, $id)
     {
+        $this->ensureApprovalColumns();
         $exp = ExpedienteAlumno::with(['docente', 'alumno.titular', 'titular'])->findOrFail($id);
 
         if ($request->filled('nro_resolucion')) {
             $exp->nro_resolucion = trim($request->input('nro_resolucion'));
             $exp->origen_resolucion = 'resolucion_apos';
         } elseif (!$exp->nro_resolucion || str_contains($exp->nro_resolucion, 'TRÁMITE') || str_contains($exp->nro_resolucion, 'PENDIENTE')) {
-            $exp->nro_resolucion = 'AUT-AUDITOR-APOS-' . date('Y') . '-' . str_pad((string)$exp->id, 4, '0', STR_PAD_LEFT);
+            $exp->nro_resolucion = 'RES-APOS-' . date('Y') . '-' . str_pad((string)$exp->id, 4, '0', STR_PAD_LEFT);
             $exp->origen_resolucion = 'autorizacion_expresa_auditor';
         }
 
-        $exp->estado_auditoria = 'aprobado';
+        $rolAprobacion = $request->input('rol_aprobacion', 'ambos');
+
+        if ($rolAprobacion === 'auditor') {
+            $exp->visto_bueno_auditor = true;
+            $exp->aprobado_auditor_at = now();
+        } elseif ($rolAprobacion === 'jefe') {
+            $exp->visto_bueno_jefe = true;
+            $exp->aprobado_jefe_at = now();
+        } else {
+            $exp->visto_bueno_auditor = true;
+            $exp->visto_bueno_jefe = true;
+            $exp->aprobado_auditor_at = $exp->aprobado_auditor_at ?: now();
+            $exp->aprobado_jefe_at = now();
+        }
+
+        if ($exp->visto_bueno_auditor && $exp->visto_bueno_jefe) {
+            $exp->estado_auditoria = 'aprobado';
+            NovedadAuditoria::where('expediente_id', $exp->id)->update(['estado' => 'aprobado']);
+        } else {
+            $exp->estado_auditoria = 'pendiente';
+        }
+
         $exp->motivo_rechazo = null;
         $exp->save();
-
-        // Marcar las novedades asociadas a este expediente como aprobadas
-        NovedadAuditoria::where('expediente_id', $exp->id)->update(['estado' => 'aprobado']);
 
         $alumnoNom = $exp->alumno ? $exp->alumno->nombre_completo : 'Alumno';
         $docenteNom = $exp->docente ? $exp->docente->nombre_completo : 'Docente';
         $titularNom = $exp->titular ? $exp->titular->nombre_completo : ($exp->alumno && $exp->alumno->titular ? $exp->alumno->titular->nombre_completo : 'Titular');
 
+        $etiquetaAprob = $exp->estado_auditoria === 'aprobado'
+            ? "Trámite Finalizado (Visto Bueno Auditor + Jefe de Área)"
+            : ($exp->visto_bueno_auditor ? "Visto Bueno Auditor OK (Falta Jefe de Área)" : "Visto Bueno Jefe de Área OK (Falta Auditor)");
+
         if (Schema::hasTable('notificaciones_sistema')) {
             NotificacionSistema::create([
                 'empresa_id' => $exp->empresa_id ?? 2,
-                'titulo' => "✅ Expediente Aprobado por Auditoría ({$exp->nro_resolucion})",
-                'mensaje' => "Quedó activo el vínculo de {$docenteNom} con el alumno {$alumnoNom} (Titular: {$titularNom}).",
+                'titulo' => "✅ {$etiquetaAprob} ({$exp->nro_resolucion})",
+                'mensaje' => "Docente: {$docenteNom} • Alumno: {$alumnoNom} (Titular: {$titularNom}).",
                 'link' => route('auditor.docentes.legajos'),
                 'leido' => false,
             ]);
         }
 
-        return back()->with('success', "✅ Vínculo y Resolución ({$exp->nro_resolucion}) aprobados por Auditoría para {$alumnoNom} (Docente: {$docenteNom}).");
+        return back()->with('success', "✅ {$etiquetaAprob} registrado en vivo para la Resolución {$exp->nro_resolucion} — Alumno: {$alumnoNom} | Docente: {$docenteNom}.");
     }
 
     /**

@@ -50,8 +50,46 @@ class TenantDashboardController extends Controller
             $totalFamiliares = \App\Models\Familiar::where('empresa_id', $empresa->id)->count();
         }
 
+        $targetEmpresaId = ($empresa->tipo_entidad ?? '') === 'subagencia' ? 2 : $empresa->id;
+
+        $expedientesEnVivo = \App\Models\ExpedienteAlumno::with(['docente', 'alumno.titular', 'titular', 'escuela'])
+            ->where('empresa_id', $targetEmpresaId)
+            ->orderByDesc('updated_at')
+            ->limit(25)
+            ->get();
+
+        $alumnosApos = \App\Models\Familiar::with(['titular', 'escuela', 'docente'])
+            ->where('empresa_id', $targetEmpresaId)
+            ->orderBy('nombre')
+            ->get();
+
+        $docentesApos = \App\Models\Docente::where('empresa_id', $targetEmpresaId)
+            ->orderBy('nombre')
+            ->get();
+
+        $escuelasApos = \App\Models\Escuela::where('empresa_id', $targetEmpresaId)
+            ->orderBy('nombre')
+            ->get();
+
+        $ultimaNovedad = \App\Models\NovedadAuditoria::orderByDesc('id')->first();
+        $ultimaNovedadId = $ultimaNovedad ? $ultimaNovedad->id : 0;
+
         // 5. Retornar vista "tenant" (El Cockpit del administrador de la sucursal o de la obra social)
-        return view('dashboards.tenant', compact('empresa', 'clientesSubagencia', 'totalEscuelas', 'totalAfiliados', 'totalDocentes', 'totalFamiliares', 'provincias', 'localidadesEmpresa'));
+        return view('dashboards.tenant', compact(
+            'empresa',
+            'clientesSubagencia',
+            'totalEscuelas',
+            'totalAfiliados',
+            'totalDocentes',
+            'totalFamiliares',
+            'provincias',
+            'localidadesEmpresa',
+            'expedientesEnVivo',
+            'alumnosApos',
+            'docentesApos',
+            'escuelasApos',
+            'ultimaNovedadId'
+        ));
     }
 
     /**

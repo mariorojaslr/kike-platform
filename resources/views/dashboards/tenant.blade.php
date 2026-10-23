@@ -94,13 +94,13 @@
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ url('/app-docente/demo') }}" class="btn btn-light fw-bold rounded-pill px-3 shadow-sm text-primary">
+                    <a href="{{ url('/app-docente') }}" target="_blank" class="btn btn-light fw-bold rounded-pill px-3 shadow-sm text-primary">
                         <i class="fas fa-mobile-screen-button me-1"></i> App Docente
                     </a>
                     <a href="{{ route('auditor.docentes.legajos') }}" class="btn btn-warning fw-bold rounded-pill px-3 shadow-sm text-dark">
                         <i class="fas fa-user-check me-1"></i> Panel Auditor
                     </a>
-                    <a href="{{ url('/app-directora/demo') }}" class="btn btn-info fw-bold rounded-pill px-3 shadow-sm text-white">
+                    <a href="{{ url('/app-directora') }}" target="_blank" class="btn btn-info fw-bold rounded-pill px-3 shadow-sm text-white">
                         <i class="fas fa-school me-1"></i> App Directora
                     </a>
                     <a href="{{ route('owner.liquidaciones') }}" class="btn btn-success fw-bold rounded-pill px-3 shadow-sm text-white">
@@ -173,6 +173,214 @@
             </a>
         </div>
     </div>
+
+    <!-- ============================================================================================ -->
+    <!-- CENTRO EN VIVO APOS: GENERAR RESOLUCIÓN (ENVIAR EN CAMINO A DOCENTE) Y CADENA DE VISTO BUENO -->
+    <!-- ============================================================================================ -->
+    <div class="row g-4 mb-4">
+        <!-- Columna Izquierda: Emitir Nueva Resolución desde Administración APOS -->
+        <div class="col-lg-5">
+            <div class="content-card h-100 border-0 shadow-sm" style="border-top: 4px solid #0284c7 !important;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="fas fa-file-signature text-primary me-2"></i> 1. Emitir Resolución APOS (En Camino)
+                    </h5>
+                    <span class="badge bg-info text-dark fw-bold rounded-pill">Impacta en Vivo en App Docente</span>
+                </div>
+                <p class="text-muted small mb-3">
+                    Cargá aquí la Resolución solicitada por el Padre Titular para su hijo/a. Al guardarla, le aparece automáticamente <strong>"En Camino"</strong> a la maestra en su celular con todos los datos listos para tomar.
+                </p>
+
+                <form action="{{ route('auditor.resolucion.vincular') }}" method="POST">
+                    @csrf
+                    <div class="mb-2">
+                        <label class="form-label fw-bold small text-muted mb-1">Padre Titular y Alumno / Paciente (Hijo) *</label>
+                        <select name="alumno_id" class="form-select form-select-sm bg-light fw-semibold" required>
+                            <option value="">-- Seleccionar Titular y Alumno Afiliado APOS --</option>
+                            @foreach($alumnosApos ?? [] as $al)
+                                <option value="{{ $al->id }}">
+                                    {{ $al->nombre_completo }} (DNI {{ $al->dni ?? 'S/D' }}) — Padre: {{ $al->titular->nombre_completo ?? 'Titular' }} (Af. {{ $al->titular->nro_afiliado ?? '' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-bold small text-muted mb-1">Docente Integradora Asignada *</label>
+                        <select name="docente_id" class="form-select form-select-sm bg-light fw-semibold" required>
+                            <option value="">-- Seleccionar Docente Integradora --</option>
+                            @foreach($docentesApos ?? [] as $docItem)
+                                <option value="{{ $docItem->id }}" {{ $loop->first ? 'selected' : '' }}>
+                                    {{ $docItem->nombre_completo }} (DNI {{ $docItem->dni ?? 'S/D' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-7">
+                            <label class="form-label fw-bold small text-muted mb-1">N° de Resolución APOS</label>
+                            <input type="text" name="nro_resolucion" class="form-control form-control-sm fw-bold border-warning" placeholder="Ej: RES-1590 (o autogenerar)">
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label fw-bold small text-warning mb-1">Horas por Día (Máx. 3) *</label>
+                            <input type="number" name="horas_diarias" min="1" max="12" value="3" class="form-control form-control-sm fw-bold text-center text-warning border-warning js-input-horas-diarias" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-7">
+                            <label class="form-label fw-bold small text-muted mb-1">Escuela (Opcional)</label>
+                            <select name="escuela_id" class="form-select form-select-sm bg-light">
+                                <option value="">-- Conservar escuela del alumno --</option>
+                                @foreach($escuelasApos ?? [] as $escItem)
+                                    <option value="{{ $escItem->id }}">{{ $escItem->nombre_completo }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label fw-bold small text-muted mb-1">Estado Inicial</label>
+                            <select name="accion_inmediata" class="form-select form-select-sm bg-light fw-bold">
+                                <option value="en_camino">📬 Enviar "En Camino"</option>
+                                <option value="pendiente">⏳ En Bandeja Auditor</option>
+                                <option value="aprobar_ya">✅ Aprobada Final</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm">
+                        <i class="fas fa-paper-plane me-1"></i> Emitir Resolución y Enviar a la Docente en Vivo
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Tablero en Tiempo Real de Resoluciones y Cadena de Aprobación (Auditor + Jefe de Área) -->
+        <div class="col-lg-7">
+            <div class="content-card h-100 border-0 shadow-sm" style="border-top: 4px solid #10b981 !important;">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark">
+                            <i class="fas fa-satellite-dish text-success me-2"></i> 2. Circuito en Vivo: Docente &rarr; Auditor &rarr; Jefe de Área
+                        </h5>
+                        <small class="text-muted">Se refleja solo en tiempo real. Con el Visto Bueno del Auditor y del Jefe de Área el trámite queda Finalizado.</small>
+                    </div>
+                    <a href="{{ url('/app-docente') }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">
+                        <i class="fas fa-mobile-screen-button me-1"></i> Abrir App Docente al lado
+                    </a>
+                </div>
+
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text bg-warning text-dark border-warning fw-bold"><i class="fas fa-search me-1"></i> Buscar en Vivo</span>
+                    <input type="text" id="buscadorCircuitoTenant" class="form-control border-warning fw-semibold" placeholder="Filtrar por N° Resolución, Padre Titular, Alumno o Docente (resalta en amarillo)...">
+                </div>
+
+                <div style="max-height: 360px; overflow-y: auto;">
+                    <table class="table table-sm table-hover align-middle mb-0" id="tablaCircuitoTenant">
+                        <thead class="table-light small text-uppercase">
+                            <tr>
+                                <th>Resolución / Alumno / Padre</th>
+                                <th>Docente / Escuela</th>
+                                <th class="text-center">Circuito de Aprobación</th>
+                                <th class="text-end">Visto Bueno</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($expedientesEnVivo ?? [] as $expItem)
+                                @php
+                                    $titObj = $expItem->titular ?? ($expItem->alumno ? $expItem->alumno->titular : null);
+                                    $vbAud = (bool)($expItem->visto_bueno_auditor ?? ($expItem->estado_auditoria === 'aprobado'));
+                                    $vbJef = (bool)($expItem->visto_bueno_jefe ?? ($expItem->estado_auditoria === 'aprobado'));
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-warning text-dark fw-bold mb-1">
+                                            <i class="fas fa-file-signature me-1"></i>{{ $expItem->nro_resolucion ?: 'SIN RES.' }}
+                                        </span>
+                                        <div class="fw-bold text-dark small">{{ $expItem->alumno->nombre_completo ?? 'Alumno' }}</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">
+                                            Padre: <strong>{{ $titObj->nombre_completo ?? 'Titular APOS' }}</strong> (Af. {{ $titObj->nro_afiliado ?? 'S/D' }})
+                                        </div>
+                                    </td>
+                                    <td class="small">
+                                        <div class="fw-bold text-primary">{{ $expItem->docente->nombre_completo ?? 'Docente APOS' }}</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">{{ $expItem->escuela->nombre_completo ?? 'Escuela Provincial' }}</div>
+                                    </td>
+                                    <td class="text-center">
+                                        @if($expItem->estado_auditoria === 'en_camino')
+                                            <span class="badge bg-info text-dark"><i class="fas fa-paper-plane me-1"></i>En Camino a Docente</span>
+                                        @elseif($expItem->estado_auditoria === 'aprobado')
+                                            <span class="badge bg-success"><i class="fas fa-check-double me-1"></i>TRÁMITE FINALIZADO</span>
+                                        @else
+                                            <div class="d-flex flex-column gap-1 align-items-center">
+                                                <span class="badge {{ $vbAud ? 'bg-success' : 'bg-warning text-dark' }}" style="font-size: 0.66rem;">
+                                                    Auditor: {{ $vbAud ? 'OK ✓' : 'Pendiente' }}
+                                                </span>
+                                                <span class="badge {{ $vbJef ? 'bg-success' : 'bg-warning text-dark' }}" style="font-size: 0.66rem;">
+                                                    Jefe Área: {{ $vbJef ? 'OK ✓' : 'Pendiente' }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td class="text-end">
+                                        @if($expItem->estado_auditoria !== 'aprobado')
+                                            <form action="{{ route('auditor.expedientes.aprobar', $expItem->id) }}" method="POST" class="d-inline-flex gap-1">
+                                                @csrf
+                                                @if(!$vbAud)
+                                                    <button type="submit" name="rol_aprobacion" value="auditor" class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" style="font-size: 0.7rem;" title="Dar Visto Bueno del Auditor">
+                                                        OK Auditor
+                                                    </button>
+                                                @endif
+                                                @if(!$vbJef)
+                                                    <button type="submit" name="rol_aprobacion" value="jefe" class="btn btn-sm btn-outline-info py-0 px-2 fw-bold" style="font-size: 0.7rem;" title="Dar Visto Bueno del Jefe de Área">
+                                                        OK Jefe
+                                                    </button>
+                                                @endif
+                                                <button type="submit" name="rol_aprobacion" value="ambos" class="btn btn-sm btn-success py-0 px-2 fw-bold" style="font-size: 0.7rem;" title="Dar Visto Bueno Auditor + Jefe de Área y Finalizar">
+                                                    <i class="fas fa-check-double"></i> Finalizar
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-success fw-bold small"><i class="fas fa-check-circle me-1"></i>Listo p/ Liquidar</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3 small">No hay resoluciones registradas aún.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Sincronización automática en tiempo real en el Panel de Administración (/tenant)
+    let tenantUltimoIdNovedad = {{ $ultimaNovedadId ?? 0 }};
+    setInterval(function() {
+        fetch("{{ route('api.auditor.novedades_live') }}")
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.latest_id && data.latest_id > tenantUltimoIdNovedad) {
+                    tenantUltimoIdNovedad = data.latest_id;
+                    if (typeof window.integraModalElegante === 'function') {
+                        window.integraModalElegante({
+                            tipo: 'success',
+                            badge: 'REFLEJO AUTOMÁTICO EN VIVO',
+                            titulo: 'Movimiento Detectado en Tiempo Real',
+                            mensaje: (data.latest_descripcion || 'La docente o el auditor acaba de actualizar un trámite.') + ' Actualizando tablero automáticamente...',
+                            autoCerrarMs: 3200
+                        });
+                    }
+                    setTimeout(function() { window.location.reload(); }, 3200);
+                }
+            })
+            .catch(() => {});
+    }, 4000);
+    </script>
 
     <!-- Banner Reportar Pago por Transferencia sin Comisiones -->
     <div class="row mt-4 mb-4">

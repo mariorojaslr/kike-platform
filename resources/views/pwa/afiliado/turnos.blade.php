@@ -1,6 +1,6 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Cartilla MÃ©dica y Turnos - Mutual INTEGRA')
+@section('title', 'Cartilla Médica y Turnos - Mutual INTEGRA')
 
 @section('content')
 <div class="container-fluid py-4" style="background-color: #0f172a; min-height: 100vh; color: white;">
@@ -10,21 +10,21 @@
         <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
             <div>
                 <span class="badge bg-info text-dark px-3 py-1 rounded-pill fw-bold text-uppercase" style="font-size:0.7rem;">
-                    <i class="fas fa-search-location me-1"></i> Cartilla MÃ©dica 130k Abonados
+                    <i class="fas fa-search-location me-1"></i> Cartilla Médica 130k Abonados
                 </span>
-                <h4 class="fw-bold mt-2 mb-0 text-white">Reserva de Turnos & MÃ©dicos</h4>
+                <h4 class="fw-bold mt-2 mb-0 text-white">Reserva de Turnos & Médicos</h4>
             </div>
             <a href="{{ route('afiliado.credencial.demo') }}" class="btn btn-outline-warning rounded-pill btn-sm fw-bold">
                 <i class="fas fa-id-card me-1"></i> Ver Credencial
             </a>
         </div>
 
-        <!-- PrÃ³ximo Turno Reservado -->
+        <!-- Próximo Turno Reservado -->
         @if(count($turnosProximos) > 0)
             <div class="card border-0 mb-4 text-white shadow-lg" style="border-radius: 16px; background: linear-gradient(135deg, #059669, #047857); border-left: 5px solid #34d399 !important;">
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge bg-white text-success fw-bold"><i class="fas fa-calendar-check me-1"></i> PRÃ“XIMO TURNO CONFIRMADO</span>
+                        <span class="badge bg-white text-success fw-bold"><i class="fas fa-calendar-check me-1"></i> PRÓXIMO TURNO CONFIRMADO</span>
                         <span class="badge bg-light text-dark fw-bold" style="font-size: 0.65rem;">Sanatorio Central</span>
                     </div>
                     @foreach($turnosProximos as $t)
@@ -40,9 +40,9 @@
             </div>
         @endif
 
-        <!-- Buscador de Cartilla MÃ©dica -->
+        <!-- Buscador de Cartilla Médica -->
         <div class="mb-4 position-relative">
-            <input type="text" id="cartilla-search-input" onkeyup="filtrarCartilla()" class="form-control bg-dark text-white border-secondary rounded-pill px-4 py-2 shadow-sm" placeholder="ðŸ” Buscar mÃ©dico, clÃ­nica o especialidad...">
+            <input type="text" id="cartilla-search-input" onkeyup="filtrarCartilla()" class="form-control bg-dark text-white border-secondary rounded-pill px-4 py-2 shadow-sm" placeholder="🔍 Buscar médico, clínica o especialidad...">
         </div>
 
         <h6 class="fw-bold text-white mb-3"><i class="fas fa-th-large text-primary me-2"></i> Especialidades de la Cartilla</h6>
@@ -81,7 +81,7 @@ function filtrarCartilla() {
 }
 
 function reservarTurnoEspecialidad(nombreEspecialidad) {
-    alert("ðŸ©º Reserva de Turno en 1-Clic:\n\nHas seleccionado: " + nombreEspecialidad + ".\n\nSe ha reservado un turno prioritario para el prÃ³ximo Martes a las 11:00 hs en Sanatorio Central Chilecito.\n\nÂ¡RecibirÃ¡s la confirmaciÃ³n por WhatsApp!");
+    alert("ðŸ©º Reserva de Turno en 1-Clic:\n\nHas seleccionado: " + nombreEspecialidad + ".\n\nSe ha reservado un turno prioritario para el próximo Martes a las 11:00 hs en Sanatorio Central Chilecito.\n\n¡Recibirás la confirmación por WhatsApp!");
 }
 </script>
 @endsection

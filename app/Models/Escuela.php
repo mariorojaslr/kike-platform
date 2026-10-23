@@ -27,9 +27,14 @@ class Escuela extends Model
         return $this->hasMany(Afiliado::class, 'escuela_id');
     }
 
+    public function getNombreAttribute($value)
+    {
+        return \App\Support\SpanishTextCleaner::clean($value ?: 'Institución Educativa', false);
+    }
+
     public function getNombreCompletoAttribute()
     {
-        return $this->attributes['nombre'] ?? 'Institución Educativa';
+        return \App\Support\SpanishTextCleaner::clean($this->attributes['nombre'] ?? 'Institución Educativa', false);
     }
 
 }

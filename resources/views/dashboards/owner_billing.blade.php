@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SaaS FacturaciÃ³n - INTEGRA</title>
+    <title>SaaS Facturación - INTEGRA</title>
     
     <!-- Fonts y CSS Bases -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -162,19 +162,19 @@
     
     <nav class="sidebar-nav">
         <a href="{{ route('dashboard') }}" class="nav-link">
-            <i class="fas fa-chart-pie"></i> VisiÃ³n General
+            <i class="fas fa-chart-pie"></i> Visión General
         </a>
         <a href="{{ route('owner.geografia') }}" class="nav-link">
-            <i class="fas fa-globe-americas"></i> Base GeogrÃ¡fica
+            <i class="fas fa-globe-americas"></i> Base Geográfica
         </a>
         <a href="{{ route('owner.billing') }}" class="nav-link active">
-            <i class="fas fa-file-invoice-dollar"></i> FacturaciÃ³n y Reglas
+            <i class="fas fa-file-invoice-dollar"></i> Facturación y Reglas
         </a>
         <a href="{{ route('auditor.facturas') }}" class="nav-link">
-            <i class="fas fa-receipt"></i> AuditorÃ­a Facturas
+            <i class="fas fa-receipt"></i> Auditoría Facturas
         </a>
         <a href="{{ route('auditor.documentos') }}" class="nav-link">
-            <i class="fas fa-file-signature"></i> AuditorÃ­a Docs
+            <i class="fas fa-file-signature"></i> Auditoría Docs
         </a>
         
         <div class="px-4 my-4"><hr class="text-white-50 opacity-10"></div>
@@ -182,7 +182,7 @@
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <a href="{{ route('logout') }}" class="nav-link text-danger" onclick="event.preventDefault(); this.closest('form').submit();">
-                <i class="fas fa-sign-out-alt"></i> Cerrar SesiÃ³n
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
             </a>
         </form>
     </nav>
@@ -198,7 +198,7 @@
                 <i class="fas fa-bars fa-lg"></i>
             </button>
             <div>
-                <h4 class="mb-0 fw-bold">GestiÃ³n Comercial & Cobranzas Granulares</h4>
+                <h4 class="mb-0 fw-bold">Gestión Comercial & Cobranzas Granulares</h4>
                 <p class="text-muted mb-0 small">Configura cobros individuales por Titular/Afiliado, por Alumno/Paciente o por Docente/Terapeuta</p>
             </div>
         </div>
@@ -228,7 +228,7 @@
     </div>
     @endif
 
-    <!-- KPIs RÃ¡pidos de FacturaciÃ³n -->
+    <!-- KPIs Rápidos de Facturación -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="stat-card border-top-0 border-start border-4 border-primary">
@@ -247,7 +247,7 @@
             <div class="stat-card border-top-0 border-start border-4 border-success">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted small fw-bold mb-1">EMPRESAS AL DÃA</p>
+                        <p class="text-muted small fw-bold mb-1">EMPRESAS AL DÍA</p>
                         <h4 class="mb-0 fw-bold text-dark">{{ $empresasAlDia }} <span class="text-muted fs-6">Clientes</span></h4>
                     </div>
                     <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
@@ -284,12 +284,12 @@
         </div>
     </div>
 
-    <!-- TABLA PRINCIPAL: LIQUIDACIÃ“N Y CONFIGURACIÃ“N COMERCIAL POR EMPRESA -->
+    <!-- TABLA PRINCIPAL: LIQUIDACIÓN Y CONFIGURACIÓN COMERCIAL POR EMPRESA -->
     <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px;">
         <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center flex-wrap">
             <div>
                 <h5 class="fw-bold mb-1"><i class="fas fa-building me-2 text-primary"></i> Control Comercial Granular por Empresa</h5>
-                <p class="text-muted small mb-0">Combina cuota fija base con tarifas unitarias por Titular, Alumno o Docente segÃºn tu negociaciÃ³n.</p>
+                <p class="text-muted small mb-0">Combina cuota fija base con tarifas unitarias por Titular, Alumno o Docente según tu negociación.</p>
             </div>
             <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill font-monospace">
                 Total: {{ count($empresas) }} Instituciones
@@ -300,13 +300,13 @@
                 <table class="table table-hover table-custom align-middle">
                     <thead class="text-muted small text-uppercase">
                         <tr>
-                            <th>Cliente / InstituciÃ³n</th>
+                            <th>Cliente / Institución</th>
                             <th>Registros en BD</th>
                             <th>Desglose de Tarifas Aplicadas</th>
                             <th class="text-center">Cuota Base Calculada</th>
                             <th class="text-center">Excedentes</th>
                             <th class="text-end">Total a Facturar</th>
-                            <th class="text-center">PrÃ³x. Cobro</th>
+                            <th class="text-center">Próx. Cobro</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -444,13 +444,13 @@
             <div class="mt-4 alert alert-info py-2 small d-flex align-items-center mb-0">
                 <i class="fas fa-info-circle fa-lg me-3 text-info"></i>
                 <p class="mb-0">
-                    <strong>Cobro Directo sin Comisiones:</strong> Tus clientes pueden transferir a tus cuentas/billeteras habilitadas y subir el comprobante. El motor de IA (Gemini Vision) extraerÃ¡ automÃ¡ticamente el monto y nÃºmero de operaciÃ³n para tu verificaciÃ³n en 1-Clic.
+                    <strong>Cobro Directo sin Comisiones:</strong> Tus clientes pueden transferir a tus cuentas/billeteras habilitadas y subir el comprobante. El motor de IA (Gemini Vision) extraerá automáticamente el monto y número de operación para tu verificación en 1-Clic.
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÃ“N: CUENTAS BANCARIAS HABILITADAS Y RECEPCIÃ“N DE PAGOS -->
+    <!-- SECCIÓN: CUENTAS BANCARIAS HABILITADAS Y RECEPCIÓN DE PAGOS -->
     <div class="row mb-4">
         <!-- Cuentas Habilitadas Configurables -->
         <div class="col-lg-4 mb-3">
@@ -481,7 +481,7 @@
                                     <button type="button" class="btn btn-sm btn-light border text-dark p-1" data-bs-toggle="modal" data-bs-target="#modalEditCuenta{{ $cta->id }}" title="Editar Cuenta">
                                         <i class="fas fa-pen"></i>
                                     </button>
-                                    <form action="{{ route('owner.cuentas.destroy', $cta->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Â¿Eliminar esta cuenta bancaria?')">
+                                    <form action="{{ route('owner.cuentas.destroy', $cta->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta cuenta bancaria?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-light border text-danger p-1" title="Eliminar">
@@ -501,7 +501,7 @@
             </div>
         </div>
 
-        <!-- Tabla de Comprobantes Recibidos (VerificaciÃ³n por IA) -->
+        <!-- Tabla de Comprobantes Recibidos (Verificación por IA) -->
         <div class="col-lg-8 mb-3">
             <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
                 <div class="card-header bg-dark text-white fw-bold py-3 d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
@@ -513,7 +513,7 @@
                         <thead class="bg-light small">
                             <tr>
                                 <th>Empresa</th>
-                                <th>NÂ° Comprobante (IA)</th>
+                                <th>N° Comprobante (IA)</th>
                                 <th>Monto</th>
                                 <th>Banco</th>
                                 <th>Estado</th>
@@ -528,7 +528,7 @@
                                         <br><small class="text-muted">{{ $pago->created_at->format('d/m/Y H:i') }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-secondary font-monospace">{{ $pago->nro_comprobante ?? 'Sin NÂ°' }}</span>
+                                        <span class="badge bg-secondary font-monospace">{{ $pago->nro_comprobante ?? 'Sin N°' }}</span>
                                     </td>
                                     <td>
                                         <strong class="text-success">${{ number_format($pago->monto, 2, ',', '.') }}</strong>
@@ -555,7 +555,7 @@
                                         @if($pago->estado === 'pendiente_verificacion')
                                             <form action="{{ route('pagos.aprobar', $pago->id) }}" method="POST" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-success shadow-sm" title="Aprobar Pago en 1-Clic" onclick="return confirm('Â¿Confirmas que verificaste esta transferencia en tu homebanking?')">
+                                                <button type="submit" class="btn btn-sm btn-success shadow-sm" title="Aprobar Pago en 1-Clic" onclick="return confirm('¿Confirmas que verificaste esta transferencia en tu homebanking?')">
                                                     <i class="fas fa-check me-1"></i> Aprobar
                                                 </button>
                                             </form>
@@ -598,7 +598,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">Titular de la Cuenta</label>
-                        <input type="text" name="titular" class="form-control" placeholder="Ej: Mario Rojas / RazÃ³n Social...">
+                        <input type="text" name="titular" class="form-control" placeholder="Ej: Mario Rojas / Razón Social...">
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -670,14 +670,14 @@
     </div>
 @endforeach
 
-<!-- MODALES DE CONFIGURACIÃ“N COMERCIAL DE EMPRESAS -->
+<!-- MODALES DE CONFIGURACIÓN COMERCIAL DE EMPRESAS -->
 @foreach($empresas as $emp)
     <div class="modal fade" id="modalConfigPlan{{ $emp->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $emp->id }}" aria-hidden="true" style="color: #0f172a;">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
                 <div class="modal-header bg-dark text-white border-0" style="border-radius: 18px 18px 0 0;">
                     <h5 class="modal-title fw-bold" id="modalLabel{{ $emp->id }}">
-                        <i class="fas fa-sliders-h me-2 text-warning"></i> ConfiguraciÃ³n Comercial: {{ $emp->nombre }}
+                        <i class="fas fa-sliders-h me-2 text-warning"></i> Configuración Comercial: {{ $emp->nombre }}
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -685,14 +685,14 @@
                     @csrf
                     <div class="modal-body p-4">
                         <div class="alert alert-primary bg-primary bg-opacity-10 border-0 p-3 mb-4 rounded-3 small text-dark">
-                            <i class="fas fa-lightbulb text-primary me-2"></i> <strong>Poder Negociador Total:</strong> Puedes asignar montos a cualquier combinaciÃ³n de variables (Base, Titulares, Alumnos, Docentes). Deja en $0 los Ã­tems que no desees cobrar.
+                            <i class="fas fa-lightbulb text-primary me-2"></i> <strong>Poder Negociador Total:</strong> Puedes asignar montos a cualquier combinación de variables (Base, Titulares, Alumnos, Docentes). Deja en $0 los ítems que no desees cobrar.
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-muted">Tipo de Plan Comercial</label>
                             <select name="plan_tipo" class="form-select border-secondary border-opacity-20">
-                                <option value="estandar" {{ ($emp->plan_tipo ?? 'estandar') === 'estandar' ? 'selected' : '' }}>EstÃ¡ndar (Tarifa Normal)</option>
-                                <option value="demo" {{ ($emp->plan_tipo ?? '') === 'demo' ? 'selected' : '' }}>ðŸŽ Demo / DemostraciÃ³n (Sin Cobro Permanente)</option>
+                                <option value="estandar" {{ ($emp->plan_tipo ?? 'estandar') === 'estandar' ? 'selected' : '' }}>Estándar (Tarifa Normal)</option>
+                                <option value="demo" {{ ($emp->plan_tipo ?? '') === 'demo' ? 'selected' : '' }}>ðŸŽ Demo / Demostración (Sin Cobro Permanente)</option>
                                 <option value="personalizado" {{ ($emp->plan_tipo ?? '') === 'personalizado' ? 'selected' : '' }}>âœ¨ Personalizado / Acuerdo Especial</option>
                                 <option value="bonificado" {{ ($emp->plan_tipo ?? '') === 'bonificado' ? 'selected' : '' }}>ðŸ·ï¸ Bonificado / Descuento</option>
                             </select>
@@ -738,32 +738,32 @@
                             </div>
                         </div>
 
-                        <h6 class="fw-bold text-dark mt-2 mb-3"><i class="fas fa-calendar-alt me-2 text-info"></i> Fechas y LÃ­mites de la SuscripciÃ³n</h6>
+                        <h6 class="fw-bold text-dark mt-2 mb-3"><i class="fas fa-calendar-alt me-2 text-info"></i> Fechas y Límites de la Suscripción</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">PrÃ³ximo Vencimiento</label>
+                                <label class="form-label fw-bold small text-muted">Próximo Vencimiento</label>
                                 <input type="date" name="proximo_vencimiento" class="form-control" value="{{ $emp->proximo_vencimiento ? \Carbon\Carbon::parse($emp->proximo_vencimiento)->format('Y-m-d') : '' }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">PerÃ­odo de Gracia (No Paga Hasta)</label>
+                                <label class="form-label fw-bold small text-muted">Período de Gracia (No Paga Hasta)</label>
                                 <input type="date" name="periodo_gracia_hasta" class="form-control" value="{{ $emp->periodo_gracia_hasta ? \Carbon\Carbon::parse($emp->periodo_gracia_hasta)->format('Y-m-d') : '' }}">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">LÃ­mite Usuarios App</label>
+                                <label class="form-label fw-bold small text-muted">Límite Usuarios App</label>
                                 <input type="number" name="limite_usuarios" class="form-control" value="{{ $emp->limite_usuarios ?? 50 }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-muted">LÃ­mite MB Almacenamiento</label>
+                                <label class="form-label fw-bold small text-muted">Límite MB Almacenamiento</label>
                                 <input type="number" name="limite_mb" class="form-control" value="{{ $emp->limite_mb ?? 500 }}">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted">Notas Internas de FacturaciÃ³n / Acuerdo Comercial</label>
+                            <label class="form-label fw-bold small text-muted">Notas Internas de Facturación / Acuerdo Comercial</label>
                             <textarea name="notas_facturacion" class="form-control" rows="2" placeholder="Ej: Negociado $1.000 por alumno y $500 por docente. Exento cargo por titular.">{{ $emp->notas_facturacion ?? '' }}</textarea>
                         </div>
                     </div>

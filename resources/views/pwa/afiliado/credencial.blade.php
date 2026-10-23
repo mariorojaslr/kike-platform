@@ -46,12 +46,12 @@
 
                 <div class="d-flex justify-content-between align-items-end pt-3 border-top border-white border-opacity-10">
                     <div>
-                        <div class="text-white-50 small text-uppercase" style="font-size: 0.65rem;">NÂ° Afiliado Mutual</div>
+                        <div class="text-white-50 small text-uppercase" style="font-size: 0.65rem;">N° Afiliado Mutual</div>
                         <div class="font-monospace fw-bold fs-5 text-info">{{ $afiliado->nro_afiliado }}</div>
                         <small class="text-muted" style="font-size: 0.65rem;">Vence: {{ $afiliado->fecha_vencimiento }}</small>
                     </div>
 
-                    <!-- CÃ³digo QR DinÃ¡mico con Token de Seguridad -->
+                    <!-- Código QR Dinámico con Token de Seguridad -->
                     <div class="bg-white p-2 rounded-3 text-center shadow-sm">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data={{ urlencode('MUTUAL_TOKEN_' . $afiliado->token_dinamico . '_DNI_' . $afiliado->dni) }}" alt="QR Afiliado" width="75" height="75">
                         <div class="font-monospace text-dark fw-bold mt-1" style="font-size: 0.6rem;">TOKEN: {{ $afiliado->token_dinamico }}</div>
@@ -60,11 +60,11 @@
             </div>
         </div>
 
-        <!-- Token de Seguridad DinÃ¡mico -->
+        <!-- Token de Seguridad Dinámico -->
         <div class="card border-0 bg-dark p-3 mb-4 rounded-3 text-center border border-secondary border-opacity-25 shadow-sm">
-            <span class="text-muted small">Muestre este QR o Token en ClÃ­nicas, Farmacias y Sanatorios</span>
+            <span class="text-muted small">Muestre este QR o Token en Clínicas, Farmacias y Sanatorios</span>
             <h4 class="font-monospace fw-bold text-warning mb-0 mt-1"><i class="fas fa-lock me-2"></i> {{ $afiliado->token_dinamico }}</h4>
-            <small class="text-success" style="font-size: 0.7rem;"><i class="fas fa-sync fa-spin me-1"></i> Token vÃ¡lido por los prÃ³ximos 15 minutos</small>
+            <small class="text-success" style="font-size: 0.7rem;"><i class="fas fa-sync fa-spin me-1"></i> Token válido por los próximos 15 minutos</small>
         </div>
 
         <!-- Grupo Familiar Adherente -->

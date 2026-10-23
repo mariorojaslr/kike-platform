@@ -83,6 +83,24 @@ Schema::table('familiares', function (Blueprint $table) {
     }
 });
 
+// 1.4 Columnas de Cadena de Aprobación (Visto Bueno Auditor + Visto Bueno Jefe de Área) en expedientes_alumno
+if (Schema::hasTable('expedientes_alumno')) {
+    Schema::table('expedientes_alumno', function (Blueprint $table) {
+        if (!Schema::hasColumn('expedientes_alumno', 'visto_bueno_auditor')) {
+            $table->boolean('visto_bueno_auditor')->default(false)->after('estado_auditoria');
+        }
+        if (!Schema::hasColumn('expedientes_alumno', 'visto_bueno_jefe')) {
+            $table->boolean('visto_bueno_jefe')->default(false)->after('visto_bueno_auditor');
+        }
+        if (!Schema::hasColumn('expedientes_alumno', 'aprobado_auditor_at')) {
+            $table->timestamp('aprobado_auditor_at')->nullable()->after('visto_bueno_jefe');
+        }
+        if (!Schema::hasColumn('expedientes_alumno', 'aprobado_jefe_at')) {
+            $table->timestamp('aprobado_jefe_at')->nullable()->after('aprobado_auditor_at');
+        }
+    });
+}
+
 echo "=== 2. CONFIGURANDO SUBAGENCIA (SOLUCIONES DIGITALES MCR) Y CLIENTE (APOS LA RIOJA) ===\n";
 
 $provinciaLaRioja = DB::table('provincias')->where('nombre', 'LIKE', '%Rioja%')->first();
@@ -172,33 +190,51 @@ User::updateOrCreate(
     ]
 );
 
-echo "=== 3. LIMPIANDO DATOS DE PRUEBA HUÉRFANOS Y NORMALIZANDO DOCENTES ===\n";
+echo "=== 3. LIMPIANDO DATOS CORRUPTOS Y RECONSTRUYENDO PADRÓN EN UTF-8 LIMPIO ===\n";
+
+// Función auxiliar para embellecer nombres y textos con tildes en español
+function cleanName($str) {
+    return \App\Support\SpanishTextCleaner::clean($str, true);
+}
 
 DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-// Borrar los 20 docentes falsos sin empresa_id creados por el viejo DemoSeeder
-DB::table('docentes')->whereNull('empresa_id')->delete();
+try {
+    DB::statement('ALTER TABLE expedientes_alumno DROP FOREIGN KEY expedientes_alumno_alumno_id_foreign');
+} catch (\Throwable $e) {}
+DB::table('docentes')->truncate();
+DB::table('formaciones')->truncate();
 DB::table('beneficiarios')->truncate();
-DB::table('titulars')->whereNull('empresa_id')->delete();
+DB::table('titulars')->truncate();
+DB::table('familiares')->truncate();
+if (Schema::hasTable('familiars')) {
+    DB::table('familiars')->truncate();
+}
+DB::table('escuelas')->truncate();
+DB::table('expedientes_alumno')->truncate();
 DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
-// Asegurar que todas las formaciones pertenezcan a APOS o sean globales limpias
-DB::table('formaciones')->where('empresa_id', 1)->update(['empresa_id' => $aposId]);
 
 // Cargar padrón maestro de 125 docentes con especialidad, teléfono, email y dirección desde TSV si existe
 $tsvDocentes = __DIR__ . '/database/seeders/apos_docentes.tsv';
 if (file_exists($tsvDocentes)) {
-    $tsvLines = file($tsvDocentes, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $rawTsv = file_get_contents($tsvDocentes);
+    // Si por algún motivo el archivo estaba en UTF-16LE, convertirlo a UTF-8 en memoria
+    if (str_starts_with($rawTsv, "\xFF\xFE")) {
+        $rawTsv = mb_convert_encoding(substr($rawTsv, 2), 'UTF-8', 'UTF-16LE');
+    } elseif (str_starts_with($rawTsv, "\xEF\xBB\xBF")) {
+        $rawTsv = substr($rawTsv, 3);
+    }
+    $tsvLines = preg_split("/\r\n|\n|\r/", $rawTsv);
     foreach ($tsvLines as $tIdx => $tLine) {
-        if ($tIdx === 0) continue; // cabecera
+        if ($tIdx === 0 || empty(trim($tLine))) continue; // cabecera
         $parts = explode("\t", $tLine);
         if (count($parts) < 2) continue;
-        $dNombre = trim($parts[0] ?? '');
+        $dNombre = cleanName($parts[0] ?? '');
         $dDni    = preg_replace('/[^0-9]/', '', $parts[1] ?? '');
-        $dRes    = ($parts[2] ?? 'NULL') !== 'NULL' ? trim($parts[2]) : null;
-        $dTel    = ($parts[3] ?? 'NULL') !== 'NULL' ? trim($parts[3]) : null;
-        $dEmail  = ($parts[4] ?? 'NULL') !== 'NULL' ? trim($parts[4]) : null;
-        $dDir    = ($parts[5] ?? 'NULL') !== 'NULL' ? trim($parts[5]) : null;
-        $dForm   = ($parts[6] ?? 'NULL') !== 'NULL' ? trim($parts[6]) : 'Profesora en Educación Especial';
+        $dRes    = ($parts[2] ?? 'NULL') !== 'NULL' ? trim(str_replace("\x00", '', $parts[2])) : null;
+        $dTel    = ($parts[3] ?? 'NULL') !== 'NULL' ? trim(str_replace("\x00", '', $parts[3])) : null;
+        $dEmail  = ($parts[4] ?? 'NULL') !== 'NULL' ? trim(str_replace("\x00", '', $parts[4])) : null;
+        $dDir    = ($parts[5] ?? 'NULL') !== 'NULL' ? \App\Support\SpanishTextCleaner::clean($parts[5], false) : null;
+        $dForm   = ($parts[6] ?? 'NULL') !== 'NULL' ? cleanName($parts[6]) : 'Profesora en Educación Especial';
 
         if (!$dDni) continue;
 
@@ -220,14 +256,6 @@ if (file_exists($tsvDocentes)) {
             ]
         );
     }
-}
-
-// Función auxiliar para embellecer nombres y textos
-function cleanName($str) {
-    $str = trim(preg_replace('/\s+/', ' ', $str));
-    // Reemplazar signos de pregunta por Ñ o N° según contexto
-    $str = str_replace(['N?', 'n?'], 'N° ', $str);
-    return mb_convert_case(mb_strtolower($str, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
 }
 
 function cleanSchoolName($raw) {
@@ -407,11 +435,11 @@ if (file_exists($csvAlumnosPath)) {
 
         $alDni      = preg_replace('/[^0-9]/', '', $cols[1] ?? '');
         $alAfiliado = preg_replace('/[^0-9]/', '', $cols[2] ?? '');
-        $diagRaw    = trim(preg_replace('/\s+/', ' ', $cols[3] ?? ''));
-        $escRaw     = trim(preg_replace('/\s+/', ' ', $cols[4] ?? ''));
-        $grado      = trim($cols[5] ?? '');
-        $turno      = trim($cols[6] ?? '');
-        $horario    = trim($cols[7] ?? '');
+        $diagRaw    = \App\Support\SpanishTextCleaner::clean($cols[3] ?? '', false);
+        $escRaw     = \App\Support\SpanishTextCleaner::clean($cols[4] ?? '', false);
+        $grado      = \App\Support\SpanishTextCleaner::clean($cols[5] ?? '', true);
+        $turno      = \App\Support\SpanishTextCleaner::clean($cols[6] ?? '', true);
+        $horario    = \App\Support\SpanishTextCleaner::clean($cols[7] ?? '', false);
 
         $data = [
             'nombre'         => $alNombre,
@@ -621,7 +649,20 @@ foreach ($resumenRows as $row) {
 
     // 4. Crear Expediente Alumno activo para conectar Docente + Hijo + Padre + Escuela + Resolución
     if ($docente && $familiar) {
-        $estadoExp = ($expedientesCreados % 3 === 0) ? 'aprobado' : 'pendiente';
+        if ($expedientesCreados % 4 === 0) {
+            $estadoExp = 'aprobado';
+            $vbAuditor = true;
+            $vbJefe = true;
+        } elseif ($expedientesCreados % 4 === 1) {
+            $estadoExp = 'en_camino';
+            $vbAuditor = false;
+            $vbJefe = false;
+        } else {
+            $estadoExp = 'pendiente';
+            $vbAuditor = ($expedientesCreados % 4 === 2);
+            $vbJefe = false;
+        }
+
         ExpedienteAlumno::updateOrCreate(
             [
                 'empresa_id' => $aposId,
@@ -634,9 +675,13 @@ foreach ($resumenRows as $row) {
                 'origen_resolucion'         => 'resolucion_apos',
                 'nro_resolucion'            => $resolucionFormateada ?: ('RES-' . rand(100, 999)),
                 'diagnostico'               => $diagObj ? $diagObj->nombre : $diagTexto,
-                'horarios_atencion'         => $turno . ' (' . $horario . ')',
-                'horas_mensuales_asignadas' => 3, // 3 hs diarias tope reglamentario
+                'horarios_atencion'         => $turno . ' (' . $horario . ' - Máx. 3 hs/día)',
+                'horas_mensuales_asignadas' => 60, // 3 hs diarias x 20 días hábiles = 60 hs mensuales
                 'estado_auditoria'          => $estadoExp,
+                'visto_bueno_auditor'       => $vbAuditor,
+                'visto_bueno_jefe'          => $vbJefe,
+                'aprobado_auditor_at'       => $vbAuditor ? now() : null,
+                'aprobado_jefe_at'          => $vbJefe ? now() : null,
             ]
         );
         $expedientesCreados++;
@@ -658,7 +703,7 @@ $diagTea = Diagnostico::where('codigo', 'LIKE', '%F84.0%')->first();
 $escNormal = Escuela::where('empresa_id', $aposId)->first();
 $docPrimera = Docente::where('empresa_id', $aposId)->first();
 
-Familiar::updateOrCreate(
+$lucasFam = Familiar::updateOrCreate(
     ['dni' => '55111222'],
     [
         'empresa_id'      => $aposId,
@@ -677,6 +722,29 @@ Familiar::updateOrCreate(
         'horario'         => '08:00 a 11:00 hs',
     ]
 );
+
+if ($docPrimera && $lucasFam) {
+    // Dejar la Resolución RES-999 de Rojas Lucas "En Camino" para la docente #1 para que pueda tomarla con 1 clic en la demo
+    ExpedienteAlumno::updateOrCreate(
+        [
+            'empresa_id' => $aposId,
+            'alumno_id'  => $lucasFam->id,
+        ],
+        [
+            'docente_id'                => $docPrimera->id,
+            'titular_id'                => $marioTitular->id,
+            'escuela_id'                => $escNormal ? $escNormal->id : null,
+            'origen_resolucion'         => 'resolucion_apos',
+            'nro_resolucion'            => 'RES-999',
+            'diagnostico'               => 'Trastorno del Espectro Autista (TEA) - Apoyo a la Integración Escolar',
+            'horarios_atencion'         => 'Turno Mañana (08:00 a 11:00 hs - 3 hs/día)',
+            'horas_mensuales_asignadas' => 60,
+            'estado_auditoria'          => 'en_camino',
+            'visto_bueno_auditor'       => false,
+            'visto_bueno_jefe'          => false,
+        ]
+    );
+}
 
 Familiar::updateOrCreate(
     ['dni' => '55111333'],

@@ -89,13 +89,29 @@
                         @foreach($expedientesPendientes as $exp)
                             @php
                                 $titularObj = $exp->titular ?? ($exp->alumno ? $exp->alumno->titular : null);
+                                $vbAuditor = (bool)($exp->visto_bueno_auditor ?? false);
+                                $vbJefe = (bool)($exp->visto_bueno_jefe ?? false);
                             @endphp
-                            <div class="p-3 mb-3 rounded-4 border shadow-sm item-vinculo-auditor" style="background: #fffbeb; border-left: 5px solid #f59e0b !important;">
+                            <div class="p-3 mb-3 rounded-4 border shadow-sm item-vinculo-auditor" style="background: {{ $exp->estado_auditoria === 'en_camino' ? '#f0f9ff' : '#fffbeb' }}; border-left: 5px solid {{ $exp->estado_auditoria === 'en_camino' ? '#0284c7' : '#f59e0b' }} !important;">
                                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
                                     <div>
-                                        <span class="badge bg-warning text-dark fw-bold mb-1">
-                                            <i class="fas fa-clock me-1"></i> ESTADO: PENDIENTE DE AUDITORÍA (NUEVA VINCULACIÓN)
-                                        </span>
+                                        @if($exp->estado_auditoria === 'en_camino')
+                                            <span class="badge bg-info text-dark fw-bold mb-1">
+                                                <i class="fas fa-paper-plane me-1"></i> RESOLUCIÓN EN CAMINO (ENVIADA A LA APP DE LA DOCENTE)
+                                            </span>
+                                        @else
+                                            <span class="badge bg-warning text-dark fw-bold mb-1">
+                                                <i class="fas fa-clock me-1"></i> PENDIENTE DE VISTO BUENO (AUDITOR + JEFE DE ÁREA)
+                                            </span>
+                                        @endif
+                                        <div class="d-flex flex-wrap gap-1 mt-1 mb-1">
+                                            <span class="badge {{ $vbAuditor ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark border' }}" style="font-size: 0.7rem;">
+                                                <i class="fas {{ $vbAuditor ? 'fa-check-circle' : 'fa-hourglass-start' }} me-1"></i>1° Visto Bueno Auditor: {{ $vbAuditor ? 'APROBADO' : 'PENDIENTE' }}
+                                            </span>
+                                            <span class="badge {{ $vbJefe ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark border' }}" style="font-size: 0.7rem;">
+                                                <i class="fas {{ $vbJefe ? 'fa-check-circle' : 'fa-hourglass-start' }} me-1"></i>2° Visto Bueno Jefe de Área: {{ $vbJefe ? 'APROBADO' : 'PENDIENTE' }}
+                                            </span>
+                                        </div>
                                         <h6 class="fw-bold text-dark mb-0" style="font-size: 1rem;">
                                             <i class="fas fa-chalkboard-teacher text-primary me-1"></i> Docente: <span class="text-primary">{{ $exp->docente->nombre_completo ?? 'Docente APOS' }}</span>
                                         </h6>
@@ -128,23 +144,33 @@
                                     </div>
                                     <div class="col-12 border-top pt-1 mt-1 d-flex flex-wrap justify-content-between">
                                         <span><i class="fas fa-school text-warning me-1"></i> <strong>Escuela:</strong> {{ $exp->escuela->nombre_completo ?? 'Escuela Provincial' }}</span>
-                                        <span><i class="fas fa-calendar-day text-primary me-1"></i> <strong>Horario:</strong> {{ $exp->horarios_atencion ?? '3 hs/día' }} ({{ $exp->horas_mensuales_asignadas ?? 60 }} hs/mes)</span>
+                                        <span><i class="fas fa-calendar-day text-primary me-1"></i> <strong>Horario:</strong> {{ $exp->horarios_atencion ?? '3 hs/día' }} (Máx. 3 hs/día)</span>
                                     </div>
                                 </div>
 
-                                <!-- Acción Inmediata del Auditor: Confirmar/Asignar N° de Resolución y Aprobar en 1 Clic -->
+                                <!-- Acción Inmediata del Auditor y Jefe de Área -->
                                 <form action="{{ route('auditor.expedientes.aprobar', $exp->id) }}" method="POST" class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                                     @csrf
-                                    <div class="input-group input-group-sm" style="max-width: 310px;">
-                                        <span class="input-group-text bg-dark text-warning fw-bold"><i class="fas fa-file-signature me-1"></i> N° Resolución:</span>
-                                        <input type="text" name="nro_resolucion" class="form-control fw-bold" value="{{ $exp->nro_resolucion }}" placeholder="Ej: 505/25 o Autorización">
+                                    <div class="input-group input-group-sm" style="max-width: 265px;">
+                                        <span class="input-group-text bg-dark text-warning fw-bold"><i class="fas fa-file-signature me-1"></i> N° Res:</span>
+                                        <input type="text" name="nro_resolucion" class="form-control fw-bold" value="{{ $exp->nro_resolucion }}" placeholder="Ej: RES-599">
                                     </div>
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
-                                            <i class="fas fa-check-double me-1"></i> Aprobar Vínculo y Resolución (1-Clic)
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @if(!$vbAuditor)
+                                            <button type="submit" name="rol_aprobacion" value="auditor" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 fw-bold">
+                                                <i class="fas fa-user-check me-1"></i> OK Auditor
+                                            </button>
+                                        @endif
+                                        @if(!$vbJefe)
+                                            <button type="submit" name="rol_aprobacion" value="jefe" class="btn btn-sm btn-outline-info rounded-pill px-2.5 fw-bold">
+                                                <i class="fas fa-user-tie me-1"></i> OK Jefe Área
+                                            </button>
+                                        @endif
+                                        <button type="submit" name="rol_aprobacion" value="ambos" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                                            <i class="fas fa-check-double me-1"></i> Finalizar Trámite (Auditor + Jefe)
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="collapse" data-bs-target="#rechazarExpTop{{ $exp->id }}">
-                                            <i class="fas fa-times me-1"></i> Observar
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5" data-bs-toggle="collapse" data-bs-target="#rechazarExpTop{{ $exp->id }}">
+                                            <i class="fas fa-times"></i>
                                         </button>
                                     </div>
                                 </form>
@@ -435,10 +461,11 @@
                             <input type="text" name="horarios_atencion" class="form-control bg-light" value="Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold small text-muted">Estado de Auditoría</label>
+                            <label class="form-label fw-bold small text-muted">Destino de la Resolución</label>
                             <select name="accion_inmediata" class="form-select bg-light fw-bold">
-                                <option value="pendiente">Dejar Pendiente en Bandeja</option>
-                                <option value="aprobar_ya">Aprobar Directamente</option>
+                                <option value="en_camino">📬 Enviar "En Camino" a la App Docente</option>
+                                <option value="pendiente">⏳ Dejar en Bandeja de Auditoría</option>
+                                <option value="aprobar_ya">✅ Aprobar Directamente (Auditor + Jefe)</option>
                             </select>
                         </div>
                     </div>
@@ -586,12 +613,19 @@ setInterval(function() {
                     txt.innerText = data.latest_descripcion || 'Nueva vinculación de alumno y resolución recibida.';
                     banner.style.display = 'block';
                 }
-                if (typeof integraSonarCampana === 'function') {
-                    integraSonarCampana();
+                if (typeof window.integraModalElegante === 'function') {
+                    window.integraModalElegante({
+                        tipo: 'info',
+                        badge: 'ACTUALIZACIÓN AUTOMÁTICA EN VIVO',
+                        titulo: 'Nueva Intervención Docente / Resolución',
+                        mensaje: (data.latest_descripcion || 'Se actualizó un expediente en tiempo real.') + ' Actualizando bandeja automáticamente...',
+                        autoCerrarMs: 3200
+                    });
                 }
+                setTimeout(function() { window.location.reload(); }, 3200);
             }
         })
         .catch(() => {});
-}, 5000);
+}, 4000);
 </script>
 @endsection

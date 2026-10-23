@@ -273,6 +273,7 @@ Route::get('/directora/asistencia', [\App\Http\Controllers\DirectoraAsistenciaCo
 Route::post('/app-docente/upload', [\App\Http\Controllers\PwaDocenteController::class , 'uploadDocument'])->name('pwa.docente.upload');
 Route::post('/app-docente/vincular-alumno', [\App\Http\Controllers\PwaDocenteController::class , 'vincularAlumnoResolucion'])->name('pwa.docente.vincular_alumno');
 Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::class, 'search'])->name('pwa.docente.search');
+Route::get('/api/pwa/docente/live-status', [\App\Http\Controllers\PwaDocenteController::class, 'liveStatus'])->name('api.pwa.docente.live_status');
 Route::get('/api/auditor/novedades-live', [\App\Http\Controllers\AuditorDocenteController::class, 'apiNovedadesLive'])->name('api.auditor.novedades_live');
 
 // ==========================================
