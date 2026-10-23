@@ -478,6 +478,20 @@
                         $titAfil = $resCamino->titular ? ($resCamino->titular->nro_afiliado ?? '') : '';
                         $escNom = $resCamino->escuela ? $resCamino->escuela->nombre_completo : 'Escuela Provincial';
                         $diagNom = $resCamino->diagnostico ?: ($resCamino->alumno && $resCamino->alumno->diagnostico ? $resCamino->alumno->diagnostico->nombre : 'CUD Activo');
+                        $payloadRes = [
+                            'expediente_id' => $resCamino->id,
+                            'alumno_id' => $resCamino->alumno_id,
+                            'titular_id' => $resCamino->titular_id,
+                            'escuela_id' => $resCamino->escuela_id,
+                            'nro_resolucion' => $resCamino->nro_resolucion,
+                            'alumno_nombre' => $alNom,
+                            'alumno_dni' => $alDni,
+                            'titular_nombre' => $titNom,
+                            'titular_afiliado' => $titAfil,
+                            'escuela_nombre' => $escNom,
+                            'diagnostico' => $diagNom,
+                            'horarios_atencion' => $resCamino->horarios_atencion ?: 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)',
+                        ];
                     @endphp
                     <div style="background:#0f172a; border:1px solid rgba(250,204,21,0.4); border-left:4px solid #facc15; border-radius:12px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
                         <div style="min-width:0; flex:1;">
@@ -492,20 +506,8 @@
                             </div>
                         </div>
                         <button type="button"
-                            onclick='tomarResolucionEnCamino(@json([
-                                "expediente_id" => $resCamino->id,
-                                "alumno_id" => $resCamino->alumno_id,
-                                "titular_id" => $resCamino->titular_id,
-                                "escuela_id" => $resCamino->escuela_id,
-                                "nro_resolucion" => $resCamino->nro_resolucion,
-                                "alumno_nombre" => $alNom,
-                                "alumno_dni" => $alDni,
-                                "titular_nombre" => $titNom,
-                                "titular_afiliado" => $titAfil,
-                                "escuela_nombre" => $escNom,
-                                "diagnostico" => $diagNom,
-                                "horarios_atencion" => $resCamino->horarios_atencion ?: "Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)"
-                            ]))'
+                            data-res="{{ json_encode($payloadRes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
+                            onclick="tomarResolucionEnCamino(JSON.parse(this.getAttribute('data-res')))"
                             style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:10px; padding:8px 12px; font-size:0.74rem; font-weight:800; cursor:pointer; white-space:nowrap; box-shadow:0 4px 10px rgba(16,185,129,0.3);">
                             <i class="fas fa-hand-pointer me-1"></i> Tomar
                         </button>
