@@ -715,35 +715,122 @@ $lucasFam = Familiar::updateOrCreate(
         'diagnostico_id'      => $diagTea ? $diagTea->id : 1,
         'diagnostico_detalle' => 'Trastorno del Espectro Autista (TEA) - Apoyo a la Integración Escolar',
         'escuela_id'          => $escNormal ? $escNormal->id : null,
-        'docente_id'      => $docPrimera ? $docPrimera->id : null,
-        'resolucion'      => 'RES-999',
-        'grado_division'  => '3° Grado A',
-        'turno'           => 'Turno Mañana',
-        'horario'         => '08:00 a 11:00 hs',
+        'docente_id'          => null,
+        'resolucion'          => 'PRE-EXP-2026-0999',
+        'grado_division'      => '3° Grado A',
+        'turno'               => 'Turno Mañana',
+        'horario'             => '08:00 a 11:00 hs',
     ]
 );
 
-if ($docPrimera && $lucasFam) {
-    // Dejar la Resolución RES-999 de Rojas Lucas "En Camino" para la docente #1 para que pueda tomarla con 1 clic en la demo
-    ExpedienteAlumno::updateOrCreate(
+ExpedienteAlumno::ensureWorkflowSchema();
+
+// Asignar CBU de 22 dígitos a los docentes de APOS
+foreach (Docente::where('empresa_id', $aposId)->get() as $dItem) {
+    if (empty($dItem->cbu)) {
+        $dItem->cbu = '3090001901' . str_pad((string)$dItem->id, 12, '0', STR_PAD_LEFT);
+        $dItem->save();
+    }
+}
+
+if ($lucasFam) {
+    // Dejar la Pre-Resolución PRE-EXP-2026-0999 de Rojas Lucas iniciada en Mesa de Entrada (SIN DOCENTE AÚN)
+    // para que cuando el padre le diga a la maestra "Buscá la Pre-Resolución PRE-EXP-2026-0999", ella la busque en la App y se la asigne
+    $expLucas = ExpedienteAlumno::updateOrCreate(
         [
             'empresa_id' => $aposId,
             'alumno_id'  => $lucasFam->id,
         ],
         [
-            'docente_id'                => $docPrimera->id,
+            'docente_id'                => null,
             'titular_id'                => $marioTitular->id,
             'escuela_id'                => $escNormal ? $escNormal->id : null,
-            'origen_resolucion'         => 'resolucion_apos',
-            'nro_resolucion'            => 'RES-999',
+            'nro_pre_expediente'        => 'PRE-EXP-2026-0999',
+            'etapa_flujo'               => 'mesa_entrada',
+            'origen_resolucion'         => 'mesa_entrada_pre_expediente',
+            'nro_resolucion'            => 'EN TRÁMITE (PRE-EXP-2026-0999)',
             'diagnostico'               => 'Trastorno del Espectro Autista (TEA) - Apoyo a la Integración Escolar',
             'horarios_atencion'         => 'Turno Mañana (08:00 a 11:00 hs - 3 hs/día)',
             'horas_mensuales_asignadas' => 60,
             'estado_auditoria'          => 'en_camino',
+            'ok_mesa_entrada'           => true,
+            'ok_docente_padre'          => false,
             'visto_bueno_auditor'       => false,
+            'ok_area_1'                 => false,
+            'ok_area_2'                 => false,
             'visto_bueno_jefe'          => false,
+            'ok_contabilidad'           => false,
+            'responsable_mesa_entrada'  => 'Mesa de Entrada APOS',
         ]
     );
+    $expLucas->marcarProcedimientosAreaCumplidos('mesa_entrada', 'Mesa de Entrada APOS');
+}
+
+// Distribuir los demás expedientes en las distintas etapas del circuito (Auditoría, Área 1, Área 2, Contabilidad)
+$todosExps = ExpedienteAlumno::where('empresa_id', $aposId)->where('alumno_id', '!=', $lucasFam->id ?? 0)->get();
+foreach ($todosExps as $idx => $eItem) {
+    $preCod = 'PRE-EXP-2026-' . str_pad((string)$eItem->id, 4, '0', STR_PAD_LEFT);
+    $eItem->nro_pre_expediente = $preCod;
+    $eItem->ok_mesa_entrada = true;
+    $eItem->ok_docente_padre = true;
+    $eItem->marcarProcedimientosAreaCumplidos('mesa_entrada', 'Mesa de Entrada APOS');
+    $eItem->marcarProcedimientosAreaCumplidos('docente_padre', 'Docente + Aval Directora');
+
+    $mod = $idx % 4;
+    if ($mod === 0) {
+        // En Etapa 3: Pendiente de Auditoría Docente
+        $eItem->etapa_flujo = 'auditoria_docente';
+        $eItem->estado_auditoria = 'pendiente';
+        $eItem->nro_resolucion = "EN TRÁMITE ({$preCod})";
+        $eItem->visto_bueno_auditor = false;
+        $eItem->ok_area_1 = false;
+        $eItem->ok_area_2 = false;
+    } elseif ($mod === 1) {
+        // En Etapa 4: Auditoría OK -> Pendiente de Tilde en Área N° 1
+        $eItem->etapa_flujo = 'area_1';
+        $eItem->estado_auditoria = 'pendiente';
+        $eItem->nro_resolucion = "EN TRÁMITE ({$preCod})";
+        $eItem->visto_bueno_auditor = true;
+        $eItem->responsable_auditor = 'Auditoría Docente APOS';
+        $eItem->aprobado_auditor_at = now();
+        $eItem->ok_area_1 = false;
+        $eItem->ok_area_2 = false;
+        $eItem->marcarProcedimientosAreaCumplidos('auditoria_docente', 'Auditoría Docente APOS');
+    } elseif ($mod === 2) {
+        // En Etapa 5: Área N° 1 OK -> Pendiente de Tilde en Área N° 2 (antes de emitir Resolución Secuenciada)
+        $eItem->etapa_flujo = 'area_2';
+        $eItem->estado_auditoria = 'pendiente';
+        $eItem->nro_resolucion = "EN TRÁMITE ({$preCod})";
+        $eItem->visto_bueno_auditor = true;
+        $eItem->responsable_auditor = 'Auditoría Docente APOS';
+        $eItem->aprobado_auditor_at = now();
+        $eItem->ok_area_1 = true;
+        $eItem->responsable_area_1 = 'Área N° 1';
+        $eItem->fecha_area_1 = now();
+        $eItem->ok_area_2 = false;
+        $eItem->marcarProcedimientosAreaCumplidos('auditoria_docente', 'Auditoría Docente APOS');
+        $eItem->marcarProcedimientosAreaCumplidos('area_1', 'Área N° 1');
+    } else {
+        // En Etapa 6: Área N° 2 OK -> Resolución Oficial Secuenciada emitida -> En Contabilidad para Orden de Pago
+        $resSec = 'RES-APOS-2026-' . str_pad((string)(1400 + $eItem->id), 4, '0', STR_PAD_LEFT);
+        $eItem->etapa_flujo = 'resolucion_emitida';
+        $eItem->estado_auditoria = 'aprobado';
+        $eItem->nro_resolucion = $resSec;
+        $eItem->visto_bueno_auditor = true;
+        $eItem->responsable_auditor = 'Auditoría Docente APOS';
+        $eItem->aprobado_auditor_at = now();
+        $eItem->ok_area_1 = true;
+        $eItem->responsable_area_1 = 'Área N° 1';
+        $eItem->fecha_area_1 = now();
+        $eItem->ok_area_2 = true;
+        $eItem->responsable_area_2 = 'Área N° 2';
+        $eItem->fecha_area_2 = now();
+        $eItem->visto_bueno_jefe = true;
+        $eItem->marcarProcedimientosAreaCumplidos('auditoria_docente', 'Auditoría Docente APOS');
+        $eItem->marcarProcedimientosAreaCumplidos('area_1', 'Área N° 1');
+        $eItem->marcarProcedimientosAreaCumplidos('area_2', 'Área N° 2');
+    }
+    $eItem->save();
 }
 
 Familiar::updateOrCreate(
@@ -775,3 +862,4 @@ echo "Escuelas de La Rioja en APOS: " . Escuela::where('empresa_id', $aposId)->c
 echo "Patologías / Diagnósticos CUD: " . Diagnostico::count() . "\n";
 echo "Especialidades / Formaciones Docentes: " . Formacion::count() . "\n";
 echo "Expedientes Vinculados Activos: " . ExpedienteAlumno::where('empresa_id', $aposId)->count() . "\n";
+echo "Procedimientos Configurados por Área: " . \App\Models\ProcedimientoArea::count() . "\n";

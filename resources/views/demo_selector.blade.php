@@ -368,7 +368,106 @@
                 </div>
             </div>
 
-            <!-- 1.5 Flujo de 7 Etapas (Jefe de Área) -->
+            <!-- 1.5 Mesa de Entrada APOS (Alta de Pre-Resolución) -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="link-card" style="border-color: rgba(56, 189, 248, 0.55);">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box icon-sky">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">1. Mesa de Entrada APOS</h6>
+                                <span class="badge-role badge-sky">Genera Pre-Resolución (Con o Sin Docente)</span>
+                            </div>
+                        </div>
+                        <p class="card-desc">
+                            El padre solicita el trámite para su hijo/a y Escuela. Genera el N° de Pre-Resolución (sin dueño si aún no habló con docente) para que la maestra lo busque y se lo asigne.
+                        </p>
+                    </div>
+                    <div class="card-actions">
+                        <div class="share-group">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/mesa-entrada') }}', 'Mesa de Entrada APOS')">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-wa-link" onclick="compartirWhatsapp('{{ url('/mesa-entrada') }}', 'Mesa de Entrada APOS')">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </button>
+                        </div>
+                        <a href="{{ url('/mesa-entrada') }}" class="btn btn-info text-dark btn-open-link">
+                            <i class="fas fa-rocket me-1"></i> Ingresar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.6 Área N° 1 (Tabla de Procedimiento de Validación) -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="link-card" style="border-color: rgba(148, 163, 184, 0.55);">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box icon-blue">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">4. Área N° 1 (Sector Validación 1)</h6>
+                                <span class="badge-role badge-blue">Tabla de Procedimientos + Sello</span>
+                            </div>
+                        </div>
+                        <p class="card-desc">
+                            Recibe el Pre-Expediente visado por Auditoría Docente. El operador tilda el <em>"Procedimiento de validación"</em> (escalable de 1 a 20 requisitos) y pasa al Área N° 2.
+                        </p>
+                    </div>
+                    <div class="card-actions">
+                        <div class="share-group">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/area-1') }}', 'Área N° 1 APOS')">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-wa-link" onclick="compartirWhatsapp('{{ url('/area-1') }}', 'Área N° 1 APOS')">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </button>
+                        </div>
+                        <a href="{{ url('/area-1') }}" class="btn btn-primary btn-open-link">
+                            <i class="fas fa-rocket me-1"></i> Ingresar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.7 Área N° 2 (Cierre de Circuito y Emisión de Resolución Secuenciada) -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="link-card" style="border-color: rgba(244, 63, 94, 0.55);">
+                    <div>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box icon-rose">
+                                <i class="fas fa-stamp"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">5. Área N° 2 (Cierre y Resolución)</h6>
+                                <span class="badge-role badge-rose">Emite Resolución Secuenciada</span>
+                            </div>
+                        </div>
+                        <p class="card-desc">
+                            Al tildar su tabla de <em>"Procedimiento de validación"</em>, emite automáticamente la Resolución Oficial Secuenciada y pasa el expediente a Contabilidad.
+                        </p>
+                    </div>
+                    <div class="card-actions">
+                        <div class="share-group">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/area-2') }}', 'Área N° 2 APOS')">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                            <button type="button" class="btn-wa-link" onclick="compartirWhatsapp('{{ url('/area-2') }}', 'Área N° 2 APOS')">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </button>
+                        </div>
+                        <a href="{{ url('/area-2') }}" class="btn btn-danger btn-open-link">
+                            <i class="fas fa-rocket me-1"></i> Ingresar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.8 Circuito Completo + Tablas de Procedimientos por Área -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="link-card">
                     <div>
@@ -377,20 +476,20 @@
                                 <i class="fas fa-project-diagram"></i>
                             </div>
                             <div>
-                                <h6 class="fw-bold text-white mb-0">Tablero Jefe de Área (Workflow)</h6>
-                                <span class="badge-role badge-blue">Control Secuencial de Expedientes</span>
+                                <h6 class="fw-bold text-white mb-0">Circuito Completo y Tablas por Área</h6>
+                                <span class="badge-role badge-blue">Mesa Entrada &rarr; Área 1 &rarr; Área 2 &rarr; Contabilidad</span>
                             </div>
                         </div>
                         <p class="card-desc">
-                            Supervisión integral del ciclo mensual: Resolución APOS, legajo docente, triple aval (Docente, Directora y Padre), auditoría y pase a liquidación.
+                            Vista unificada de las 6 etapas con las Tablas de Procedimientos configurables por sector (1 a 20 requisitos), tildes de validación y renombrado de áreas.
                         </p>
                     </div>
                     <div class="card-actions">
                         <div class="share-group">
-                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/expedientes/flujo') }}', 'Workflow de Expedientes APOS')">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/expedientes/flujo') }}', 'Circuito Completo APOS')">
                                 <i class="fas fa-copy"></i> Copiar
                             </button>
-                            <button type="button" class="btn-wa-link" onclick="compartirWhatsapp('{{ url('/expedientes/flujo') }}', 'Workflow de Expedientes APOS')">
+                            <button type="button" class="btn-wa-link" onclick="compartirWhatsapp('{{ url('/expedientes/flujo') }}', 'Circuito Completo APOS')">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </button>
                         </div>
@@ -401,7 +500,7 @@
                 </div>
             </div>
 
-            <!-- 1.6 Liquidación Oficial e-SIDIF Nación (CSV + Llave Pública/Privada) -->
+            <!-- 1.9 Contabilidad y Liquidación Oficial e-SIDIF Nación (CSV + CBU) -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="link-card" style="border-color: rgba(16, 185, 129, 0.55);">
                     <div>
@@ -410,20 +509,20 @@
                                 <i class="fas fa-file-csv"></i>
                             </div>
                             <div>
-                                <h6 class="fw-bold text-white mb-0">Liquidación e-SIDIF | Nación</h6>
-                                <span class="badge-role badge-emerald">CSV Carga Masiva + Llave Pública/Privada</span>
+                                <h6 class="fw-bold text-white mb-0">6. Contabilidad y Orden de Pago (e-SIDIF)</h6>
+                                <span class="badge-role badge-emerald">CBU Bancario + CSV Carga Masiva</span>
                             </div>
                         </div>
                         <p class="card-desc">
-                            Orden de pago individual y colectiva de docentes APOS. Descarga inmediata en CSV para Carga Masiva en e-SIDIF y transmisión automática con Llave Pública y Privada.
+                            Recibe los expedientes con Resolución Secuenciada y CBU Docente validado. Genera la Orden de Pago y el archivo para el software de Gobierno (e-SIDIF / Banco Rioja).
                         </p>
                     </div>
                     <div class="card-actions">
                         <div class="share-group">
-                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/liquidaciones') }}', 'Liquidación e-SIDIF APOS')">
+                            <button type="button" class="btn-copy-link" onclick="copiarEnlace('{{ url('/owner/liquidaciones') }}', 'Contabilidad y Liquidación e-SIDIF APOS')">
                                 <i class="fas fa-copy"></i> Copiar
                             </button>
-                            <button type="button" class="btn-wa-link" onclick="compartirWhatsapp('{{ url('/owner/liquidaciones') }}', 'Liquidación e-SIDIF APOS')">
+                            <button type="button" class="btn-wa-link" onclick="compartirWhatsapp('{{ url('/owner/liquidaciones') }}', 'Contabilidad y Liquidación e-SIDIF APOS')">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </button>
                         </div>

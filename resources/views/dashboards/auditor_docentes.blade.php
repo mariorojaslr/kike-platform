@@ -50,14 +50,14 @@
             </div>
         </div>
         <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('expedientes.flujo') }}" class="btn btn-warning text-dark rounded-pill px-4 fw-bold shadow-sm">
+                <i class="fas fa-sitemap me-1"></i> Circuito y Tablas de Procedimientos (Área 1 / Área 2 / Contabilidad)
+            </a>
             <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAltaResolucionAuditor">
-                <i class="fas fa-file-signature me-1"></i> + Alta / Vincular Resolución a Alumno
+                <i class="fas fa-inbox me-1"></i> + Mesa de Entrada: Nueva Pre-Resolución
             </button>
             <a href="{{ url('/app-docente/demo') }}" target="_blank" class="btn btn-outline-primary rounded-pill px-3 fw-bold">
-                <i class="fas fa-mobile-screen-button me-1"></i> Probar desde App Docente
-            </a>
-            <a href="{{ route('auditor.novedades') }}" class="btn btn-dark rounded-pill px-3 fw-bold">
-                <i class="fas fa-stream me-1 text-warning"></i> Historial Completo ({{ count($novedades ?? []) }})
+                <i class="fas fa-mobile-screen-button me-1"></i> App Docente
             </a>
         </div>
     </div>
@@ -72,48 +72,54 @@
                 <div class="card-header bg-white border-0 pt-3 pb-2 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div>
                         <h5 class="fw-bold mb-0 text-dark">
-                            <i class="fas fa-bell text-warning me-2"></i> Bandeja Inmediata del Auditor (Vínculos Alumno – Padre – Docente)
+                            <i class="fas fa-bell text-warning me-2"></i> Bandeja de Trazabilidad: Pre-Resolución &rarr; Auditoría &rarr; {{ $configAreas['area_1'] ?? 'Área N° 1' }} &rarr; {{ $configAreas['area_2'] ?? 'Área N° 2' }} &rarr; Contabilidad
                         </h5>
-                        <small class="text-muted">Al alcance de un clic: validá la Resolución tomada por el docente o asignale autorización expresa.</small>
+                        <small class="text-muted">Cada sector tilda su tabla de procedimientos ("Procedimiento de validación"). Al cerrarse Área N° 2 se emite la Resolución Secuenciada y pasa a Contabilidad.</small>
                     </div>
                     <span class="badge {{ count($expedientesPendientes ?? []) > 0 ? 'bg-danger' : 'bg-success' }} rounded-pill px-3 py-2">
-                        {{ count($expedientesPendientes ?? []) }} Pendiente(s) de Visado
+                        {{ count($expedientesPendientes ?? []) }} En Circuito Activo
                     </span>
                 </div>
                 <div class="card-body px-4 pt-2 pb-3" style="max-height: 560px; overflow-y: auto;">
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text bg-warning text-dark border-warning fw-bold"><i class="fas fa-search me-1"></i> Filtrar Vínculos</span>
-                        <input type="text" id="buscadorBandejaResoluciones" class="form-control border-warning fw-semibold" placeholder="Buscar en tiempo real por Alumno, Padre, Docente, DNI o N° de Resolución (marca en amarillo)...">
+                        <input type="text" id="buscadorBandejaResoluciones" class="form-control border-warning fw-semibold" placeholder="Buscar en tiempo real por Pre-Resolución, Alumno, Padre, Docente o DNI (marca en amarillo)...">
                     </div>
                     @if(isset($expedientesPendientes) && count($expedientesPendientes) > 0)
                         @foreach($expedientesPendientes as $exp)
                             @php
                                 $titularObj = $exp->titular ?? ($exp->alumno ? $exp->alumno->titular : null);
                                 $vbAuditor = (bool)($exp->visto_bueno_auditor ?? false);
-                                $vbJefe = (bool)($exp->visto_bueno_jefe ?? false);
+                                $okArea1 = (bool)($exp->ok_area_1 ?? false);
+                                $okArea2 = (bool)($exp->ok_area_2 ?? false);
+                                $preExpCod = $exp->codigo_pre_expediente;
                             @endphp
-                            <div class="p-3 mb-3 rounded-4 border shadow-sm item-vinculo-auditor" style="background: {{ $exp->estado_auditoria === 'en_camino' ? '#f0f9ff' : '#fffbeb' }}; border-left: 5px solid {{ $exp->estado_auditoria === 'en_camino' ? '#0284c7' : '#f59e0b' }} !important;">
+                            <div class="p-3 mb-3 rounded-4 border shadow-sm item-vinculo-auditor" style="background: {{ !$exp->docente_id ? '#f0f9ff' : '#fffbeb' }}; border-left: 5px solid {{ !$exp->docente_id ? '#0284c7' : '#f59e0b' }} !important;">
                                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
                                     <div>
-                                        @if($exp->estado_auditoria === 'en_camino')
-                                            <span class="badge bg-info text-dark fw-bold mb-1">
-                                                <i class="fas fa-paper-plane me-1"></i> RESOLUCIÓN EN CAMINO (ENVIADA A LA APP DE LA DOCENTE)
-                                            </span>
-                                        @else
-                                            <span class="badge bg-warning text-dark fw-bold mb-1">
-                                                <i class="fas fa-clock me-1"></i> PENDIENTE DE VISTO BUENO (AUDITOR + JEFE DE ÁREA)
-                                            </span>
-                                        @endif
+                                        <span class="badge bg-dark text-warning fw-bold font-monospace mb-1 me-1">
+                                            <i class="fas fa-folder-open me-1"></i> {{ $preExpCod }}
+                                        </span>
+                                        <span class="badge bg-info text-dark fw-bold mb-1">
+                                            {{ $exp->paso_actual_label }}
+                                        </span>
+
                                         <div class="d-flex flex-wrap gap-1 mt-1 mb-1">
-                                            <span class="badge {{ $vbAuditor ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark border' }}" style="font-size: 0.7rem;">
-                                                <i class="fas {{ $vbAuditor ? 'fa-check-circle' : 'fa-hourglass-start' }} me-1"></i>1° Visto Bueno Auditor: {{ $vbAuditor ? 'APROBADO' : 'PENDIENTE' }}
+                                            <span class="badge {{ $vbAuditor ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark border' }}" style="font-size: 0.68rem;">
+                                                <i class="fas {{ $vbAuditor ? 'fa-check-square' : 'fa-square' }} me-1"></i>Auditoría: {{ $vbAuditor ? 'TILDADO OK' : 'PENDIENTE' }}
                                             </span>
-                                            <span class="badge {{ $vbJefe ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark border' }}" style="font-size: 0.7rem;">
-                                                <i class="fas {{ $vbJefe ? 'fa-check-circle' : 'fa-hourglass-start' }} me-1"></i>2° Visto Bueno Jefe de Área: {{ $vbJefe ? 'APROBADO' : 'PENDIENTE' }}
+                                            <span class="badge {{ $okArea1 ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark border' }}" style="font-size: 0.68rem;">
+                                                <i class="fas {{ $okArea1 ? 'fa-check-square' : 'fa-square' }} me-1"></i>{{ $configAreas['area_1'] ?? 'Área N° 1' }}: {{ $okArea1 ? 'VALIDADO OK' : 'PENDIENTE' }}
+                                            </span>
+                                            <span class="badge {{ $okArea2 ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark border' }}" style="font-size: 0.68rem;">
+                                                <i class="fas {{ $okArea2 ? 'fa-check-square' : 'fa-square' }} me-1"></i>{{ $configAreas['area_2'] ?? 'Área N° 2' }}: {{ $okArea2 ? 'VALIDADO OK' : 'PENDIENTE' }}
                                             </span>
                                         </div>
-                                        <h6 class="fw-bold text-dark mb-0" style="font-size: 1rem;">
-                                            <i class="fas fa-chalkboard-teacher text-primary me-1"></i> Docente: <span class="text-primary">{{ $exp->docente->nombre_completo ?? 'Docente APOS' }}</span>
+                                        <h6 class="fw-bold text-dark mb-0" style="font-size: 0.96rem;">
+                                            <i class="fas fa-chalkboard-teacher text-primary me-1"></i> Docente:
+                                            <span class="{{ $exp->docente ? 'text-primary' : 'text-danger' }}">
+                                                {{ $exp->docente ? $exp->docente->nombre_completo : 'SIN DOCENTE AÚN (El padre le dará el N° ' . $preExpCod . ' para que se lo asigne)' }}
+                                            </span>
                                         </h6>
                                     </div>
                                     <small class="text-muted font-monospace">
@@ -121,10 +127,10 @@
                                     </small>
                                 </div>
 
-                                <!-- Triple Vínculo: Alumno + Padre Titular + Escuela/Resolución -->
+                                <!-- Triple Vínculo: Alumno + Padre Titular + Escuela -->
                                 <div class="row g-2 p-2 rounded-3 bg-white border mb-3 small">
                                     <div class="col-md-6">
-                                        <div class="text-muted fw-bold" style="font-size: 0.7rem;">ALUMNO / HIJO SEÑALADO:</div>
+                                        <div class="text-muted fw-bold" style="font-size: 0.7rem;">NIÑO / ALUMNO ATENDIDO:</div>
                                         <div class="fw-bold text-dark">
                                             <i class="fas fa-child text-success me-1"></i> {{ $exp->alumno->nombre_completo ?? 'Alumno' }}
                                             <span class="text-muted">(DNI: {{ $exp->alumno->dni ?? 'S/D' }})</span>
@@ -148,26 +154,22 @@
                                     </div>
                                 </div>
 
-                                <!-- Acción Inmediata del Auditor y Jefe de Área -->
+                                <!-- Acción por Sector: Auditoría -> Área 1 -> Área 2 (Emite Resolución y pasa a Contabilidad) -->
                                 <form action="{{ route('auditor.expedientes.aprobar', $exp->id) }}" method="POST" class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                                     @csrf
-                                    <div class="input-group input-group-sm" style="max-width: 265px;">
-                                        <span class="input-group-text bg-dark text-warning fw-bold"><i class="fas fa-file-signature me-1"></i> N° Res:</span>
-                                        <input type="text" name="nro_resolucion" class="form-control fw-bold" value="{{ $exp->nro_resolucion }}" placeholder="Ej: RES-599">
-                                    </div>
                                     <div class="d-flex flex-wrap gap-1">
                                         @if(!$vbAuditor)
-                                            <button type="submit" name="rol_aprobacion" value="auditor" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 fw-bold">
-                                                <i class="fas fa-user-check me-1"></i> OK Auditor
+                                            <button type="submit" name="rol_aprobacion" value="auditor" class="btn btn-sm btn-warning text-dark rounded-pill px-3 fw-bold shadow-sm">
+                                                <i class="far fa-check-square me-1"></i> 1° Tildar Auditoría (Pasa a {{ $configAreas['area_1'] ?? 'Área N° 1' }})
                                             </button>
                                         @endif
-                                        @if(!$vbJefe)
-                                            <button type="submit" name="rol_aprobacion" value="jefe" class="btn btn-sm btn-outline-info rounded-pill px-2.5 fw-bold">
-                                                <i class="fas fa-user-tie me-1"></i> OK Jefe Área
+                                        @if(!$okArea1)
+                                            <button type="submit" name="rol_aprobacion" value="area_1" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                                                <i class="far fa-check-square me-1"></i> 2° Tildar {{ $configAreas['area_1'] ?? 'Área N° 1' }} (Pasa a {{ $configAreas['area_2'] ?? 'Área N° 2' }})
                                             </button>
                                         @endif
-                                        <button type="submit" name="rol_aprobacion" value="ambos" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
-                                            <i class="fas fa-check-double me-1"></i> Finalizar Trámite (Auditor + Jefe)
+                                        <button type="submit" name="rol_aprobacion" value="area_2" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                                            <i class="fas fa-stamp me-1"></i> 3° Tildar {{ $configAreas['area_2'] ?? 'Área N° 2' }} &rarr; Emitir Resolución y Pasar a Contabilidad
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5" data-bs-toggle="collapse" data-bs-target="#rechazarExpTop{{ $exp->id }}">
                                             <i class="fas fa-times"></i>
@@ -408,7 +410,7 @@
         <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
             <div class="modal-header bg-primary text-white border-0" style="border-radius: 18px 18px 0 0;">
                 <h5 class="modal-title fw-bold">
-                    <i class="fas fa-file-signature me-2"></i> Vincular Resolución APOS: Alumno + Padre Titular + Docente
+                    <i class="fas fa-inbox me-2"></i> Mesa de Entrada APOS: Generar Pre-Resolución (Padre + Niño + Escuela)
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -416,11 +418,11 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="alert alert-info border-0 small mb-3">
-                        <i class="fas fa-bolt me-1"></i> Al guardar, el sistema vincula inmediatamente al <strong>Alumno</strong> y a su <strong>Padre Titular</strong> con la <strong>Docente</strong> bajo el N° de Resolución indicado y dispara la alerta de auditoría.
+                        <i class="fas fa-bolt me-1"></i> En <strong>Mesa de Entrada</strong> se inicia el trámite con el <strong>Padre Titular</strong>, el <strong>Niño</strong> y la <strong>Escuela</strong>. Si el padre aún no habló con ningún docente, dejá <strong>"Sin Docente aún"</strong> para que cuando hable con la maestra ella busque el N° de Pre-Resolución en su App y se lo asigne.
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">1. Seleccionar Alumno (y Padre Titular)</label>
+                            <label class="form-label fw-bold small text-muted">1. Seleccionar Niño/Alumno (y Padre Titular)</label>
                             <select name="alumno_id" class="form-select bg-light" required>
                                 <option value="">-- Elegir Alumno Afiliado APOS --</option>
                                 @foreach($alumnosApos ?? [] as $al)
@@ -431,17 +433,17 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">2. Docente Integrador Asignado</label>
-                            <select name="docente_id" class="form-select bg-light" required>
-                                <option value="">-- Elegir Docente Integrador --</option>
+                            <label class="form-label fw-bold small text-muted">2. Docente (Opcional si el padre aún no habló)</label>
+                            <select name="docente_id" class="form-select bg-light">
+                                <option value="">🔓 SIN DOCENTE AÚN (La maestra lo buscará por N° de Pre-Resolución)</option>
                                 @foreach($docentes ?? [] as $d)
                                     <option value="{{ $d->id }}">{{ $d->nombre_completo }} (DNI: {{ $d->dni ?? 'S/D' }})</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">3. N° de Resolución APOS (o dejar vacío p/ Autorización Auditor)</label>
-                            <input type="text" name="nro_resolucion" class="form-control bg-light fw-bold" placeholder="Ej: 1584/25 o RES-APOS-2026-089">
+                            <label class="form-label fw-bold small text-muted">3. N° de Pre-Resolución / Pre-Expediente (Automático si vacío)</label>
+                            <input type="text" name="nro_pre_expediente" class="form-control bg-light fw-bold" placeholder="Automático (Ej: PRE-EXP-2026-0001)">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted">4. Escuela / Establecimiento</label>
@@ -461,11 +463,11 @@
                             <input type="text" name="horarios_atencion" class="form-control bg-light" value="Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold small text-muted">Destino de la Resolución</label>
+                            <label class="form-label fw-bold small text-muted">Etapa Inicial</label>
                             <select name="accion_inmediata" class="form-select bg-light fw-bold">
-                                <option value="en_camino">📬 Enviar "En Camino" a la App Docente</option>
-                                <option value="pendiente">⏳ Dejar en Bandeja de Auditoría</option>
-                                <option value="aprobar_ya">✅ Aprobar Directamente (Auditor + Jefe)</option>
+                                <option value="mesa_entrada">📥 Iniciar en Mesa de Entrada (Pre-Resolución)</option>
+                                <option value="pendiente">⏳ Pasar a Bandeja de Auditoría</option>
+                                <option value="aprobar_ya">✅ Circuito Completo + Emitir Resolución</option>
                             </select>
                         </div>
                     </div>
@@ -473,7 +475,7 @@
                 <div class="modal-footer border-0 pb-4 pe-4">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">
-                        <i class="fas fa-link me-1"></i> Registrar Vínculo y Notificar
+                        <i class="fas fa-folder-plus me-1"></i> Generar Pre-Resolución
                     </button>
                 </div>
             </form>

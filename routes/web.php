@@ -272,6 +272,8 @@ Route::get('/app-directora/demo', [\App\Http\Controllers\DirectoraAsistenciaCont
 Route::get('/directora/asistencia', [\App\Http\Controllers\DirectoraAsistenciaController::class, 'indexDemo']);
 Route::post('/app-docente/upload', [\App\Http\Controllers\PwaDocenteController::class , 'uploadDocument'])->name('pwa.docente.upload');
 Route::post('/app-docente/vincular-alumno', [\App\Http\Controllers\PwaDocenteController::class , 'vincularAlumnoResolucion'])->name('pwa.docente.vincular_alumno');
+Route::post('/app-docente/guardar-cbu', [\App\Http\Controllers\PwaDocenteController::class , 'guardarCbuDocente'])->name('pwa.docente.guardar_cbu');
+Route::post('/auditor/docentes/resolucion-registrar', [\App\Http\Controllers\AuditorDocenteController::class, 'registrarResolucionVinculo'])->name('auditor.docentes.resolucion.registrar');
 Route::get('/app-docente/search', [\App\Http\Controllers\PwaDocenteController::class, 'search'])->name('pwa.docente.search');
 Route::get('/api/pwa/docente/live-status', [\App\Http\Controllers\PwaDocenteController::class, 'liveStatus'])->name('api.pwa.docente.live_status');
 Route::get('/api/auditor/novedades-live', [\App\Http\Controllers\AuditorDocenteController::class, 'apiNovedadesLive'])->name('api.auditor.novedades_live');
@@ -339,10 +341,18 @@ Route::get('/app-afiliado/billetera', [\App\Http\Controllers\BilleteraMutualCont
 Route::post('/app-afiliado/billetera/credito', [\App\Http\Controllers\BilleteraMutualController::class, 'solicitarCredito'])->name('afiliado.billetera.credito');
 
 // ==========================================
-// MÓDULO DE GESTIÓN Y FLUJO DE EXPEDIENTES (WORKFLOW 7 ETAPAS)
+// MÓDULO DE GESTIÓN Y FLUJO DE EXPEDIENTES (CIRCUITO APOS: MESA DE ENTRADA -> DOCENTE -> AUDITORÍA -> ÁREA 1 -> ÁREA 2 -> CONTABILIDAD)
 // ==========================================
-Route::get('/expedientes/flujo', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->name('expedientes.flujo.demo');
+Route::get('/expedientes/flujo', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->name('expedientes.flujo');
+Route::get('/expedientes/flujo-demo', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->name('expedientes.flujo.demo');
+Route::get('/mesa-entrada', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->defaults('etapa_fija', 'mesa_entrada')->name('apos.mesa_entrada');
+Route::get('/area-1', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->defaults('etapa_fija', 'area_1')->name('apos.area_1');
+Route::get('/area-2', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->defaults('etapa_fija', 'area_2')->name('apos.area_2');
+Route::get('/contabilidad', [\App\Http\Controllers\FlujoExpedienteController::class, 'indexDemo'])->defaults('etapa_fija', 'contabilidad')->name('apos.contabilidad');
 Route::post('/expedientes/flujo/{id}/avanzar', [\App\Http\Controllers\FlujoExpedienteController::class, 'avanzarEstado'])->name('expedientes.flujo.avanzar');
+Route::post('/expedientes/flujo/{id}/tildar', [\App\Http\Controllers\FlujoExpedienteController::class, 'tildarProcedimiento'])->name('expedientes.flujo.tildar');
+Route::post('/expedientes/flujo/procedimiento/agregar', [\App\Http\Controllers\FlujoExpedienteController::class, 'agregarProcedimientoArea'])->name('expedientes.flujo.procedimiento.agregar');
+Route::post('/expedientes/flujo/procedimiento/{id}/eliminar', [\App\Http\Controllers\FlujoExpedienteController::class, 'eliminarProcedimientoArea'])->name('expedientes.flujo.procedimiento.eliminar');
 Route::post('/expedientes/flujo/configurar-etapa', [\App\Http\Controllers\FlujoExpedienteController::class, 'guardarEtapaConfig'])->name('expedientes.flujo.guardar_etapa');
 
 /**

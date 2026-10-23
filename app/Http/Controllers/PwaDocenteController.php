@@ -33,14 +33,7 @@ class PwaDocenteController extends Controller
 
     private function ensureApprovalColumns(): void
     {
-        if (Schema::hasTable('expedientes_alumno') && !Schema::hasColumn('expedientes_alumno', 'visto_bueno_auditor')) {
-            Schema::table('expedientes_alumno', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->boolean('visto_bueno_auditor')->default(false)->after('estado_auditoria');
-                $table->boolean('visto_bueno_jefe')->default(false)->after('visto_bueno_auditor');
-                $table->timestamp('aprobado_auditor_at')->nullable()->after('visto_bueno_jefe');
-                $table->timestamp('aprobado_jefe_at')->nullable()->after('aprobado_auditor_at');
-            });
-        }
+        ExpedienteAlumno::ensureWorkflowSchema();
     }
 
     /**
@@ -49,6 +42,7 @@ class PwaDocenteController extends Controller
     public function demo(Request $request)
     {
         $this->ensureApprovalColumns();
+        $configAreas = ExpedienteAlumno::getConfigAreas();
         $empresaIdDemo = 2; // APOS - Obra Social Provincial
         $docenteReal = $this->resolveDocenteActivo($request);
         $docenteIdDemo = $docenteReal ? $docenteReal->id : 21;
@@ -57,7 +51,7 @@ class PwaDocenteController extends Controller
         // Lista de docentes de APOS para poder cambiar de docente en la demo si se desea
         $docentesApos = Docente::where('empresa_id', $empresaIdDemo)->orderBy('nombre')->get();
 
-        // Resoluciones emitidas desde Administración APOS que vienen "En Camino" para que la docente las tome y complete documentación
+        // Pre-Expedientes iniciados en Mesa de Entrada APOS que vienen "En Camino" para que la docente los tome y complete Escuela, Horarios y CUD
         $resolucionesEnCamino = ExpedienteAlumno::with(['alumno.diagnostico', 'titular', 'escuela', 'docente'])
             ->where(function ($q) use ($docenteIdDemo) {
                 $q->where('docente_id', $docenteIdDemo)
@@ -81,8 +75,21 @@ class PwaDocenteController extends Controller
         if ($expedientesReales->count() > 0) {
             foreach ($expedientesReales as $exp) {
                 $vbAuditor = (bool)($exp->visto_bueno_auditor ?? ($exp->estado_auditoria === 'aprobado'));
-                $vbJefe = (bool)($exp->visto_bueno_jefe ?? ($exp->estado_auditoria === 'aprobado'));
-                $pct = $exp->estado_auditoria === 'aprobado' ? 100 : ($vbAuditor ? 75 : ($exp->estado_auditoria === 'en_camino' ? 25 : 50));
+                $okArea1 = (bool)($exp->ok_area_1 ?? ($exp->estado_auditoria === 'aprobado'));
+                $okArea2 = (bool)($exp->ok_area_2 ?? ($exp->estado_auditoria === 'aprobado'));
+                $vbJefe = (bool)($exp->visto_bueno_jefe ?? $okArea2);
+
+                if ($exp->estado_auditoria === 'aprobado') {
+                    $pct = 100;
+                } elseif ($okArea1) {
+                    $pct = 85;
+                } elseif ($vbAuditor) {
+                    $pct = 65;
+                } elseif ($exp->estado_auditoria === 'en_camino') {
+                    $pct = 20;
+                } else {
+                    $pct = 45;
+                }
 
                 $horasMesCalc = (int)($exp->horas_mensuales_asignadas ?? 60);
                 if ($horasMesCalc > 0 && $horasMesCalc <= 3) {
@@ -102,16 +109,19 @@ class PwaDocenteController extends Controller
 
                 $nombreAlumno = $exp->alumno ? $exp->alumno->nombre_completo : 'Alumno #' . $exp->alumno_id;
                 $nombreTitular = $exp->titular ? $exp->titular->nombre_completo : ($exp->alumno && $exp->alumno->titular ? $exp->alumno->titular->nombre_completo : 'Titular APOS');
-                $nroResolucion = $exp->nro_resolucion ?: 'Pendiente Auditoría';
+                $nroPreExp = $exp->nro_pre_expediente ?: ('PRE-EXP-2026-' . str_pad((string)$exp->id, 4, '0', STR_PAD_LEFT));
+                $nroResolucion = $exp->tieneResolucionOficial() ? $exp->nro_resolucion : $nroPreExp;
 
                 if ($exp->estado_auditoria === 'aprobado') {
-                    $pasoLabel = '✅ Trámite Finalizado (OK Auditor + Jefe de Área)';
-                } elseif ($vbAuditor && !$vbJefe) {
-                    $pasoLabel = '⏳ Visto Bueno Auditor OK • Falta Jefe de Área';
+                    $pasoLabel = "✅ Resolución Emitida ({$exp->nro_resolucion}) • Cobro Habilitado";
+                } elseif ($okArea1 && !$okArea2) {
+                    $pasoLabel = "⏳ En " . ($configAreas['area_2'] ?? 'Área N° 2') . " (Auditoría y " . ($configAreas['area_1'] ?? 'Área N° 1') . " OK)";
+                } elseif ($vbAuditor && !$okArea1) {
+                    $pasoLabel = "⏳ En " . ($configAreas['area_1'] ?? 'Área N° 1') . " (Auditoría Docente OK)";
                 } elseif ($exp->estado_auditoria === 'en_camino') {
-                    $pasoLabel = '📬 Resolución en Camino • Tocar para completar docs';
+                    $pasoLabel = "📥 Pre-Expediente {$nroPreExp} (Mesa de Entrada) • Tocar para completar";
                 } else {
-                    $pasoLabel = '🔍 En Bandeja de Auditoría y Jefe de Área';
+                    $pasoLabel = "🔍 En Auditoría Docente ({$nroPreExp})";
                 }
 
                 $alumnosDemo[] = (object)[
@@ -119,8 +129,9 @@ class PwaDocenteController extends Controller
                     'alumno_id' => $exp->alumno_id,
                     'nombre' => $nombreAlumno,
                     'titular_nombre' => $nombreTitular,
+                    'nro_pre_expediente' => $nroPreExp,
                     'nro_resolucion' => $nroResolucion,
-                    'curso' => ($exp->escuela->nombre_completo ?? 'Escuela Asignada') . " • Res: {$nroResolucion}",
+                    'curso' => ($exp->escuela->nombre_completo ?? 'Escuela Asignada') . " • " . ($exp->tieneResolucionOficial() ? "Res: {$exp->nro_resolucion}" : "Pre-Exp: {$nroPreExp}"),
                     'estado' => $estadoLabel,
                     'progreso' => $pct,
                     'visto_bueno_auditor' => $vbAuditor,
@@ -130,29 +141,26 @@ class PwaDocenteController extends Controller
             }
         }
 
+        // Asegurar que exista el requisito de Constancia de CBU Bancario en TipoDocumento
+        $existeReqCbu = \App\Models\TipoDocumento::where('empresa_id', $empresaIdDemo)
+            ->where('entidad_tipo', 'docente')
+            ->where('nombre', 'LIKE', '%CBU%')
+            ->exists();
+
+        if (!$existeReqCbu) {
+            \App\Models\TipoDocumento::create([
+                'empresa_id' => $empresaIdDemo,
+                'entidad_tipo' => 'docente',
+                'nombre' => 'Constancia de CBU Bancario (22 dígitos habilitado para Pago)',
+                'descripcion' => 'Requisito excluyente para operar y recibir transferencias de Contabilidad APOS / e-SIDIF',
+                'es_obligatorio' => true,
+                'vencimiento_dias' => null,
+            ]);
+        }
+
         $tiposDocumentos = \App\Models\TipoDocumento::where('empresa_id', $empresaIdDemo)
             ->where('entidad_tipo', 'docente')
             ->get();
-
-        if ($tiposDocumentos->count() === 0) {
-            $defaultReqs = [
-                ['nombre' => 'DNI (Frente y Dorso)', 'descripcion' => 'Fotocopia o foto nítida de frente y dorso de DNI', 'es_obligatorio' => true, 'vencimiento_dias' => null],
-                ['nombre' => 'Certificado de Matrícula / Título Profesional', 'descripcion' => 'Matrícula o título habilitante vigente', 'es_obligatorio' => true, 'vencimiento_dias' => 365],
-                ['nombre' => 'Certificado de Domicilio', 'descripcion' => 'Comprobante de domicilio reciente (Policía o Servicio)', 'es_obligatorio' => true, 'vencimiento_dias' => 365],
-                ['nombre' => 'Certificado de Buena Conducta / Antecedentes', 'descripcion' => 'Certificado de antecedentes provincial/nacional', 'es_obligatorio' => true, 'vencimiento_dias' => 365],
-            ];
-
-            foreach ($defaultReqs as $reqData) {
-                \App\Models\TipoDocumento::create(array_merge($reqData, [
-                    'empresa_id' => $empresaIdDemo,
-                    'entidad_tipo' => 'docente'
-                ]));
-            }
-
-            $tiposDocumentos = \App\Models\TipoDocumento::where('empresa_id', $empresaIdDemo)
-                ->where('entidad_tipo', 'docente')
-                ->get();
-        }
 
         foreach ($tiposDocumentos as $tipo) {
             $subido = \App\Models\DocumentoSubido::where('tipo_documento_id', $tipo->id)
@@ -161,8 +169,13 @@ class PwaDocenteController extends Controller
                 ->latest()
                 ->first();
 
-            $tipo->estado_subida = $subido ? $subido->estado : 'sin_entregar';
-            $tipo->comentarios = $subido ? $subido->comentarios_auditor : null;
+            if (!$subido && str_contains(strtoupper($tipo->nombre), 'CBU') && !empty($docenteReal->cbu)) {
+                $tipo->estado_subida = 'aprobado';
+                $tipo->comentarios = 'CBU Verificado: ' . $docenteReal->cbu;
+            } else {
+                $tipo->estado_subida = $subido ? $subido->estado : 'sin_entregar';
+                $tipo->comentarios = $subido ? $subido->comentarios_auditor : null;
+            }
         }
 
         return view('pwa.docente.dashboard', compact(
@@ -176,6 +189,46 @@ class PwaDocenteController extends Controller
             'alumnosDemo',
             'tiposDocumentos'
         ));
+    }
+
+    /**
+     * Guardar el CBU Bancario (22 dígitos) de la Docente en su tabla de requerimientos
+     */
+    public function guardarCbuDocente(Request $request)
+    {
+        $this->ensureApprovalColumns();
+        $docente = $this->resolveDocenteActivo($request);
+
+        $cbu = preg_replace('/\D/', '', (string)$request->input('cbu', ''));
+        if (strlen($cbu) !== 22) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'El CBU bancario debe contener exactamente 22 dígitos numéricos.'
+            ], 422);
+        }
+
+        $docente->cbu = $cbu;
+        if ($request->filled('banco')) {
+            $docente->banco = trim((string)$request->input('banco'));
+        }
+        $docente->save();
+
+        if (Schema::hasTable('notificaciones_sistema')) {
+            NotificacionSistema::create([
+                'empresa_id' => $docente->empresa_id ?? 2,
+                'titulo' => '🏦 CBU Bancario Registrado por Docente',
+                'mensaje' => "La docente {$docente->nombre_completo} registró su CBU ({$cbu}) para Contabilidad / Orden de Pago.",
+                'link' => route('auditor.docentes.legajos'),
+                'leido' => false,
+            ]);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'cbu' => $cbu,
+            'banco' => $docente->banco ?? 'Banco Rioja S.A.U.',
+            'message' => "✅ CBU Bancario ({$cbu}) registrado y verificado en tu tabla de requerimientos. Ya estás habilitada para operar y recibir Orden de Pago de Contabilidad."
+        ]);
     }
 
     /**
@@ -290,14 +343,18 @@ class PwaDocenteController extends Controller
             $escuela = Escuela::where('nombre', 'LIKE', '%' . trim($request->input('escuela_nombre')) . '%')->first() ?? $escuela;
         }
 
-        $nroResolucion = trim((string)$request->input('nro_resolucion', ''));
-        $tieneResolucion = $nroResolucion !== '';
-
-        // Si el alumno ya tenía un expediente con resolución en APOS y el docente no tipeó otra, usamos esa o marcamos pendiente
+        $nroInput = trim((string)$request->input('nro_resolucion', ''));
         $expExistente = ExpedienteAlumno::where('alumno_id', $alumno->id)->first();
-        if (!$tieneResolucion && $expExistente && $expExistente->nro_resolucion) {
-            $nroResolucion = $expExistente->nro_resolucion;
-            $tieneResolucion = true;
+
+        $nroPreExp = $expExistente ? $expExistente->nro_pre_expediente : null;
+        if (!$nroPreExp) {
+            if ($nroInput !== '' && !str_starts_with($nroInput, 'RES-')) {
+                $nroPreExp = is_numeric($nroInput)
+                    ? ('PRE-EXP-' . date('Y') . '-' . str_pad($nroInput, 4, '0', STR_PAD_LEFT))
+                    : $nroInput;
+            } else {
+                $nroPreExp = ExpedienteAlumno::generarSiguientePreExpediente();
+            }
         }
 
         $horarios = $request->input('horarios_atencion') ?: ($expExistente->horarios_atencion ?? 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)');
@@ -306,18 +363,18 @@ class PwaDocenteController extends Controller
         $diagnosticoTexto = $request->input('diagnostico') ?: ($alumno->diagnostico_detalle ?? ($alumno->diagnostico->nombre ?? 'CUD Activo'));
 
         $this->ensureApprovalColumns();
+        $configAreas = ExpedienteAlumno::getConfigAreas();
 
-        // 1. Actualizar vínculo directo en la tabla familiares (Alumno -> Docente + Escuela + Resolución)
+        // 1. Actualizar vínculo directo en la tabla familiares (Alumno -> Docente + Escuela + Pre-Expediente)
         $alumno->docente_id = $docente->id;
         if ($escuela) {
             $alumno->escuela_id = $escuela->id;
         }
-        if ($tieneResolucion) {
-            $alumno->resolucion = $nroResolucion;
-        }
+        $alumno->resolucion = $nroPreExp;
         $alumno->save();
 
-        // 2. Crear o actualizar el ExpedienteAlumno poniéndolo en estado 'pendiente' de Visto Bueno (Auditor y Jefe de Área)
+        // 2. Crear o actualizar el ExpedienteAlumno poniéndolo en Etapa 3 ('auditoria_docente')
+        // La Resolución Oficial Secuenciada recién se emite cuando pase por Auditoría -> Área N° 1 -> Área N° 2
         $expediente = ExpedienteAlumno::updateOrCreate(
             [
                 'empresa_id' => $empresaId,
@@ -327,32 +384,41 @@ class PwaDocenteController extends Controller
                 'docente_id' => $docente->id,
                 'titular_id' => $titular ? $titular->id : $alumno->titular_id,
                 'escuela_id' => $escuela ? $escuela->id : $alumno->escuela_id,
-                'origen_resolucion' => $tieneResolucion ? 'resolucion_apos' : 'pendiente_auditoria',
-                'nro_resolucion' => $tieneResolucion ? $nroResolucion : 'EN TRÁMITE (SOLICITA AUDITORÍA)',
+                'nro_pre_expediente' => $nroPreExp,
+                'etapa_flujo' => 'auditoria_docente',
+                'origen_resolucion' => 'pre_expediente_mesa_entrada',
+                'nro_resolucion' => "EN TRÁMITE ({$nroPreExp})",
                 'diagnostico' => $diagnosticoTexto,
                 'horarios_atencion' => $horarios,
                 'horas_mensuales_asignadas' => $horasMes,
                 'estado_auditoria' => 'pendiente',
+                'ok_mesa_entrada' => true,
+                'ok_docente_padre' => true,
                 'visto_bueno_auditor' => false,
+                'ok_area_1' => false,
+                'ok_area_2' => false,
                 'visto_bueno_jefe' => false,
+                'responsable_mesa_entrada' => $configAreas['mesa_entrada'] ?? 'Mesa de Entrada APOS',
                 'motivo_rechazo' => null,
             ]
         );
 
         $docenteNom = $docente->nombre_completo;
+        $expediente->marcarProcedimientosAreaCumplidos('mesa_entrada', $configAreas['mesa_entrada'] ?? 'Mesa de Entrada APOS');
+        $expediente->marcarProcedimientosAreaCumplidos('docente_padre', $docenteNom);
         $alumnoNom = $alumno->nombre_completo . ($alumno->dni ? " (DNI {$alumno->dni})" : '');
         $titularNom = $titular ? ($titular->nombre_completo . " - Afiliado N° {$titular->nro_afiliado}") : 'Titular APOS';
         $escuelaNom = $escuela ? $escuela->nombre_completo : 'Escuela Provincial';
-        $resTexto = $tieneResolucion ? "Resolución N° {$nroResolucion}" : "SIN RESOLUCIÓN INICIAL (Requiere Autorización de Auditoría)";
+        $resTexto = "Pre-Expediente N° {$nroPreExp}";
 
-        $descripcionEvento = "La docente {$docenteNom} señaló y vinculó al alumno {$alumnoNom}, hijo del titular {$titularNom}, bajo {$resTexto} en {$escuelaNom} ({$horarios}).";
+        $descripcionEvento = "La docente {$docenteNom} completó los datos del {$resTexto} para el alumno {$alumnoNom} (Titular: {$titularNom}) en {$escuelaNom} ({$horarios}). Pasa a Auditoría Docente → " . ($configAreas['area_1'] ?? 'Área N° 1') . " → " . ($configAreas['area_2'] ?? 'Área N° 2') . ".";
 
         // 3. Crear registro en NovedadAuditoria (Bandeja del Auditor)
         $novedad = NovedadAuditoria::create([
             'empresa_id' => $empresaId,
             'docente_id' => $docente->id,
             'expediente_id' => $expediente->id,
-            'tipo_novedad' => $tieneResolucion ? 'vinculacion_con_resolucion' : 'vinculacion_sin_resolucion',
+            'tipo_novedad' => 'vinculacion_con_resolucion',
             'descripcion' => $descripcionEvento,
             'estado' => 'pendiente',
         ]);
@@ -361,8 +427,8 @@ class PwaDocenteController extends Controller
         if (Schema::hasTable('notificaciones_sistema')) {
             NotificacionSistema::create([
                 'empresa_id' => $empresaId,
-                'titulo' => '🔔 Nueva Vinculación Docente-Alumno (' . ($tieneResolucion ? "Res. {$nroResolucion}" : 'Sin Res.') . ')',
-                'mensaje' => "{$docenteNom} tomó al alumno {$alumno->nombre_completo} (Titular: " . ($titular->nombre_completo ?? 'APOS') . "). Click para auditar.",
+                'titulo' => "🔔 Pre-Expediente {$nroPreExp} Completado por Docente",
+                'mensaje' => "{$docenteNom} completó datos de {$alumno->nombre_completo} (Titular: " . ($titular->nombre_completo ?? 'APOS') . "). Pasa a Auditoría → " . ($configAreas['area_1'] ?? 'Área N° 1') . " → " . ($configAreas['area_2'] ?? 'Área N° 2') . ".",
                 'link' => route('auditor.docentes.legajos'),
                 'leido' => false,
             ]);
@@ -378,9 +444,10 @@ class PwaDocenteController extends Controller
             'titular' => $titular ? $titular->nombre_completo : 'Titular APOS',
             'nro_afiliado' => $titular ? $titular->nro_afiliado : '',
             'escuela' => $escuelaNom,
-            'nro_resolucion' => $expediente->nro_resolucion,
+            'nro_pre_expediente' => $nroPreExp,
+            'nro_resolucion' => $nroPreExp,
             'estado_auditoria' => 'pendiente',
-            'message' => "✅ ¡Vínculo registrado y notificado en vivo al Auditor! Alumno: {$alumno->nombre_completo} | Titular: " . ($titular->nombre_completo ?? 'APOS') . " | Docente: {$docenteNom} | {$resTexto}."
+            'message' => "✅ ¡Pre-Expediente {$nroPreExp} completado por Docente y Padre! Ya ingresó a la bandeja de Auditoría Docente (luego pasará a " . ($configAreas['area_1'] ?? 'Área N° 1') . " y " . ($configAreas['area_2'] ?? 'Área N° 2') . " para otorgar la Resolución Secuenciada Oficial)."
         ]);
     }
 
@@ -504,7 +571,11 @@ class PwaDocenteController extends Controller
         }
 
         if ($type === 'alumnos' || $type === 'resolucion') {
-            $alumnoIdsPorResolucion = ExpedienteAlumno::where('nro_resolucion', 'LIKE', "%{$term}%")
+            $this->ensureApprovalColumns();
+            $alumnoIdsPorResolucion = ExpedienteAlumno::where(function ($q) use ($term) {
+                    $q->where('nro_resolucion', 'LIKE', "%{$term}%")
+                      ->orWhere('nro_pre_expediente', 'LIKE', "%{$term}%");
+                })
                 ->pluck('alumno_id')
                 ->toArray();
 
@@ -543,7 +614,8 @@ class PwaDocenteController extends Controller
                     $a->escuela->nombre = $a->escuela->nombre_completo;
                 }
                 $exp = ExpedienteAlumno::where('alumno_id', $a->id)->first();
-                $a->nro_resolucion = $exp ? $exp->nro_resolucion : ($a->resolucion ?: null);
+                $a->nro_pre_expediente = $exp && $exp->nro_pre_expediente ? $exp->nro_pre_expediente : ('PRE-EXP-2026-' . str_pad((string)$a->id, 4, '0', STR_PAD_LEFT));
+                $a->nro_resolucion = $exp && $exp->tieneResolucionOficial() ? $exp->nro_resolucion : $a->nro_pre_expediente;
                 $a->estado_expediente = $exp ? $exp->estado_auditoria : 'disponible';
                 $a->horarios_atencion = $exp ? $exp->horarios_atencion : 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)';
                 $a->horas_mensuales_asignadas = 60;

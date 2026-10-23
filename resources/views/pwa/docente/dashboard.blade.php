@@ -456,67 +456,24 @@
             </div>
         </div>
 
-        <!-- SECTOR EN VIVO: RESOLUCIONES EN CAMINO (EMITIDAS POR ADMINISTRACIÓN APOS) -->
+        <!-- SECTOR: ASIGNACIÓN POR N° DE PRE-RESOLUCIÓN / PRE-EXPEDIENTE (CUANDO EL PADRE SE CONECTA CON LA DOCENTE) -->
         <div id="boxResolucionesEnCamino" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(30, 41, 59, 0.95)); border: 1.5px solid rgba(56, 189, 248, 0.45); border-radius: 16px; padding: 14px 16px; margin-bottom: 18px; box-shadow: 0 8px 25px rgba(2, 132, 199, 0.2);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="font-size:0.86rem; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.4px;">
-                    <i class="fas fa-paper-plane me-1 text-warning"></i> Resoluciones en Camino (APOS)
+                    <i class="fas fa-search-plus me-1 text-warning"></i> Buscar N° de Pre-Resolución (Mesa de Entrada)
                 </div>
-                <span class="badge bg-warning text-dark rounded-pill" id="badgeCountEnCamino" style="font-size:0.7rem; font-weight:800;">
-                    {{ isset($resolucionesEnCamino) ? count($resolucionesEnCamino) : 0 }} Disponible(s)
+                <span class="badge bg-info text-dark rounded-pill" style="font-size:0.68rem; font-weight:800;">
+                    Auto-Asignación Docente
                 </span>
             </div>
             <p style="font-size:0.76rem; color:#cbd5e1; margin:0 0 10px 0; line-height:1.35;">
-                Resoluciones cargadas por Administración APOS. Tocá una para <strong>traer automáticamente Padre Titular + Alumno + Escuela + Horas</strong> y completar tu documentación:
+                Cuando el padre inicia el trámite en <strong>Mesa de Entrada</strong> (con Hijo y Escuela) y te pasa su <strong>N° de Pre-Resolución / Pre-Expediente</strong>, buscalo acá para <strong>asignártelo como docente y definir el horario de trabajo (máx. 3 hs/día)</strong>:
             </p>
-            <div id="contenedorResolucionesEnCamino">
-                @forelse($resolucionesEnCamino ?? [] as $resCamino)
-                    @php
-                        $alNom = $resCamino->alumno ? $resCamino->alumno->nombre_completo : 'Alumno APOS';
-                        $alDni = $resCamino->alumno ? ($resCamino->alumno->dni ?? '') : '';
-                        $titNom = $resCamino->titular ? $resCamino->titular->nombre_completo : ($resCamino->alumno && $resCamino->alumno->titular ? $resCamino->alumno->titular->nombre_completo : 'Titular APOS');
-                        $titAfil = $resCamino->titular ? ($resCamino->titular->nro_afiliado ?? '') : '';
-                        $escNom = $resCamino->escuela ? $resCamino->escuela->nombre_completo : 'Escuela Provincial';
-                        $diagNom = $resCamino->diagnostico ?: ($resCamino->alumno && $resCamino->alumno->diagnostico ? $resCamino->alumno->diagnostico->nombre : 'CUD Activo');
-                        $payloadRes = [
-                            'expediente_id' => $resCamino->id,
-                            'alumno_id' => $resCamino->alumno_id,
-                            'titular_id' => $resCamino->titular_id,
-                            'escuela_id' => $resCamino->escuela_id,
-                            'nro_resolucion' => $resCamino->nro_resolucion,
-                            'alumno_nombre' => $alNom,
-                            'alumno_dni' => $alDni,
-                            'titular_nombre' => $titNom,
-                            'titular_afiliado' => $titAfil,
-                            'escuela_nombre' => $escNom,
-                            'diagnostico' => $diagNom,
-                            'horarios_atencion' => $resCamino->horarios_atencion ?: 'Lunes a Viernes de 08:00 a 11:00 hs (3 hs/día)',
-                        ];
-                    @endphp
-                    <div style="background:#0f172a; border:1px solid rgba(250,204,21,0.4); border-left:4px solid #facc15; border-radius:12px; padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                        <div style="min-width:0; flex:1;">
-                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                <span style="background:#facc15; color:#0f172a; font-weight:800; font-size:0.7rem; padding:2px 7px; border-radius:6px;">
-                                    <i class="fas fa-file-signature me-1"></i>{{ $resCamino->nro_resolucion }}
-                                </span>
-                                <span style="font-weight:700; color:#f8fafc; font-size:0.86rem;">{{ $alNom }}</span>
-                            </div>
-                            <div style="font-size:0.74rem; color:#94a3b8; margin-top:3px;">
-                                <i class="fas fa-user-shield text-info me-1"></i>Padre: <strong style="color:#e2e8f0;">{{ $titNom }}</strong> &bull; <i class="fas fa-school text-warning ms-1 me-1"></i>{{ $escNom }}
-                            </div>
-                        </div>
-                        <button type="button"
-                            data-res="{{ json_encode($payloadRes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
-                            onclick="tomarResolucionEnCamino(JSON.parse(this.getAttribute('data-res')))"
-                            style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:10px; padding:8px 12px; font-size:0.74rem; font-weight:800; cursor:pointer; white-space:nowrap; box-shadow:0 4px 10px rgba(16,185,129,0.3);">
-                            <i class="fas fa-hand-pointer me-1"></i> Tomar
-                        </button>
-                    </div>
-                @empty
-                    <div style="font-size:0.78rem; color:#94a3b8; text-align:center; padding:6px;">
-                        No hay resoluciones pendientes de tomar. Podés buscar por N° de Resolución en "Alumno Nuevo".
-                    </div>
-                @endforelse
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="quickSearchPreResInput" class="input-dark" style="padding:10px 12px; font-size:0.84rem; border-color:#38bdf8;" placeholder="Ej: PRE-EXP-2026-0001 o DNI / Apellido del Padre...">
+                <button type="button" onclick="abrirModalConBusquedaPreRes()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:10px; padding:10px 14px; font-size:0.78rem; font-weight:800; cursor:pointer; white-space:nowrap;">
+                    <i class="fas fa-user-check me-1"></i> Buscar y Asignarme
+                </button>
             </div>
         </div>
 
@@ -611,18 +568,18 @@
         </div>
 
         <p id="subtextoInteraccion" style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 12px;">
-            Si tenés el <strong>N° de Resolución APOS</strong>, escribilo en el 1° campo para traer automáticamente al Titular, Alumno y Escuela; o buscalos manualmente debajo.
+            Si tenés el <strong>N° de Pre-Expediente (Mesa de Entrada APOS)</strong>, escribilo en el 1° campo para traer automáticamente al Padre Titular y su Hijo; o buscalos debajo para completar Escuela y Horarios.
         </p>
 
         <!-- === VISTA MÉTODO COMÚN (TRADICIONAL) === -->
         <div id="seccionModoComun">
-            <!-- 1° PRIMERA PREGUNTA: BUSCADOR POR N° DE RESOLUCIÓN APOS -->
+            <!-- 1° PRIMERA PREGUNTA: BUSCADOR POR N° DE PRE-EXPEDIENTE (MESA DE ENTRADA) -->
             <div style="background: rgba(245, 158, 11, 0.12); border: 1.5px solid #f59e0b; border-radius: 14px; padding: 12px; margin-bottom: 14px;">
                 <label style="font-size: 0.78rem; font-weight: 800; color: #fbbf24; display: block; margin-bottom: 6px; text-transform: uppercase;">
-                    <i class="fas fa-file-signature me-1"></i> 1° Resolución N° (Verifica en BD y trae Titular + Hijo + Escuela):
+                    <i class="fas fa-folder-open me-1"></i> 1° Pre-Expediente N° (Mesa de Entrada APOS — Trae Padre + Hijo):
                 </label>
                 <div class="input-group-voice" style="margin-bottom: 0;">
-                    <input type="text" id="comunResolucionSearchInput" class="input-dark shadow-sm" style="border-color: #f59e0b; font-weight: 700; color: #fef08a;" placeholder="🔢 Escribir N° Resolución (Ej: 599, 611, 999 o RES-...)" oninput="filtrarResolucionComun()">
+                    <input type="text" id="comunResolucionSearchInput" class="input-dark shadow-sm" style="border-color: #f59e0b; font-weight: 700; color: #fef08a;" placeholder="🔢 Escribir N° Pre-Expediente (Ej: PRE-EXP-2026-0001 o DNI)..." oninput="filtrarResolucionComun()">
                 </div>
                 <div id="listaResolucionesComun" style="display: none; max-height: 230px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid #f59e0b; margin-top: 8px; padding: 8px;">
                 </div>
@@ -630,7 +587,7 @@
 
             <!-- 2° Buscador de Titular -->
             <div class="input-group-voice" style="margin-bottom: 12px;">
-                <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="🔍 2° Buscar Titular / Padre (o se autocompleta por Resolución)..." oninput="filtrarTitularComun()">
+                <input type="text" id="comunTitularInput" class="input-dark shadow-sm" placeholder="🔍 2° Buscar Titular / Padre (o se autocompleta por Pre-Expediente)..." oninput="filtrarTitularComun()">
             </div>
             <div id="listaTitularesComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
@@ -649,16 +606,16 @@
             <div id="listaEscuelasComun" style="display: none; max-height: 220px; overflow-y: auto; background: #0f172a; border-radius: 12px; border: 1px solid var(--tarjeta-borde); margin-bottom: 15px; padding: 8px;">
             </div>
 
-            <!-- Formulario Datos del Alumno y Resolución APOS -->
+            <!-- Formulario Datos del Alumno y Pre-Expediente APOS -->
             <div id="formDatosAlumno" style="display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #38bdf8; margin-bottom: 15px;">
                 <h4 style="margin: 0 0 10px 0; font-size: 0.92rem; color: #38bdf8;">
-                    <i class="fas fa-file-signature me-1"></i> Resolución APOS, Horarios y Vínculo con Padre
+                    <i class="fas fa-folder-open me-1"></i> Pre-Expediente APOS, Horarios (Máx. 3 hs/día) y Conformidad
                 </h4>
 
                 <label style="font-size: 0.75rem; color: #fbbf24; font-weight: 700; display: block; margin-bottom: 4px;">
-                    N° de Resolución APOS (si aún no la tiene, dejar vacío para pedir autorización al Auditor):
+                    N° de Pre-Expediente (Mesa de Entrada APOS — La Resolución Oficial Secuenciada se otorga al finalizar Auditoría &rarr; Área 1 &rarr; Área 2):
                 </label>
-                <input type="text" id="alumnoResolucionInput" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; border-color: #f59e0b; font-weight: 700;" placeholder="Ej: 505/25 o RES-APOS-2026 (Opcional)">
+                <input type="text" id="alumnoResolucionInput" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; border-color: #f59e0b; font-weight: 700;" placeholder="Ej: PRE-EXP-2026-0001 (Se genera automático si está vacío)">
 
                 <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px; margin-bottom: 10px;">
                     <div>
@@ -681,8 +638,8 @@
                 <input type="text" id="alumnoCUD" class="input-dark mb-2" style="width: 100%; margin-bottom: 10px; padding: 10px; display: none;" placeholder="Nro de CUD (Opcional)">
 
                 <div id="bannerEstadoNotificacionAuditor" class="mt-2" style="font-size: 0.8rem; background: rgba(16, 185, 129, 0.15); padding: 12px; border-radius: 8px; border-left: 3px solid #10b981; color: #d1fae5;">
-                    <div class="text-warning mb-1" style="font-weight: 700;"><i class="fas fa-bell me-1"></i> Notificación Automática al Auditor APOS:</div>
-                    <div>Al señalar a <strong id="lblTitularReq" class="text-white">el Titular</strong> y su hijo en <strong id="lblEscuelaReq" class="text-white">la Escuela</strong>, el Auditor ya recibe en vivo la vinculación <strong>Alumno + Padre + Docente + Resolución</strong>.</div>
+                    <div class="text-warning mb-1" style="font-weight: 700;"><i class="fas fa-sitemap me-1"></i> Circuito Oficial APOS (Pre-Expediente &rarr; Resolución Secuenciada):</div>
+                    <div>Al confirmar los datos de <strong id="lblTitularReq" class="text-white">el Titular</strong> y su hijo en <strong id="lblEscuelaReq" class="text-white">la Escuela</strong>, el Pre-Expediente pasa en vivo a <strong>Auditoría Docente &rarr; Área N° 1 &rarr; Área N° 2</strong> para emitir la <strong>Resolución Oficial Secuenciada</strong> y habilitar tu cobro.</div>
                 </div>
             </div>
         </div>
@@ -739,7 +696,7 @@
         </div>
 
         <button class="btn-primary-dark mt-3" id="btnConfirmarVinculoAuditor" onclick="cerrarYCrear()">
-            <i class="fas fa-bell me-2"></i> Vincular Alumno con Resolución y Notificar al Auditor
+            <i class="fas fa-check-double me-2"></i> Confirmar Pre-Expediente y Enviar a Auditoría &rarr; Área 1 &rarr; Área 2
         </button>
     </div>
 
@@ -834,8 +791,29 @@
         </div>
 
         <p style="font-size: 0.85rem; color: var(--gris-texto); margin-bottom: 15px;">
-            Tu perfil requiere adjuntar la siguiente documentación (exigido por Auditoría)
+            Tabla de requerimientos obligatorios del Docente para poder operar y recibir Orden de Pago en Contabilidad:
         </p>
+
+        <!-- REQUERIMIENTO EXCLUYENTE: NÚMERO DE CBU BANCARIO PARA CONTABILIDAD / ORDEN DE PAGO -->
+        <div style="background: rgba(16, 185, 129, 0.12); border: 1.5px solid #10b981; border-radius: 14px; padding: 14px; margin-bottom: 15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:0.82rem; font-weight:800; color:#34d399; text-transform:uppercase;">
+                    <i class="fas fa-university me-1"></i> 1. Número de CBU Bancario (Para Orden de Pago)
+                </span>
+                <span id="badgeEstadoCbuPwa" class="badge {{ !empty($docenteReal->cbu) ? 'bg-success' : 'bg-warning text-dark' }}" style="font-size:0.68rem;">
+                    {{ !empty($docenteReal->cbu) ? 'CBU HABILITADO' : 'REQUERIDO PARA OPERAR' }}
+                </span>
+            </div>
+            <p style="font-size:0.74rem; color:#cbd5e1; margin:0 0 8px 0;">
+                Sin el CBU de 22 dígitos registrado no se puede cerrar el circuito hacia <strong>Contabilidad / Gobierno (e-SIDIF)</strong>.
+            </p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <input type="text" id="inputCbuDocentePwa" maxlength="22" class="input-dark" style="padding:10px 12px; font-family:monospace; font-size:0.88rem; font-weight:700; color:#fef08a; border-color:#10b981;" value="{{ $docenteReal->cbu ?? '3090001901000048291015' }}" placeholder="Ingresar los 22 dígitos del CBU...">
+                <button type="button" onclick="guardarCbuDocentePwa()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:10px; padding:10px 14px; font-size:0.78rem; font-weight:800; cursor:pointer;">
+                    <i class="fas fa-save me-1"></i> Guardar CBU
+                </button>
+            </div>
+        </div>
 
         <!-- Lista Integrada de Requisitos -->
         <div id="listaMisRequisitosContenedor">
@@ -1831,24 +1809,13 @@
                             }
                         }
 
-                        if (data.en_camino_count > pwaLastEnCaminoCount && data.en_camino.length > 0) {
-                            const nueva = data.en_camino[0];
-                            if (typeof window.integraModalElegante === 'function') {
-                                window.integraModalElegante({
-                                    tipo: 'info',
-                                    badge: 'NUEVA RESOLUCIÓN EN CAMINO (APOS)',
-                                    titulo: `Resolución ${nueva.nro_resolucion} Recibida en Vivo`,
-                                    mensaje: `Administración APOS acaba de emitir la Resolución ${nueva.nro_resolucion} para el alumno ${nueva.alumno_nombre} (Padre: ${nueva.titular_nombre}). Ya apareció en tu pantalla lista para tomar.`,
-                                    autoCerrarMs: 5500
-                                });
-                            }
-                        } else if (data.monto_cobrado > pwaLastMontoCobrado) {
+                        if (data.monto_cobrado > pwaLastMontoCobrado) {
                             if (typeof window.integraModalElegante === 'function') {
                                 window.integraModalElegante({
                                     tipo: 'success',
-                                    badge: 'VISTO BUENO AUDITOR + JEFE DE ÁREA',
-                                    titulo: '¡Trámite Aprobado y Acreditado en Vivo!',
-                                    mensaje: `El Auditor y el Jefe de Área acaban de dar el Visto Bueno. Tu saldo aprobado subió automáticamente a $${data.monto_cobrado_fmt}.`,
+                                    badge: 'EXPEDIENTE APROBADO EN TODAS LAS ÁREAS',
+                                    titulo: '¡Resolución Emitida y Saldo Acreditado en Vivo!',
+                                    mensaje: `Se completaron las validaciones de Auditoría, Área N° 1 y Área N° 2. Tu saldo aprobado subió automáticamente a $${data.monto_cobrado_fmt}.`,
                                     autoCerrarMs: 5500
                                 });
                             }
@@ -1860,6 +1827,68 @@
                 })
                 .catch(() => {});
         }, 4000);
+
+        function abrirModalConBusquedaPreRes() {
+            const q = (document.getElementById('quickSearchPreResInput')?.value || '').trim();
+            abrirModalNuevo();
+            cambiarMetodo('comun');
+            const inputRes = document.getElementById('comunResolucionSearchInput');
+            if (inputRes) {
+                inputRes.value = q || 'PRE-EXP';
+                filtrarResolucionComun();
+                inputRes.focus();
+            }
+        }
+
+        function guardarCbuDocentePwa() {
+            const input = document.getElementById('inputCbuDocentePwa');
+            const raw = (input ? input.value : '').replace(/\D/g, '');
+            if (raw.length !== 22) {
+                if (typeof window.integraModalElegante === 'function') {
+                    window.integraModalElegante({
+                        tipo: 'warning',
+                        badge: 'VALIDACIÓN DE CBU BANCARIO',
+                        titulo: 'El CBU debe tener 22 dígitos',
+                        mensaje: 'Ingresá los 22 números de tu CBU bancario para habilitar la Orden de Pago en Contabilidad.',
+                        autoCerrarMs: 4500
+                    });
+                }
+                return;
+            }
+
+            fetch("{{ url('/app-docente/guardar-cbu') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    docente_id: pwaDocenteActivoId,
+                    cbu: raw
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    const badge = document.getElementById('badgeEstadoCbuPwa');
+                    if (badge) {
+                        badge.className = 'badge bg-success';
+                        badge.innerText = 'CBU HABILITADO';
+                    }
+                    if (typeof window.integraModalElegante === 'function') {
+                        window.integraModalElegante({
+                            tipo: 'success',
+                            badge: 'REQUERIMIENTO DOCENTE CUMPLIDO',
+                            titulo: 'CBU Bancario Validado para Contabilidad',
+                            mensaje: data.message,
+                            autoCerrarMs: 5000
+                        });
+                    }
+                }
+            })
+            .catch(() => {});
+        }
     </script>
 
     @include('partials.modal_elegante_integra')

@@ -175,26 +175,26 @@
     </div>
 
     <!-- ============================================================================================ -->
-    <!-- CENTRO EN VIVO APOS: GENERAR RESOLUCIÓN (ENVIAR EN CAMINO A DOCENTE) Y CADENA DE VISTO BUENO -->
+    <!-- CENTRO EN VIVO APOS: MESA DE ENTRADA (PRE-RESOLUCIÓN) Y CIRCUITO AUDITORÍA -> ÁREA 1 -> ÁREA 2 -> CONTABILIDAD -->
     <!-- ============================================================================================ -->
     <div class="row g-4 mb-4">
-        <!-- Columna Izquierda: Emitir Nueva Resolución desde Administración APOS -->
+        <!-- Columna Izquierda: Mesa de Entrada (Generar Pre-Resolución con o sin Docente) -->
         <div class="col-lg-5">
             <div class="content-card h-100 border-0 shadow-sm" style="border-top: 4px solid #0284c7 !important;">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h5 class="fw-bold mb-0 text-dark">
-                        <i class="fas fa-file-signature text-primary me-2"></i> 1. Emitir Resolución APOS (En Camino)
+                        <i class="fas fa-inbox text-primary me-2"></i> 1. Mesa de Entrada: Generar Pre-Resolución
                     </h5>
-                    <span class="badge bg-info text-dark fw-bold rounded-pill">Impacta en Vivo en App Docente</span>
+                    <span class="badge bg-info text-dark fw-bold rounded-pill">Etapa 1 del Circuito</span>
                 </div>
                 <p class="text-muted small mb-3">
-                    Cargá aquí la Resolución solicitada por el Padre Titular para su hijo/a. Al guardarla, le aparece automáticamente <strong>"En Camino"</strong> a la maestra en su celular con todos los datos listos para tomar.
+                    El padre solicita el trámite para su hijo/a. Si aún no habló con ningún docente, dejá <strong>"Sin Docente aún"</strong>: cuando el padre hable con la maestra y le pase el N° de Pre-Resolución, ella lo busca en su App y se lo asigna a sí misma.
                 </p>
 
                 <form action="{{ route('auditor.resolucion.vincular') }}" method="POST">
                     @csrf
                     <div class="mb-2">
-                        <label class="form-label fw-bold small text-muted mb-1">Padre Titular y Alumno / Paciente (Hijo) *</label>
+                        <label class="form-label fw-bold small text-muted mb-1">1° Padre Titular y Niño / Alumno (Padrón APOS) *</label>
                         <select name="alumno_id" class="form-select form-select-sm bg-light fw-semibold" required>
                             <option value="">-- Seleccionar Titular y Alumno Afiliado APOS --</option>
                             @foreach($alumnosApos ?? [] as $al)
@@ -206,11 +206,11 @@
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label fw-bold small text-muted mb-1">Docente Integradora Asignada *</label>
-                        <select name="docente_id" class="form-select form-select-sm bg-light fw-semibold" required>
-                            <option value="">-- Seleccionar Docente Integradora --</option>
+                        <label class="form-label fw-bold small text-muted mb-1">2° Docente Integradora (Opcional en Mesa de Entrada)</label>
+                        <select name="docente_id" class="form-select form-select-sm bg-light fw-semibold">
+                            <option value="">🔓 SIN DOCENTE AÚN (El padre le dará el N° a la maestra para que se lo asigne)</option>
                             @foreach($docentesApos ?? [] as $docItem)
-                                <option value="{{ $docItem->id }}" {{ $loop->first ? 'selected' : '' }}>
+                                <option value="{{ $docItem->id }}">
                                     {{ $docItem->nombre_completo }} (DNI {{ $docItem->dni ?? 'S/D' }})
                                 </option>
                             @endforeach
@@ -219,8 +219,8 @@
 
                     <div class="row g-2 mb-2">
                         <div class="col-7">
-                            <label class="form-label fw-bold small text-muted mb-1">N° de Resolución APOS</label>
-                            <input type="text" name="nro_resolucion" class="form-control form-control-sm fw-bold border-warning" placeholder="Ej: RES-1590 (o autogenerar)">
+                            <label class="form-label fw-bold small text-muted mb-1">N° Pre-Resolución / Pre-Expediente</label>
+                            <input type="text" name="nro_pre_expediente" class="form-control form-control-sm fw-bold border-warning" placeholder="Automático (Ej: PRE-EXP-2026-0001)">
                         </div>
                         <div class="col-5">
                             <label class="form-label fw-bold small text-warning mb-1">Horas por Día (Máx. 3) *</label>
@@ -230,7 +230,7 @@
 
                     <div class="row g-2 mb-3">
                         <div class="col-7">
-                            <label class="form-label fw-bold small text-muted mb-1">Escuela (Opcional)</label>
+                            <label class="form-label fw-bold small text-muted mb-1">Escuela del Niño</label>
                             <select name="escuela_id" class="form-select form-select-sm bg-light">
                                 <option value="">-- Conservar escuela del alumno --</option>
                                 @foreach($escuelasApos ?? [] as $escItem)
@@ -239,115 +239,132 @@
                             </select>
                         </div>
                         <div class="col-5">
-                            <label class="form-label fw-bold small text-muted mb-1">Estado Inicial</label>
+                            <label class="form-label fw-bold small text-muted mb-1">Etapa Inicial</label>
                             <select name="accion_inmediata" class="form-select form-select-sm bg-light fw-bold">
-                                <option value="en_camino">📬 Enviar "En Camino"</option>
-                                <option value="pendiente">⏳ En Bandeja Auditor</option>
-                                <option value="aprobar_ya">✅ Aprobada Final</option>
+                                <option value="mesa_entrada">📥 Mesa de Entrada</option>
+                                <option value="pendiente">⏳ En Auditoría</option>
+                                <option value="aprobar_ya">✅ Emitir Resolución</option>
                             </select>
                         </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm">
-                        <i class="fas fa-paper-plane me-1"></i> Emitir Resolución y Enviar a la Docente en Vivo
+                        <i class="fas fa-folder-plus me-1"></i> Generar Pre-Resolución en Mesa de Entrada
                     </button>
                 </form>
             </div>
         </div>
 
-        <!-- Columna Derecha: Tablero en Tiempo Real de Resoluciones y Cadena de Aprobación (Auditor + Jefe de Área) -->
+        <!-- Columna Derecha: Tablero en Tiempo Real del Circuito Completo (Auditoría -> Área 1 -> Área 2 -> Contabilidad) -->
         <div class="col-lg-7">
             <div class="content-card h-100 border-0 shadow-sm" style="border-top: 4px solid #10b981 !important;">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                     <div>
                         <h5 class="fw-bold mb-0 text-dark">
-                            <i class="fas fa-satellite-dish text-success me-2"></i> 2. Circuito en Vivo: Docente &rarr; Auditor &rarr; Jefe de Área
+                            <i class="fas fa-sitemap text-success me-2"></i> 2. Circuito: Mesa de Entrada &rarr; Auditoría &rarr; Área 1 &rarr; Área 2 &rarr; Contabilidad
                         </h5>
-                        <small class="text-muted">Se refleja solo en tiempo real. Con el Visto Bueno del Auditor y del Jefe de Área el trámite queda Finalizado.</small>
+                        <small class="text-muted">Cada sector tilda su tabla de procedimientos ("Procedimiento de validación"). Al cerrarse Área 2 se emite la Resolución Secuenciada y pasa a Contabilidad.</small>
                     </div>
-                    <a href="{{ url('/app-docente') }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">
-                        <i class="fas fa-mobile-screen-button me-1"></i> Abrir App Docente al lado
-                    </a>
+                    <div class="d-flex gap-1">
+                        <a href="{{ route('expedientes.flujo') }}" class="btn btn-sm btn-warning text-dark rounded-pill fw-bold">
+                            <i class="fas fa-table me-1"></i> Tablas por Área
+                        </a>
+                        <a href="{{ url('/app-docente') }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">
+                            <i class="fas fa-mobile-screen-button me-1"></i> App Docente
+                        </a>
+                    </div>
                 </div>
 
                 <div class="input-group input-group-sm mb-3">
                     <span class="input-group-text bg-warning text-dark border-warning fw-bold"><i class="fas fa-search me-1"></i> Buscar en Vivo</span>
-                    <input type="text" id="buscadorCircuitoTenant" class="form-control border-warning fw-semibold" placeholder="Filtrar por N° Resolución, Padre Titular, Alumno o Docente (resalta en amarillo)...">
+                    <input type="text" id="buscadorCircuitoTenant" class="form-control border-warning fw-semibold" placeholder="Filtrar por N° Pre-Resolución, Padre Titular, Alumno o Docente (resalta en amarillo)...">
                 </div>
 
                 <div style="max-height: 360px; overflow-y: auto;">
                     <table class="table table-sm table-hover align-middle mb-0" id="tablaCircuitoTenant">
                         <thead class="table-light small text-uppercase">
                             <tr>
-                                <th>Resolución / Alumno / Padre</th>
+                                <th>Pre-Resolución / Niño / Padre</th>
                                 <th>Docente / Escuela</th>
-                                <th class="text-center">Circuito de Aprobación</th>
-                                <th class="text-end">Visto Bueno</th>
+                                <th class="text-center">Estado por Sector</th>
+                                <th class="text-end">Tilde de Validación</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($expedientesEnVivo ?? [] as $expItem)
                                 @php
                                     $titObj = $expItem->titular ?? ($expItem->alumno ? $expItem->alumno->titular : null);
-                                    $vbAud = (bool)($expItem->visto_bueno_auditor ?? ($expItem->estado_auditoria === 'aprobado'));
-                                    $vbJef = (bool)($expItem->visto_bueno_jefe ?? ($expItem->estado_auditoria === 'aprobado'));
+                                    $vbAud = (bool)($expItem->visto_bueno_auditor ?? false);
+                                    $okA1 = (bool)($expItem->ok_area_1 ?? false);
+                                    $okA2 = (bool)($expItem->ok_area_2 ?? ($expItem->estado_auditoria === 'aprobado'));
+                                    $okCont = (bool)($expItem->ok_contabilidad ?? false);
+                                    $preCod = $expItem->codigo_pre_expediente;
                                 @endphp
                                 <tr>
                                     <td>
-                                        <span class="badge bg-warning text-dark fw-bold mb-1">
-                                            <i class="fas fa-file-signature me-1"></i>{{ $expItem->nro_resolucion ?: 'SIN RES.' }}
+                                        <span class="badge bg-dark text-warning fw-bold font-monospace mb-1">
+                                            <i class="fas fa-folder-open me-1"></i>{{ $preCod }}
                                         </span>
+                                        @if($expItem->tieneResolucionOficial())
+                                            <span class="badge bg-success fw-bold font-monospace mb-1">
+                                                {{ $expItem->nro_resolucion }}
+                                            </span>
+                                        @endif
                                         <div class="fw-bold text-dark small">{{ $expItem->alumno->nombre_completo ?? 'Alumno' }}</div>
                                         <div class="text-muted" style="font-size: 0.72rem;">
                                             Padre: <strong>{{ $titObj->nombre_completo ?? 'Titular APOS' }}</strong> (Af. {{ $titObj->nro_afiliado ?? 'S/D' }})
                                         </div>
                                     </td>
                                     <td class="small">
-                                        <div class="fw-bold text-primary">{{ $expItem->docente->nombre_completo ?? 'Docente APOS' }}</div>
+                                        <div class="fw-bold {{ $expItem->docente ? 'text-primary' : 'text-danger' }}">
+                                            {{ $expItem->docente ? $expItem->docente->nombre_completo : 'Sin Docente (Disponible por N°)' }}
+                                        </div>
                                         <div class="text-muted" style="font-size: 0.72rem;">{{ $expItem->escuela->nombre_completo ?? 'Escuela Provincial' }}</div>
                                     </td>
                                     <td class="text-center">
-                                        @if($expItem->estado_auditoria === 'en_camino')
-                                            <span class="badge bg-info text-dark"><i class="fas fa-paper-plane me-1"></i>En Camino a Docente</span>
-                                        @elseif($expItem->estado_auditoria === 'aprobado')
-                                            <span class="badge bg-success"><i class="fas fa-check-double me-1"></i>TRÁMITE FINALIZADO</span>
-                                        @else
-                                            <div class="d-flex flex-column gap-1 align-items-center">
-                                                <span class="badge {{ $vbAud ? 'bg-success' : 'bg-warning text-dark' }}" style="font-size: 0.66rem;">
-                                                    Auditor: {{ $vbAud ? 'OK ✓' : 'Pendiente' }}
-                                                </span>
-                                                <span class="badge {{ $vbJef ? 'bg-success' : 'bg-warning text-dark' }}" style="font-size: 0.66rem;">
-                                                    Jefe Área: {{ $vbJef ? 'OK ✓' : 'Pendiente' }}
-                                                </span>
-                                            </div>
-                                        @endif
+                                        <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                            <span class="badge {{ $vbAud ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark' }}" style="font-size: 0.64rem;">
+                                                Aud: {{ $vbAud ? '✓' : '⏳' }}
+                                            </span>
+                                            <span class="badge {{ $okA1 ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark' }}" style="font-size: 0.64rem;">
+                                                Área 1: {{ $okA1 ? '✓' : '⏳' }}
+                                            </span>
+                                            <span class="badge {{ $okA2 ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark' }}" style="font-size: 0.64rem;">
+                                                Área 2: {{ $okA2 ? '✓' : '⏳' }}
+                                            </span>
+                                            <span class="badge {{ $okCont ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark' }}" style="font-size: 0.64rem;">
+                                                Contab: {{ $okCont ? '✓' : '⏳' }}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="text-end">
-                                        @if($expItem->estado_auditoria !== 'aprobado')
-                                            <form action="{{ route('auditor.expedientes.aprobar', $expItem->id) }}" method="POST" class="d-inline-flex gap-1">
-                                                @csrf
-                                                @if(!$vbAud)
-                                                    <button type="submit" name="rol_aprobacion" value="auditor" class="btn btn-sm btn-outline-primary py-0 px-2 fw-bold" style="font-size: 0.7rem;" title="Dar Visto Bueno del Auditor">
-                                                        OK Auditor
-                                                    </button>
-                                                @endif
-                                                @if(!$vbJef)
-                                                    <button type="submit" name="rol_aprobacion" value="jefe" class="btn btn-sm btn-outline-info py-0 px-2 fw-bold" style="font-size: 0.7rem;" title="Dar Visto Bueno del Jefe de Área">
-                                                        OK Jefe
-                                                    </button>
-                                                @endif
-                                                <button type="submit" name="rol_aprobacion" value="ambos" class="btn btn-sm btn-success py-0 px-2 fw-bold" style="font-size: 0.7rem;" title="Dar Visto Bueno Auditor + Jefe de Área y Finalizar">
-                                                    <i class="fas fa-check-double"></i> Finalizar
+                                        <form action="{{ route('auditor.expedientes.aprobar', $expItem->id) }}" method="POST" class="d-inline-flex gap-1 flex-wrap justify-content-end">
+                                            @csrf
+                                            @if(!$vbAud)
+                                                <button type="submit" name="rol_aprobacion" value="auditor" class="btn btn-sm btn-warning text-dark py-0 px-2 fw-bold" style="font-size: 0.68rem;">
+                                                    ☑️ Tildar Auditoría
                                                 </button>
-                                            </form>
-                                        @else
-                                            <span class="text-success fw-bold small"><i class="fas fa-check-circle me-1"></i>Listo p/ Liquidar</span>
-                                        @endif
+                                            @elseif(!$okA1)
+                                                <button type="submit" name="rol_aprobacion" value="area_1" class="btn btn-sm btn-info text-dark py-0 px-2 fw-bold" style="font-size: 0.68rem;">
+                                                    ☑️ Tildar Área 1
+                                                </button>
+                                            @elseif(!$okA2)
+                                                <button type="submit" name="rol_aprobacion" value="area_2" class="btn btn-sm btn-danger py-0 px-2 fw-bold" style="font-size: 0.68rem;">
+                                                    ☑️ Tildar Área 2 (Emitir Res.)
+                                                </button>
+                                            @elseif(!$okCont)
+                                                <button type="submit" name="rol_aprobacion" value="contabilidad" class="btn btn-sm btn-success py-0 px-2 fw-bold" style="font-size: 0.68rem;">
+                                                    💳 Tildar Contabilidad (Orden Pago)
+                                                </button>
+                                            @else
+                                                <span class="text-success fw-bold small"><i class="fas fa-check-double me-1"></i>Orden de Pago OK</span>
+                                            @endif
+                                        </form>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-3 small">No hay resoluciones registradas aún.</td>
+                                    <td colspan="4" class="text-center text-muted py-3 small">No hay pre-resoluciones registradas aún.</td>
                                 </tr>
                             @endforelse
                         </tbody>
